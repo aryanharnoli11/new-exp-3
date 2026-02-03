@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewporct" content="width=device-width, initial-scale=1.0">
     <title>Lab Control Panel</title>
     <script src="https://unpkg.com/jsplumb/dist/js/jsplumb.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -337,14 +337,13 @@
       <span class="components-title">Components</span>
 
       <div class="components-actions">
-       <button
-  id="enableAudioBtn"
-  class="comp-btn"
-  data-components-audio
-  aria-pressed="false"
->
-  <span data-components-audio-label>Tap to enable audio</span>
-</button>
+   <button
+    id="componentsAudioBtn"
+    class="comp-btn"
+    aria-pressed="false"
+  >
+    Play Audio
+  </button>
 
 <button
   id="skipComponentsBtn"
@@ -511,5 +510,40 @@ window.addEventListener("message", (event) => {
     }
   });
 </script>
+<script>
+const audioBtn = document.getElementById("componentsAudioBtn");
+
+audioBtn.addEventListener("click", () => {
+  const isPlaying = audioBtn.getAttribute("aria-pressed") === "true";
+
+  if (isPlaying) {
+    // STOP AUDIO
+    stopComponentAudio();
+    audioBtn.textContent = "Play Audio";
+    audioBtn.setAttribute("aria-pressed", "false");
+
+    // sync iframe button state
+    const iframe = document.getElementById("componentsFrame");
+    iframe?.contentWindow?.postMessage(
+      { type: "component-audio-stop" },
+      "*"
+    );
+
+  } else {
+    // PLAY AUDIO
+    playComponentAudio();
+    audioBtn.textContent = "Stop Audio";
+    audioBtn.setAttribute("aria-pressed", "true");
+
+    // sync iframe button state
+    const iframe = document.getElementById("componentsFrame");
+    iframe?.contentWindow?.postMessage(
+      { type: "component-audio-play" },
+      "*"
+    );
+  }
+});
+</script>
+
 </body>
 </html>
