@@ -1711,3 +1711,19 @@ img {
     height: 75vh;
   }
 }
+/* Main chatbot box */
+.chatbot-panel {
+  border-radius: 22px;          /* round outer corners */
+  overflow: hidden;             /* VERY IMPORTANT */
+}
+
+/* Header already rounded by parent, but safe */
+.chatbot-panel-header {
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+}
+
+/* Chatbot iframe (inner content) */
+.chatbot-panel iframe {
+  border-radius: 0 0 22px 22px;  /* bottom corners */
+}
