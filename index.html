@@ -544,6 +544,96 @@ audioBtn.addEventListener("click", () => {
   }
 });
 </script>
+<!-- =========================
+     CHATBOT PANEL
+========================= -->
+<div class="chatbot-panel" id="chatbotPanel" data-chat-url="https://vlab-exp-2.netlify.app/">
+
+  <div class="chatbot-panel-header">
+    <div>
+      <p class="chatbot-panel-title">Virtual Lab Assistant</p>
+      <p class="chatbot-panel-caption">Ask anything about this experiment</p>
+    </div>
+
+    <button
+      type="button"
+      class="chatbot-panel-close"
+      id="chatbotCloseBtn"
+      aria-label="Close chatbot"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="chatbot-panel-body">
+    <div class="chatbot-panel-placeholder">
+      Loading assistant...
+    </div>
+    <iframe
+      id="chatbotIframe"
+      title="Chatbot assistant"
+      referrerpolicy="no-referrer"
+      scrolling="no"
+    ></iframe>
+  </div>
+</div>
+
+<!-- Chatbot notification sound (optional) -->
+<audio id="chatbot-notification-audio" preload="auto">
+  <source src="audio/live-chat-353605.mp3" type="audio/mpeg">
+</audio>
+<script>
+(function initChatbot() {
+  const launcher = document.getElementById("chatbotLauncher");
+  const panel = document.getElementById("chatbotPanel");
+  const closeBtn = document.getElementById("chatbotCloseBtn");
+  const iframe = document.getElementById("chatbotIframe");
+  const placeholder = panel.querySelector(".chatbot-panel-placeholder");
+  const chatUrl = panel.dataset.chatUrl;
+  const notifyAudio = document.getElementById("chatbot-notification-audio");
+
+  if (!launcher || !panel || !closeBtn || !iframe) return;
+
+  let loaded = false;
+  let notified = false;
+
+  function openChatbot() {
+    panel.classList.add("open");
+
+    if (!loaded && chatUrl) {
+      placeholder.style.display = "flex";
+      iframe.src = chatUrl;
+
+      iframe.addEventListener("load", () => {
+        iframe.classList.add("visible");
+        placeholder.style.display = "none";
+        loaded = true;
+      }, { once: true });
+    }
+
+    if (!notified && notifyAudio) {
+      notified = true;
+      try {
+        notifyAudio.currentTime = 0;
+        notifyAudio.play().catch(()=>{});
+      } catch {}
+    }
+  }
+
+  function closeChatbot() {
+    panel.classList.remove("open");
+  }
+
+  launcher.addEventListener("click", openChatbot);
+  closeBtn.addEventListener("click", closeChatbot);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel.classList.contains("open")) {
+      closeChatbot();
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
