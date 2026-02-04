@@ -1,3 +1,4 @@
+
  /* Themed A/B buttons on MCB */
  .point-A,
  .point-B,
@@ -93,47 +94,62 @@
    left:135px;
    top:235px;
  }
- #pointI {
-   position: absolute;
-   left:55px;
-   top:192px;
- }
- #pointJ {
-   position: absolute;
-   left:165px;
-   top:192px;
- 
- }
- #pointL {
-   position: absolute;
-   left:302px;
-   top:196px;
- 
- }
- #pointM {
-   position: absolute;
-   left:421px;
-   top:196px;
- 
- }
+/* Meter connectors (I, J, L, M) and generator connectors (C, D)
+   Align the hidden jsPlumb endpoints with the visible buttons so
+   wires originate exactly from the button centers. */
+#pointI {
+  position: absolute;
+  left:53px;
+  top: 195px;
+  transform: translate(-50%, -50%);
+}
 
-  #pointC {
-   position: absolute;
-   left:85px;
-   top:390px;
- 
- }
+#pointJ {
+  position: absolute;
+  left: 165px;
+  top: 195px;
+  transform: translate(-50%, -50%);
+}
 
-  #pointD {
-   position: absolute;
-   left:293px;
-   top: 390px;
- 
- }
+#pointL {
+  position: absolute;
+  left: 300px;
+  top: 198px;
+  transform: translate(-50%, -50%);
+  transform-box: border-box;
+  z-index: 9999;
+  pointer-events: auto;
+  will-change: auto;
+}
+
+#pointM {
+  position: absolute;
+  left: 420px;
+  top: 198px;
+  transform: translate(-50%, -50%);
+  transform-box: border-box;
+  z-index: 9999;
+  pointer-events: auto;
+  will-change: auto;
+}
+
+#pointC {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  transform: translate(-50%, -50%);
+}
+
+#pointD {
+  position: absolute;
+  left: 227px;
+  top: 15px;
+  transform: translate(-50%, -50%);
+}
 
   #pointK {
    position: absolute;
-   left:17px;
+   left:15px;
    top:226px;
  
  }
@@ -218,63 +234,69 @@
    top: 258px;
    font-weight: bold;
  }
- .point-I{
-   position: absolute;
-   width: 24px;
-   height: 24px;
-   left: 39px;
-   top: 205px;
-   font-weight: bold;
- }
- .point-J{
-   position: absolute;
-   width: 24px;
-   height: 24px;
-   left: 149px;
-   top: 205px;
-   font-weight: bold;
- }
- .point-L{
-   position: absolute;
-   width: 24px;
-   height: 24px;
-   left:286px;
-   top: 208px;
-   font-weight: bold;
- }
- .point-M{
-   position: absolute;
-   width: 24px;
-   height: 24px;
-   left: 405px;
-   top: 208px;
-   font-weight: bold;
- }
+.point-I{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 49px;
+  top: 220px;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
+.point-J{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 160px;
+  top: 220px;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
+.point-L{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 298px;
+  top: 225px;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
+.point-M{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 415px;
+  top: 225px;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
 
- .point-C{
-   position: absolute;
-   width: 24px;
-   height: 24px;
-   left:100px;
-   top:378px;
-   font-weight: bold;
- }
+.point-C{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 40px;
+  top: 15px;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
 
- .point-D{
-   position: absolute;
-   width: 24px;
-   height: 24px;
-   left:255px;
-   top:378px;
-   font-weight: bold;
- }
+.point-D{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 202px;
+  top: 15px;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
 
  .point-K{
    position: absolute;
    width: 24px;
    height: 24px;
-   left:28px;
-   top:211px;
+   left:24px;
+   top:212px;
    font-weight: bold;
  }
 
@@ -322,3 +344,4 @@
    font-weight: bold;
  }
   
+

@@ -1787,6 +1787,24 @@ if (graphBtn) {
   }
 
 
+/* =====================================================
+   ENDPOINT HIGHLIGHT HELPERS (ADD HERE)
+===================================================== */
+function clearEndpointHighlight() {
+  document
+    .querySelectorAll(".endpoint-highlight")
+    .forEach(el => el.classList.remove("endpoint-highlight"));
+}
+
+function highlightEndpoints(fromId, toId) {
+  clearEndpointHighlight();
+
+  const fromEl = document.getElementById(fromId);
+  const toEl = document.getElementById(toId);
+
+  if (fromEl) fromEl.classList.add("endpoint-highlight");
+  if (toEl) toEl.classList.add("endpoint-highlight");
+}
 
 
 /* =====================================================
@@ -1834,9 +1852,16 @@ if (graphBtn) {
   ];
 
   function speakCurrentStep() {
-    if (!guideActive) return;
-    labSpeech.speak(steps[currentStep].text);
-  }
+  if (!guideActive) return;
+
+  const step = steps[currentStep];
+
+  // 🔵 HIGHLIGHT CURRENT ENDPOINTS
+  highlightEndpoints(step.from, step.to);
+
+  labSpeech.speak(step.text);
+}
+
 
 function getFirstIncompleteStepIndex() {
   const currentConnections = jsPlumb.getAllConnections();
@@ -1982,7 +2007,7 @@ function stopGuide({ resetUI = false } = {}) {
 
   guideActive = false;
   currentStep = 0;
-
+ clearEndpointHighlight();
   speechSynthesis.cancel();
 
   if (resetUI) {
@@ -2032,6 +2057,8 @@ jsPlumb.bind("connection", function (info) {
 
   // ✅ CORRECT CONNECTION
   // ✅ CORRECT CONNECTION
+  clearEndpointHighlight();
+
 currentStep++;
 
 // 🎉 ALL CONNECTIONS COMPLETED
@@ -2230,8 +2257,6 @@ speakCurrentStep();
     setTimeout(() => open(), 250);
   });
 })();
-
-
 })();
 })();
 });

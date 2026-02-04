@@ -1,4 +1,3 @@
-
 *{
 
     box-sizing: border-box;
@@ -202,7 +201,6 @@ h3 {
     height: 280px;
     overflow: hidden;
     padding-bottom: clamp(2px, 0.2vw, 2px);
-     
 }
 .meters {
     position: absolute;
@@ -242,13 +240,12 @@ h3 {
 #ammter1-label{
     position: absolute;
     bottom: -44px;        /* distance below meter */
-    left: 13.7%;
+    left: 17%;
     transform: translateX(-50%);
 
     font-size: 12px;
     white-space: nowrap;
     text-align: center;
-    
 }
 .table-title {
     text-align: center;
@@ -266,7 +263,7 @@ h3 {
 #voltmeter1-label {
     position: absolute;
     bottom: -44px;        /* distance below meter */
-    left: 49%;
+    left: 50%;
     transform: translateX(-50%);
 
     font-size: 12px;
@@ -276,7 +273,7 @@ h3 {
 #rpm1-label {
     position: absolute;
     bottom: -44px;
-    left: 83.3%;
+    left: 83%;
     transform: translateX(-50%);
     font-size: 12px;
     white-space: nowrap;
@@ -333,7 +330,7 @@ h3 {
     justify-content: center;
     gap: clamp(81px, 1vw, 10px);
     min-width: clamp(360px, 55vw, 560px);
-    
+    position: relative; /* allow absolute connector positioning */
 }
 
 .motor-box,
@@ -1111,34 +1108,33 @@ img {
   transform-origin: 50% 50%;
   will-change: transform;
 }
-/* RPM digital display – perfectly inside RPM indicator */
+/* RPM digital display – FINAL (perfect center, zoom safe) */
 .rpm-card {
   position: relative;
 }
 
-/* =========================
-   RPM DIGITAL DISPLAY (ZOOM-PROOF)
-========================= */
 .rpm-display {
   position: absolute;
 
-  /* 🔒 FIXED POSITION INSIDE RPM CARD */
-  top: 71px;          /* adjust once if needed */
+  /* true center of RPM image */
   left: 50%;
-  transform: translateX(-50%);
+  top: 44%;
 
-  width: 120px;       /* 🔒 FIXED SIZE */
+  /* optical correction for bezel */
+  transform: translate(-50%, -62%);
+
+  width: 115.6px;
   height: 40px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #000;   /* pure black */
+  background: #000;
   color: #d20a1b;
 
   font-family: "Digital-7", monospace;
-  font-size: 26px;    /* 🔒 FIXED FONT */
+  font-size: 26px;
   font-weight: bold;
   letter-spacing: 2px;
 
@@ -1150,6 +1146,7 @@ img {
 
   pointer-events: none;
 }
+
 
 
 #auto {
@@ -1369,11 +1366,15 @@ img {
     display: none;
   }
 }
+
+
 /* STEP 3: Increase ammeter size safely */
 .ammeter-card .ammeter-inner {
   transform: scale(1.25);        /* 🔼 change this value */
   transform-origin: center;
 }
+
+
 .components-overlay {
   position: fixed;
   inset: 0;
