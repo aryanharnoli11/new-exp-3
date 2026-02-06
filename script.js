@@ -28,7 +28,7 @@ const WIRE_CURVE_OVERRIDES = new Map([
   [connectionKey("pointE", "pointM"), -100],
   [connectionKey("pointF", "pointD"), 100],
   [connectionKey("pointH", "pointI"), 60],
-  [connectionKey("pointI", "pointC"), 140],
+  [connectionKey("pointI", "pointC"), -10],
   [connectionKey("pointC", "pointH"), -180]
 ]);
 
