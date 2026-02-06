@@ -1713,17 +1713,68 @@ img {
 }
 /* Main chatbot box */
 .chatbot-panel {
-  border-radius: 22px;          /* round outer corners */
-  overflow: hidden;             /* VERY IMPORTANT */
+  border-radius: 22px;          
+  overflow: hidden;         
 }
 
-/* Header already rounded by parent, but safe */
 .chatbot-panel-header {
   border-top-left-radius: 22px;
   border-top-right-radius: 22px;
 }
 
-/* Chatbot iframe (inner content) */
 .chatbot-panel iframe {
-  border-radius: 0 0 22px 22px;  /* bottom corners */
+  border-radius: 0 0 22px 22px;  
+}
+/* ================================
+   ENDPOINT GUIDANCE ANIMATION
+================================ */
+
+/* Base point container */
+.point {
+  position: relative;
+  z-index: 10;
+}
+
+/* Active guidance state */
+.point.endpoint-highlight::before {
+  content: "";
+  position: absolute;
+  inset: -14px;               /* controls ring size */
+  border-radius: 50%;
+  border: 3px solid rgba(13, 17, 243, 0.85);
+  animation: endpointPulse 1.3s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Secondary glow */
+.point.endpoint-highlight::after {
+  content: "";
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background: rgba(10, 10, 217, 0.25);
+  animation: endpointGlow 1.3s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Pulse ring */
+@keyframes endpointPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Soft glow */
+@keyframes endpointGlow {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
 }
