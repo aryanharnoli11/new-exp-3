@@ -16,9 +16,20 @@ body {
 }
 
 .panel {
-    position: relative; /* anchor absolute children (endpoints) to the board */
+    position: relative; 
+    
+
+
+
+
+
+
+
+
+    
     width: min(1800px, 100%);
     border: 3px solid #111;
+
     background: #d7d0c4;
     display: flex;
     flex-direction: column;
@@ -1119,19 +1130,18 @@ img {
 .rpm-card {
   position: relative;
 }
-
+/* RPM DIGITAL DISPLAY – FIXED SIZE (ZOOM PROOF) */
 .rpm-display {
   position: absolute;
 
-  /* true center of RPM image */
+  /* fixed anchor inside RPM image */
   left: 50%;
   top: 44%;
-
-  /* optical correction for bezel */
   transform: translate(-50%, -62%);
 
-  width: clamp(78px, 12.5vw, 116px);
-  height: clamp(26px, 4.6vw, 40px);
+  /* 🔒 HARD FIXED SIZE */
+  width: 120px;
+  height: 38px;
 
   display: flex;
   align-items: center;
@@ -1141,9 +1151,9 @@ img {
   color: #d20a1b;
 
   font-family: "Digital-7", monospace;
-  font-size: clamp(18px, 3.2vw, 26px);
+  font-size: 26px;        /* 🔒 fixed digit size */
   font-weight: bold;
-  letter-spacing: clamp(1px, 0.9vw, 2px);
+  letter-spacing: 2px;
 
   border-radius: 4px;
 
@@ -1153,6 +1163,7 @@ img {
 
   pointer-events: none;
 }
+
 
 
 
