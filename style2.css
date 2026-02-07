@@ -1,5 +1,4 @@
-
- /* Themed A/B buttons on MCB */
+/* Themed A/B buttons on MCB */
  .point-A,
  .point-B,
  .point-P,
@@ -344,4 +343,51 @@
    font-weight: bold;
  }
   
+/* Keep meter endpoints and buttons aligned when the panel scales */
+#pointI, #pointJ, #pointL, #pointM {
+  width: clamp(10px, 1.6vw, 14px);
+  height: clamp(10px, 1.6vw, 14px);
+  transform: translate(-50%, -50%);
+}
 
+.point-I, .point-J, .point-L, .point-M {
+  width: clamp(18px, 3vw, 24px);
+  height: clamp(18px, 3vw, 24px);
+  transform: translate(-50%, -50%);
+}
+
+.point-I {
+  left: 8.5%;
+  top: 98%;
+}
+#pointI {
+  left: 8.8%;
+  top: 84%;
+}
+
+.point-J {
+  left: 20.9%;
+  top: 98%;
+}
+#pointJ {
+  left: 21.3%;
+  top: 84%;
+}
+
+.point-L {
+  left: 42.3%;
+  top: 100%;
+}
+#pointL {
+  left: 42.5%;
+  top: 85%;
+}
+
+.point-M {
+  left: 55.3%;
+  top: 100%;
+}
+#pointM {
+  left: 55.5%;
+  top: 85%;
+}

@@ -185,10 +185,11 @@ h3 {
 
 
 .meter-panel {
+    --meter-panel-height: clamp(240px, 32vw, 280px);
     position: relative;
     width:100%;
     max-width: 900px;
-    height: 230px;
+    height: var(--meter-panel-height);
     aspect-ratio: 16 / 9;
     background-image: url(images/wooden-texture.jpg);
     background-size: cover;
@@ -198,7 +199,6 @@ h3 {
     padding: clamp(6px, 1vw, 10px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
-    height: 280px;
     overflow: hidden;
     padding-bottom: clamp(2px, 0.2vw, 2px);
 }
@@ -279,6 +279,13 @@ h3 {
     white-space: nowrap;
 }
 
+
+#ammter1-label,
+#voltmeter1-label,
+#rpm1-label {
+    bottom: clamp(-38px, -6vw, -44px);
+    font-size: clamp(11px, 1.6vw, 12px);
+}
 
 .meter-card img {
     position: relative; 
@@ -1123,8 +1130,8 @@ img {
   /* optical correction for bezel */
   transform: translate(-50%, -62%);
 
-  width: 115.6px;
-  height: 40px;
+  width: clamp(78px, 12.5vw, 116px);
+  height: clamp(26px, 4.6vw, 40px);
 
   display: flex;
   align-items: center;
@@ -1134,9 +1141,9 @@ img {
   color: #d20a1b;
 
   font-family: "Digital-7", monospace;
-  font-size: 26px;
+  font-size: clamp(18px, 3.2vw, 26px);
   font-weight: bold;
-  letter-spacing: 2px;
+  letter-spacing: clamp(1px, 0.9vw, 2px);
 
   border-radius: 4px;
 
@@ -1370,8 +1377,16 @@ img {
 
 /* STEP 3: Increase ammeter size safely */
 .ammeter-card .ammeter-inner {
-  transform: scale(1.25);        /* 🔼 change this value */
-  transform-origin: center;
+  position: relative;
+  width: 260px;
+  height: 260px;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transform: none;
 }
 
 
@@ -1777,4 +1792,9 @@ img {
   100% {
     opacity: 0;
   }
+}
+/* FORCE AMMETER SIZE INCREASE – FINAL FIX */
+.ammeter-card .ammeter-inner {
+  transform: scale(1.25);   /* 🔼 increase size here */
+  transform-origin: center center;
 }
