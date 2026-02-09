@@ -745,38 +745,31 @@ if (window.isGuideActive && window.isGuideActive()) {
     mcbImg.addEventListener("click", function () {
 
       if (isMCBOn) {
-  // ===== TURN MCB OFF =====
-  isMCBOn = false;
-  starterIsOn = false;
-  armatureKnobUsed = false;
-
-  mcbImg.src = "images/mcb-off.png";
-
-  // Reset starter
-  if (starterHandle) {
-    updateStarterPosition(0);
-    starterHandle.classList.add("disabled");
-  }
-
-  // Stop rotor
-  stopRotorRotation();
-  rotorAngle = 0;
-
-  const rotor = document.getElementById("gr");
-  if (rotor) rotor.style.transform = "rotate(0deg)";
-
-  // 🔴 RESET METERS (THIS IS THE FIX)
-  currentReading = 0;
-  rpmReading = 0;
-
-  setAmmeterCurrent(0);          // Ammeter → 0 A
-  if (rpmDisplay) rpmDisplay.textContent = "0"; // RPM → 0
-
-  // Reset voltmeter too (safe)
-  setVoltmeterZero();
-
-  return; // 🚨 VERY IMPORTANT
-}
+        // ===== TURN MCB OFF =====
+        isMCBOn = false;
+        starterIsOn = false;
+        armatureKnobUsed = false;
+        mcbImg.src = "images/mcb-off.png";
+        // Reset starter
+        if (starterHandle) {
+          updateStarterPosition(0);
+          starterHandle.classList.add("disabled");
+        }
+        // Stop rotor
+        stopRotorRotation();
+        rotorAngle = 0;
+        const rotor = document.getElementById("gr");
+        if (rotor) rotor.style.transform = "rotate(0deg)";
+        // 🔴 RESET METERS (THIS IS THE FIX)
+        currentReading = 0;
+        rpmReading = 0;
+        setAmmeterCurrent(0);          // Ammeter → 0 A
+        if (rpmDisplay) rpmDisplay.textContent = "0"; // RPM → 0
+        // Reset voltmeter too (safe)
+        setVoltmeterZero();
+        setLabelButtonsDisabled(false); // <-- Re-enable label buttons
+        return; // 🚨 VERY IMPORTANT
+      }
 
       // ❌ No wires at all
 // ❌ No wires at all
@@ -811,13 +804,14 @@ if (knob2) {
       // TURN ON
       isMCBOn = true;
       mcbImg.src = "images/mcb-on.png";
-     // 🔊 GUIDED VOICE (ONLY IF GUIDE IS ACTIVE)
-     labStage = "dc_on";
-if (window.isGuideActive && window.isGuideActive()) {
-  labSpeech.speak(
-    "D C supply is turned on. Now turn on the starter by moving the handle from left to right."
-  );
-}
+      setLabelButtonsDisabled(true); // <-- Disable label buttons
+      // 🔊 GUIDED VOICE (ONLY IF GUIDE IS ACTIVE)
+      labStage = "dc_on";
+      if (window.isGuideActive && window.isGuideActive()) {
+        labSpeech.speak(
+          "D C supply is turned on. Now turn on the starter by moving the handle from left to right."
+        );
+      }
       if (starterHandle) {
         starterHandle.classList.remove("disabled");
       }
@@ -964,29 +958,32 @@ function removeConnectionsOfEndpoint(endpointUUID) {
   allConnectionsAnnounced = false;
 
 }
-Object.keys(buttonToEndpointMap).forEach(buttonClass => {
 
+// --- Restrict label click when MCB is ON ---
+Object.keys(buttonToEndpointMap).forEach(buttonClass => {
   const button = document.querySelector("." + buttonClass);
   if (!button) return;
 
   button.addEventListener("click", function (e) {
+    if (isMCBOn) {
+      // Ignore click if MCB is ON
+      e.stopPropagation();
+      return;
+    }
     e.stopPropagation(); // important
 
     const endpointUUID = buttonToEndpointMap[buttonClass];
-
     removeConnectionsOfEndpoint(endpointUUID);
 
     // Once a wire is removed, system is no longer correct
     connectionsAreCorrect = false;
-    connectionsAreVerified = false; // ✅ ADD THIS
-
+    connectionsAreVerified = false;
     starterIsOn = false;
 
-    // If MCB was ON, turn it OFF
+    // If MCB was ON, turn it OFF (should not happen here, but keep for safety)
     if (isMCBOn) {
       isMCBOn = false;
       mcbImg.src = "images/mcb-off.png";
-
       if (starterHandle) {
         updateStarterPosition(0);
         starterHandle.classList.add("disabled");
@@ -994,6 +991,22 @@ Object.keys(buttonToEndpointMap).forEach(buttonClass => {
     }
   });
 });
+
+// Add visual feedback: disable label buttons when MCB is ON
+function setLabelButtonsDisabled(disabled) {
+  Object.keys(buttonToEndpointMap).forEach(buttonClass => {
+    const button = document.querySelector("." + buttonClass);
+    if (button) {
+      if (disabled) {
+        button.setAttribute("aria-disabled", "true");
+        button.style.pointerEvents = "none";
+      } else {
+        button.removeAttribute("aria-disabled");
+        button.style.pointerEvents = "auto";
+      }
+    }
+  });
+}
 
   /* =====================================================
      CHECK CONNECTIONS

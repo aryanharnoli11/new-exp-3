@@ -37,12 +37,12 @@
  .point-P:hover,
  .point-Q:hover,
  .point-R:hover,
- .point-I:hover,
+ /* .point-I:hover,
  .point-J:hover,
  .point-L:hover,
  .point-M:hover,
  .point-C:hover,
- .point-D:hover,
+ .point-D:hover, */
  .point-K:hover,
  .point-Y:hover,
  .point-E:hover,
@@ -57,6 +57,7 @@
      0 12px 18px rgba(0, 0, 0, 0.22);
    filter: saturate(1.04);
  }
+
 
  .point-A:active,
  .point-B:active
@@ -345,6 +346,7 @@
   
 /* Keep meter endpoints and buttons aligned when the panel scales */
 #pointI, #pointJ, #pointL, #pointM {
+
   width: clamp(10px, 1.6vw, 14px);
   height: clamp(10px, 1.6vw, 14px);
   transform: translate(-50%, -50%);
@@ -356,14 +358,18 @@
   transform: translate(-50%, -50%);
 }
 
+
+
 .point-I {
   left: 8.5%;
   top: 98%;
 }
 #pointI {
   left: 8.8%;
-  top: 84%;
+  top: 85%;
 }
+
+
 
 .point-J {
   left: 20.9%;
@@ -371,8 +377,10 @@
 }
 #pointJ {
   left: 21.3%;
-  top: 84%;
+  top: 85%;
 }
+
+
 
 .point-L {
   left: 42.3%;
@@ -382,6 +390,8 @@
   left: 42.5%;
   top: 85%;
 }
+
+
 
 .point-M {
   left: 55.3%;
