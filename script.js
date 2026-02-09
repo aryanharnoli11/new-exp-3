@@ -1,3 +1,24 @@
+// Utility to enable/disable Auto Connect and Check buttons with visual feedback
+function setAutoCheckButtonsDisabled(disabled) {
+  const autoConnectBtn = Array.from(document.querySelectorAll('.pill-btn')).find(btn => btn.textContent.trim() === 'Auto Connect');
+  const checkBtn = Array.from(document.querySelectorAll('.pill-btn')).find(btn => btn.textContent.trim() === 'Check');
+  [autoConnectBtn, checkBtn].forEach(btn => {
+    if (btn) {
+      btn.disabled = !!disabled;
+      if (disabled) {
+        btn.style.opacity = 0.75; // Less greyed out
+        btn.style.cursor = 'not-allowed';
+        btn.setAttribute('aria-disabled', 'true');
+        btn.tabIndex = -1;
+      } else {
+        btn.style.opacity = 1;
+        btn.style.cursor = '';
+        btn.removeAttribute('aria-disabled');
+        btn.tabIndex = 0;
+      }
+    }
+  });
+}
 jsPlumb.ready(function () {
 const WIRE_CURVINESS = 160;     // default curve
 const WIRE_CURVE_SHAPE = "u";  // "u" = U-shaped wiring
@@ -768,6 +789,7 @@ if (window.isGuideActive && window.isGuideActive()) {
         // Reset voltmeter too (safe)
         setVoltmeterZero();
         setLabelButtonsDisabled(false); // <-- Re-enable label buttons
+        setAutoCheckButtonsDisabled(false); // <-- Re-enable Auto Connect and Check buttons
         return; // 🚨 VERY IMPORTANT
       }
 
@@ -805,6 +827,7 @@ if (knob2) {
       isMCBOn = true;
       mcbImg.src = "images/mcb-on.png";
       setLabelButtonsDisabled(true); // <-- Disable label buttons
+      setAutoCheckButtonsDisabled(true); // <-- Disable Auto Connect and Check buttons
       // 🔊 GUIDED VOICE (ONLY IF GUIDE IS ACTIVE)
       labStage = "dc_on";
       if (window.isGuideActive && window.isGuideActive()) {
@@ -1618,41 +1641,64 @@ if (reportBtn) {
    GRAPH LOGIC (PLOTLY BASED)
 ================================ */
 
+
 (function initGraphLogic() {
   const MIN_GRAPH_POINTS = 5;
-
 
   // Containers
   const graphBars = document.getElementById("graphBars");
   const graphPlot = document.getElementById("graphPlot");
   const graphSection = document.querySelector(".graph-section");
   const graphCount = document.getElementById("graphCount");
-    if (graphCount) {
+  if (graphCount) {
     graphCount.style.display = "none";
   }
   // Buttons (detected by text)
   const graphBtn = Array.from(document.querySelectorAll(".pill-btn"))
     .find(btn => btn.textContent.trim() === "Graph");
-
+  const reportBtn = document.getElementById("reportBtn");
   const resetBtn = document.getElementById("resetBtn");
-
 
   /* -------- DATA SOURCE -------- */
   const readingsRecorded = [];
 
-  /* -------- ENABLE / DISABLE GRAPH BUTTON -------- */
- function updateGraphControls() {
-  const count = readingsRecorded.length;
-
-  if (graphCount) {
-    graphCount.textContent = `${count} / ${MIN_GRAPH_POINTS} readings`;
+  // --- Helper: Set button disabled state with visual feedback ---
+  function setButtonDisabled(btn, disabled) {
+    if (!btn) return;
+    btn.disabled = !!disabled;
+    if (disabled) {
+      btn.style.opacity = 0.75; // Match greyness of Auto Connect button
+      btn.style.cursor = 'not-allowed';
+      btn.setAttribute('aria-disabled', 'true');
+      btn.tabIndex = -1;
+    } else {
+      btn.style.opacity = 1;
+      btn.style.cursor = '';
+      btn.removeAttribute('aria-disabled');
+      btn.tabIndex = 0;
+    }
   }
 
-  if (graphBtn) {
-graphBtn.disabled = false;
+  // --- Disable both buttons by default on load ---
+  setButtonDisabled(graphBtn, true);
+  setButtonDisabled(reportBtn, true);
 
+  /* -------- ENABLE / DISABLE GRAPH & REPORT BUTTONS -------- */
+  function updateGraphControls() {
+    const count = readingsRecorded.length;
+    if (graphCount) {
+      graphCount.textContent = `${count} / ${MIN_GRAPH_POINTS} readings`;
+    }
+    // Enable Graph if enough readings, else disable
+    setButtonDisabled(graphBtn, count < MIN_GRAPH_POINTS);
+    // Report always disabled until graph is generated
+    setButtonDisabled(reportBtn, true);
   }
-}
+
+  // --- Enable Report button after graph is generated ---
+  function enableReportAfterGraph() {
+    setButtonDisabled(reportBtn, false);
+  }
 
 
 
@@ -1671,68 +1717,55 @@ graphBtn.disabled = false;
 
   /* -------- DRAW GRAPH -------- */
  function renderGraph() {
-  if (readingsRecorded.length < MIN_GRAPH_POINTS) {
-    alert(`Please take at least ${MIN_GRAPH_POINTS} readings.`);
-    return;
-  }
-
-  const currents = readingsRecorded.map(r => r.current);
-  const rpms = readingsRecorded.map(r => r.voltage);
-
-  ensurePlotlyLoaded().then(() => {
-
-    const trace = {
-      x: currents,
-      y: rpms,
-      type: "scatter",
-      mode: "lines+markers",
-      marker: { size: 8, color: "#1b6fb8" },
-      line: { width: 3, color: "#1b6fb8" }
-    };
-
-   const layout = {
-  title: { text: "<b>Speed(RPM) vs Field Current(A)</b>" },
-
-  margin: { l: 70, r: 20, t: 40, b: 60 },
-
-  xaxis: {
-    title: {
-      text: "<b> Field Current(A)</b>"
-    },
-    zeroline: false
-  },
-
-  yaxis: {
-    title: {
-      text: "<b>Speed (RPM)</b>"
-    },
-    zeroline: false
-  },
-
-  paper_bgcolor: "rgba(0,0,0,0)",
-  plot_bgcolor: "rgba(0,0,0,0)"
-};
-
-
-    if (graphBars) graphBars.style.display = "none";
-    if (graphPlot) graphPlot.style.display = "block";
-
-    Plotly.newPlot(graphPlot, [trace], layout, {
-      displaylogo: false,
-      responsive: true
-    });
-
-    if (graphSection) {
-      graphSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+    if (readingsRecorded.length < MIN_GRAPH_POINTS) {
+      alert(`Please take at least ${MIN_GRAPH_POINTS} readings.`);
+      return;
     }
 
-  }).catch(() => {
-    alert("Failed to load graph library.");
-  });
-}
+    const currents = readingsRecorded.map(r => r.current);
+    const rpms = readingsRecorded.map(r => r.voltage);
+
+    ensurePlotlyLoaded().then(() => {
+      const trace = {
+        x: currents,
+        y: rpms,
+        type: "scatter",
+        mode: "lines+markers",
+        marker: { size: 8, color: "#1b6fb8" },
+        line: { width: 3, color: "#1b6fb8" }
+      };
+      const layout = {
+        title: { text: "<b>Speed(RPM) vs Field Current(A)</b>" },
+        margin: { l: 70, r: 20, t: 40, b: 60 },
+        xaxis: {
+          title: { text: "<b> Field Current(A)</b>" },
+          zeroline: false
+        },
+        yaxis: {
+          title: { text: "<b>Speed (RPM)</b>" },
+          zeroline: false
+        },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)"
+      };
+      if (graphBars) graphBars.style.display = "none";
+      if (graphPlot) graphPlot.style.display = "block";
+      Plotly.newPlot(graphPlot, [trace], layout, {
+        displaylogo: false,
+        responsive: true
+      });
+      if (graphSection) {
+        graphSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+      // Enable Report button after graph is generated
+      enableReportAfterGraph();
+    }).catch(() => {
+      alert("Failed to load graph library.");
+    });
+  }
 
 
   /* -------- PUBLIC HOOK (CALLED FROM TABLE) -------- */
@@ -1744,20 +1777,17 @@ graphBtn.disabled = false;
   /* -------- RESET GRAPH -------- */
   function resetGraph() {
     readingsRecorded.length = 0;
-
     if (graphBars) graphBars.style.display = "block";
-
     if (graphPlot) {
       graphPlot.innerHTML = "";
       graphPlot.style.display = "none";
     }
-
     updateGraphControls();
+    setButtonDisabled(reportBtn, true); // Always disable report on reset
     if (graphCount) {
-  graphCount.style.display = "none";
-  graphCount.textContent = `0 / ${MIN_GRAPH_POINTS} readings`;
-}
-
+      graphCount.style.display = "none";
+      graphCount.textContent = `0 / ${MIN_GRAPH_POINTS} readings`;
+    }
   }
 
   /* -------- BUTTON EVENTS -------- */
