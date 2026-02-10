@@ -1039,41 +1039,101 @@ const checkBtn = Array.from(
 ).find(btn => btn.textContent.trim() === "Check");
 
 if (checkBtn) {
+  let missingConnectionsQueue = [];
+  let isGuidingMissing = false;
   checkBtn.addEventListener("click", function () {
-
-    const result = validateConnections();
-
-    if (result.status === "correct") {
-  connectionsAreCorrect = true;
-  connectionsAreVerified = true; // ✅ USER CONFIRMED
-
-  labStage = "checked"; 
-  alert("Connections are correct ✅");
-
-  // 🔊 Speak ONLY if guide was used
-  if (window.isGuideActive && window.isGuideActive()) {
-
-    labSpeech.speak(
-      "The connections are correct. Now you can turn on the D C supply."
+    // Gather all missing connections
+    const currentConnections = jsPlumb.getAllConnections();
+    const currentSet = new Set(
+      currentConnections.map(conn => [conn.sourceId, conn.targetId].sort().join("-"))
     );
-  }
-}
-
-
-    else if (result.status === "missing") {
-      connectionsAreCorrect = false;
-      const [a, b] = result.connection.split("-");
-      alert(`Missing connection: ${a.replace("point","")} → ${b.replace("point","")}`);
+    missingConnectionsQueue = [];
+    for (let req of requiredConnections) {
+      if (!currentSet.has(req)) missingConnectionsQueue.push(req);
     }
-
-    else if (result.status === "wrong") {
-      connectionsAreCorrect = false;
-      const [a, b] = result.connection.split("-");
-      alert(`Wrong connection ❌: ${a.replace("point","")} → ${b.replace("point","")}`);
+    // Extra/wrong connections
+    for (let cur of currentSet) {
+      if (!requiredConnections.has(cur)) {
+        const [a, b] = cur.split("-");
+        alert(`Wrong connection ❌: ${a.replace("point","")} → ${b.replace("point","")}`);
+        return;
+      }
     }
-
+    // If all correct
+    if (missingConnectionsQueue.length === 0) {
+      connectionsAreCorrect = true;
+      connectionsAreVerified = true;
+      labStage = "checked";
+      alert("Connections are correct ✅");
+      // Voice confirmation
+      if (window.isGuideActive && window.isGuideActive()) {
+        labSpeech.speak("The connections are correct. Now you can turn on the D C supply.");
+      }
+      // Remove any highlights
+      document.querySelectorAll('.endpoint-highlight').forEach(el => el.classList.remove('endpoint-highlight'));
+      return;
+    }
+    // Sequential guidance for missing connections
+    let guidingIndex = 0;
+    isGuidingMissing = true;
+    function guideNextMissing() {
+      if (!isGuidingMissing || guidingIndex >= missingConnectionsQueue.length) return;
+      const [a, b] = missingConnectionsQueue[guidingIndex].split("-");
+      // Remove previous highlights
+      document.querySelectorAll('.endpoint-highlight').forEach(el => el.classList.remove('endpoint-highlight'));
+      // Highlight endpoints
+      const elA = document.getElementById(a);
+      const elB = document.getElementById(b);
+      if (elA) elA.classList.add('endpoint-highlight');
+      if (elB) elB.classList.add('endpoint-highlight');
+      // Show default alert popup
+      const msg = `Missing connection: ${a.replace("point","")} → ${b.replace("point","")}`;
+      alert(msg);
+      // Voice guidance
+      if (window.isGuideActive && window.isGuideActive()) {
+        labSpeech.speak(`Connection between ${a.replace("point","")} and ${b.replace("point","")} is missing.`);
+      }
+    }
+    guideNextMissing();
+    // Listen for connection events to check if user fixed the current missing connection
+    jsPlumb.bind("connection", function checkMissingFix(info) {
+      if (!isGuidingMissing) return;
+      const fixedKey = [info.sourceId, info.targetId].sort().join("-");
+      if (fixedKey === missingConnectionsQueue[guidingIndex]) {
+        // Remove highlight and popup
+        document.querySelectorAll('.endpoint-highlight').forEach(el => el.classList.remove('endpoint-highlight'));
+        // No custom popup to remove
+        guidingIndex++;
+        // If more missing, guide next
+        if (guidingIndex < missingConnectionsQueue.length) {
+          guideNextMissing();
+        } else {
+          isGuidingMissing = false;
+          // All missing connections are now completed
+          if (window.isGuideActive && window.isGuideActive()) {
+            labSpeech.speak("Now all the missing connections are completed, now click on the check button to confirm the connection.");
+          }
+        }
+      }
+    });
   });
 }
+// Add CSS for endpoint highlight only
+const style = document.createElement('style');
+style.innerHTML = `
+.endpoint-highlight {
+  animation: endpointPulse 1.2s cubic-bezier(.4,0,.2,1) infinite;
+  box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 0 12px 4px rgba(255,0,0,0.18);
+  border-radius: 50% !important;
+  z-index: 1000 !important;
+}
+@keyframes endpointPulse {
+  0% { box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 0 12px 4px rgba(255,0,0,0.18); }
+  50% { box-shadow: 0 0 0 10px rgba(255,0,0,0.45), 0 0 24px 8px rgba(255,0,0,0.25); }
+  100% { box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 0 12px 4px rgba(255,0,0,0.18); }
+}
+`;
+document.head.appendChild(style);
 
 function validateConnections() {
   const currentConnections = jsPlumb.getAllConnections();
