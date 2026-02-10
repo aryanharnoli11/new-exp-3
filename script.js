@@ -1377,6 +1377,8 @@ setVoltmeterZero();
       totalReadingsAdded = 0;
       waitingForAddToTable = false;
       tableGuidanceActive = false;
+      setAutoCheckButtonsDisabled(false);  // ← THIS IS THE KEY LINE
+    setLabelButtonsDisabled(false);
       setAmmeterCurrent(0);
 stopRotorRotation();
 rotorAngle = 0;
