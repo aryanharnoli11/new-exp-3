@@ -2365,3 +2365,158 @@ speakCurrentStep();
 })();
 })();
 });
+(function initHoverDefinitions() {
+  function setup() {
+    if (document.querySelector(".hover-tooltip")) return;
+    if (!document.body) return;
+
+    const tooltipLayer = document.createElement("div");
+    tooltipLayer.className = "hover-tooltip";
+    tooltipLayer.innerHTML =
+      '<div class="hover-tooltip__body"><div class="hover-tooltip__accent"></div><div class="hover-tooltip__text"></div></div>';
+    const tooltipText = tooltipLayer.querySelector(".hover-tooltip__text");
+    document.body.appendChild(tooltipLayer);
+
+    const tooltips = [
+      {
+        id: "mcb",
+        selector: ".mcb-toggle, .mcb-label, .mcb-block",
+        text: "MCB: Main supply breaker for the setup; trips on overload/short-circuit to protect the circuit and users."
+      },
+      {
+        id: "starter",
+        selector: ".starter-block, .starter-body, .starter-handle, .starter-label",
+        text: "3-Point Starter: Limits the DC motor starting current and provides no-volt/overload protection; drag the handle after turning ON the MCB."
+      },
+      
+      {
+        id: "voltmeter",
+        selector: ".meters > .meter-card:nth-of-type(1), #voltmeter1-label",
+        text: "Voltmeter: Measures the motor/supply current (connected in series)."
+      },
+      {
+        id: "ammeter",
+        selector: ".meters > .meter-card:nth-of-type(3), #ammeter1-label",
+        text: "Ammeter: Measures the load current through the lamp load (connected in series with the load)."
+      },
+ 
+     {
+        id: "dc-motor",
+        selector: ".motor-box, .motor-box img, .dc-motor-label",
+        text: "DC Shunt Motor: Prime mover converting electrical power to mechanical power to drive the generator."
+      },
+      {
+        id: "dc-generator",
+        selector: ".generator-box, .generator-body, .generator-rotor, .dc-generator-label",
+        text: "DC Shunt Generator: Converts mechanical power from the motor into DC output for the load; terminal voltage is measured on Voltmeter-2."
+      },
+      {
+        id: "observation-table",
+        selector: ".observation-section, #observationTable, #observationBody",
+        text: "Observation Table: Stores recorded readings of load current and terminal voltage for plotting and the report."
+      },
+         {
+  id: "rheostat-1",
+  selector: "#rheostat-1, .field-rheostat-label, .field-rheostat-knob",
+  text: "Field Rheostat: Controls the field current of the DC generator/motor to regulate terminal voltage. Increasing resistance decreases field current and reduces generated voltage."
+},
+{
+  id: "rheostat-2",
+  selector: "#rheostat-2, .armature-rheostat-label, .armature-rheostat-knob",
+  text: "Armature Rheostat: Controls the armature current of the DC motor during starting to limit high inrush current and ensure smooth acceleration."
+},
+{
+  id: "rpm-indicator",
+  selector: "#rpm-indicator, .rpm-display, .rpm-label",
+  text: "RPM Indicator: Displays the speed of the DC motor in revolutions per minute (RPM). Motor speed increases with field control adjustment and decreases with load."
+}
+
+    ];
+
+    tooltips.forEach(({ selector }) => {
+      document.querySelectorAll(selector).forEach((el) => el.removeAttribute("title"));
+    });
+
+    let activeTarget = null;
+
+    function findEntry(target) {
+      if (!target || target.nodeType !== 1) return null;
+      for (const entry of tooltips) {
+        const match = target.closest(entry.selector);
+        if (match) return { match, text: entry.text, id: entry.id };
+      }
+      return null;
+    }
+
+    function moveTip(event) {
+      const padding = 16;
+      const offsetX = 14;
+      const offsetY = 14;
+
+      const maxLeft = window.innerWidth - tooltipLayer.offsetWidth - padding;
+      const maxTop = window.innerHeight - tooltipLayer.offsetHeight - padding;
+
+      const desiredLeft = event.clientX + offsetX;
+      const desiredTop = event.clientY + offsetY;
+
+      tooltipLayer.style.left = Math.max(padding, Math.min(desiredLeft, maxLeft)) + "px";
+      tooltipLayer.style.top = Math.max(padding, Math.min(desiredTop, maxTop)) + "px";
+    }
+
+    function showTip(text, event) {
+      if (!tooltipText) return;
+      tooltipText.textContent = text;
+      moveTip(event);
+      tooltipLayer.classList.add("show");
+    }
+
+    function hideTip() {
+      tooltipLayer.classList.remove("show");
+    }
+
+      function attachLeaveHandler(target) {
+        target.addEventListener(
+          "mouseleave",
+          () => {
+            if (activeTarget === target) {
+              activeTarget = null;
+              hideTip();
+            }
+          },
+          { once: true }
+        );
+      }
+
+      document.addEventListener("click", function (event) {
+        const found = findEntry(event.target);
+        if (!found) {
+          if (activeTarget) {
+            activeTarget = null;
+            hideTip();
+          }
+          return;
+        }
+        if (activeTarget === found.match) {
+          activeTarget = null;
+          hideTip();
+          return;
+        }
+        activeTarget = found.match;
+        showTip(found.text, event);
+        attachLeaveHandler(activeTarget);
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          activeTarget = null;
+          hideTip();
+        }
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setup, { once: true });
+  } else {
+    setup();
+  }
+})();

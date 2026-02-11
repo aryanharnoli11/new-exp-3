@@ -54,7 +54,7 @@
                  <div class="rheostat">  
                         <h3 class="rheostat-label1">Field rheostat</h3>
                     
-                        <img class="rheostat-img-1" src="images/Rheostat.png" alt="Rheostat">
+                        <img class="rheostat-img-1" id="rheostat-1" src="images/Rheostat.png" alt="Rheostat">
                         <img class="nob1" src="images/nob.png" alt="nob1">
                        
                          <div>
@@ -71,7 +71,7 @@
                   
                         <h3 class="rheostat-label2">Armature rheostat</h3>
                         
-                        <img class="rheostat-img-2" src="images/Rheostat.png" alt="Rheostat">
+                        <img class="rheostat-img-2" id="rheostat-2" src="images/Rheostat.png" alt="Rheostat">
                           <img id="nob2" class="nob2" src="images/nob.png" alt="nob2">
                            
                  <div>
@@ -129,7 +129,7 @@
                    
                 </div>
                         <div class="meter-card rpm-card">
-                                      <img src="images/rpm.png" alt="RPM Indicator">
+                                      <img src="images/rpm.png" id="rpm-indicator" alt="RPM Indicator">
                                         <div id="rpmDisplay" class="rpm-display">0</div>
                                     </div>
                     
@@ -328,6 +328,8 @@
      
 
     <script src="script.js"></script>
+
+
 
 <!-- COMPONENTS MODAL -->
 <div id="componentsModal" class="components-overlay hidden">
@@ -634,6 +636,14 @@ audioBtn.addEventListener("click", () => {
   });
 })();
 </script>
+<!-- COMPONENT INFO POPUP -->
+<div id="componentInfoPopup" class="component-popup hidden">
+  <div class="popup-arrow"></div>
+  <div class="popup-content">
+    <div class="popup-accent"></div>
+    <div class="popup-text" id="popupText"></div>
+  </div>
+</div>
 
 </body>
 </html>

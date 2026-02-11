@@ -15,19 +15,17 @@ body {
     justify-content: center;
     padding: clamp(12px, 2vw, 24px);
 }
-
 .panel {
-    position: relative; 
-    
-     min-height: 200vh;
-
+    position: relative;
     width: min(1800px, 100%);
     border: 3px solid #111;
-
     background: #d7d0c4;
+
     display: flex;
     flex-direction: column;
     gap: clamp(12px, 2vw, 20px);
+
+    min-height: auto;   /* ✅ IMPORTANT */
 }
 
 .top-row {
@@ -1806,4 +1804,88 @@ img {
 .ammeter-card .ammeter-inner {
   transform: scale(1.25);   /* 🔼 increase size here */
   transform-origin: center center;
+}
+/* =========================
+   COMPONENT HOVER TOOLTIP
+========================= */
+@keyframes tooltipPop {
+  0% { opacity: 0; transform: translateY(12px) scale(0.96) rotate(-0.5deg); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.02) rotate(0.3deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+@keyframes auroraMove {
+  0% { transform: translate3d(-6px,-6px,0); opacity: 0.8; }
+  100% { transform: translate3d(8px,8px,0); opacity: 1; }
+}
+
+@keyframes accentPulse {
+  0% { box-shadow: 0 0 8px rgba(100,220,255,0.45); }
+  50% { box-shadow: 0 0 16px rgba(120,200,255,0.9); }
+  100% { box-shadow: 0 0 8px rgba(100,220,255,0.45); }
+}
+
+.hover-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(236,246,255,0.96));
+  color: #0f1e3a;
+  padding: 12px 14px 12px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  max-width: 320px;
+  z-index: 99999;
+  pointer-events: none;
+  box-shadow: 0 14px 36px rgba(15,30,58,0.18), 0 4px 12px rgba(15,30,58,0.12);
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  border: 1px solid rgba(15,30,58,0.08);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.hover-tooltip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(85,180,255,0.18), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(255,255,255,0.14), transparent 32%);
+  pointer-events: none;
+  animation: auroraMove 5s ease-in-out infinite alternate;
+}
+
+.hover-tooltip.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: tooltipPop 0.22s ease-out;
+}
+
+.hover-tooltip__body {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  z-index: 1;
+}
+
+.hover-tooltip__accent {
+  width: 8px;
+  height: 30px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #5ec4ff, #43b0ff);
+  box-shadow: 0 0 10px rgba(90,190,255,0.55);
+  flex-shrink: 0;
+  margin-top: 2px;
+  animation: accentPulse 2.5s ease-in-out infinite;
+}
+
+.hover-tooltip__text {
+  line-height: 1.35;
+  letter-spacing: 0.1px;
+  font-weight: 600;
+  color: #152a44;
 }
