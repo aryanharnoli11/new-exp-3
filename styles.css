@@ -1889,3 +1889,122 @@ img {
   font-weight: 600;
   color: #152a44;
 }
+
+
+
+
+/* Warning modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  z-index: 7000;
+}
+
+.modal.show {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 26px 28px;
+  border-radius: 14px;
+  max-width: 420px;
+  width: min(420px, 92vw);
+  text-align: center;
+  border: 2px solid #B89B3E;
+  color: #2c1a0a;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  animation: slideFromTop 0.5s ease-in, pulse 1.5s infinite;
+}
+
+.modal-box h2 {
+  color: #2c1a0a;
+  margin-bottom: 10px;
+}
+
+#modalMessage {
+  color: #3b2f24;
+  white-space: pre-line;
+}
+
+.modal-box.danger {
+  animation: slideFromTop 0.6s ease-out, pulse 1.5s infinite;
+}
+
+.modal-box.closing {
+  animation: slideToBottom 0.5s ease-in forwards;
+}
+
+.modal-close-btn {
+  margin-top: 15px;
+  padding: 10px 18px;
+  border: 1px solid #B89B3E;
+  background: linear-gradient(135deg, #2C2C2C, #3B3B3B);
+  color: #E6C36A;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(184, 155, 62, 0.4);
+  background: linear-gradient(135deg, #3B3B3B, #2C2C2C);
+}
+
+.modal-close-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 3px 8px rgba(184, 155, 62, 0.3);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(140, 106, 72, 0.8);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(140, 106, 72, 0.95);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(140, 106, 72, 0.8);
+  }
+}
+
+@keyframes slideFromTop {
+  0% {
+    transform: translateY(-120vh) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideToBottom {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120vh) scale(0.8);
+    opacity: 0;
+  }
+}

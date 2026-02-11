@@ -19,6 +19,52 @@ function setAutoCheckButtonsDisabled(disabled) {
     }
   });
 }
+
+// ===============================
+// GLOBAL MODAL FUNCTIONS (ADD HERE)
+// ===============================
+window.showPopup = function (message, title = "Alert", type = "normal") {
+  const modal = document.getElementById("warningModal");
+  const modalBox = document.getElementById("modalBox");
+  const msg = document.getElementById("modalMessage");
+  const ttl = document.getElementById("modalTitle");
+
+  if (!modal || !modalBox || !msg || !ttl) return;
+
+  msg.textContent = message;
+  ttl.textContent = title;
+
+  modalBox.classList.remove("danger", "closing");
+
+  if (type === "danger") {
+    modalBox.classList.add("danger");
+  }
+
+  modal.classList.add("show");
+};
+
+window.closeModal = function () {
+  const modal = document.getElementById("warningModal");
+  const modalBox = document.getElementById("modalBox");
+
+  if (!modal || !modalBox) return;
+
+  modalBox.classList.add("closing");
+
+  setTimeout(() => {
+    modal.classList.remove("show");
+    modalBox.classList.remove("closing");
+  }, 450);
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+  const okBtn = document.getElementById("modalOkBtn");
+  if (okBtn) {
+    okBtn.addEventListener("click", window.closeModal);
+  }
+});
+
+
 jsPlumb.ready(function () {
 const WIRE_CURVINESS = 160;     // default curve
 const WIRE_CURVE_SHAPE = "u";  // "u" = U-shaped wiring
@@ -68,6 +114,39 @@ if (typeof window.sessionStart !== "number") {
   window.sessionStart = Date.now();
 }
 
+function showPopup(message, title = "Alert", type = "normal") {
+  const modal = document.getElementById("warningModal");
+  const modalBox = document.getElementById("modalBox");
+  const msg = document.getElementById("modalMessage");
+  const ttl = document.getElementById("modalTitle");
+
+  if (!modal || !modalBox || !msg || !ttl) return;
+
+  msg.textContent = message;
+  ttl.textContent = title;
+
+  modalBox.classList.remove("danger", "closing");
+
+  if (type === "danger") {
+    modalBox.classList.add("danger");
+  }
+
+  modal.classList.add("show");
+}
+
+function closeModal() {
+  const modal = document.getElementById("warningModal");
+  const modalBox = document.getElementById("modalBox");
+
+  if (!modal || !modalBox) return;
+
+  modalBox.classList.add("closing");
+
+  setTimeout(() => {
+    modal.classList.remove("show");
+    modalBox.classList.remove("closing");
+  }, 450);
+}
 
 
 function resetSpeakButtonUI() {
@@ -355,7 +434,7 @@ if (knob1) {
  knob1.addEventListener("mousedown", function (e) {
 
   if (!fieldKnobEnabled) {
-    alert("Set armature resistance first");
+    showPopup("Set armature resistance first");
     return;
   }
 
@@ -606,11 +685,11 @@ function setAmmeterCurrent(current) {
     return;
   }
       if (!connectionsAreCorrect) {
-        alert("Complete connections first");
+        showPopup("Complete connections first");
         return;
       }
       if (!isMCBOn) {
-        alert("Turn ON MCB first");
+        showPopup("Turn ON MCB first");
         return;
       }
 
@@ -677,13 +756,13 @@ if (knob2) {
 
     // Starter must be ON
     if (!starterIsOn) {
-      alert("Turn ON starter first");
+      showPopup("Turn ON starter first");
       return;
     }
 
     // Allow only once
     if (armatureKnobUsed) {
-      alert("Armature resistance already set");
+      showPopup("Armature resistance already set");
       return;
     }
 
@@ -746,7 +825,7 @@ function stopArmatureKnob() {
   knob2.style.cursor = "not-allowed";
   setVoltmeterTo220();
   labStage = "armature_set";
-  alert("Armature resistance set");
+  showPopup("Armature resistance set");
 if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Armature resistance set and the voltage is 220 volt. Now adjust the field resistance knob to take readings."
@@ -796,14 +875,14 @@ if (window.isGuideActive && window.isGuideActive()) {
       // ❌ No wires at all
 // ❌ No wires at all
 if (!connectionsAreCorrect) {
-  alert("Please complete the connections first");
+  showPopup("Please complete the connections first");
   setVoltmeterZero();
   return;
 }
 
 // ❌ Wires exist but NOT verified
 if (!connectionsAreVerified) {
-  alert("Please click on the Check button to confirm the connections");
+  showPopup("Please click on the Check button to confirm the connections");
   setVoltmeterZero();
   return;
 
@@ -1055,7 +1134,7 @@ if (checkBtn) {
     for (let cur of currentSet) {
       if (!requiredConnections.has(cur)) {
         const [a, b] = cur.split("-");
-        alert(`Wrong connection ❌: ${a.replace("point","")} → ${b.replace("point","")}`);
+        showPopup(`Wrong connection ❌: ${a.replace("point","")} → ${b.replace("point","")}`);
         return;
       }
     }
@@ -1064,7 +1143,7 @@ if (checkBtn) {
       connectionsAreCorrect = true;
       connectionsAreVerified = true;
       labStage = "checked";
-      alert("Connections are correct ✅");
+      showPopup("Connections are correct ✅");
       // Voice confirmation
       if (window.isGuideActive && window.isGuideActive()) {
         labSpeech.speak("The connections are correct. Now you can turn on the D C supply.");
@@ -1086,9 +1165,9 @@ if (checkBtn) {
       const elB = document.getElementById(b);
       if (elA) elA.classList.add('endpoint-highlight');
       if (elB) elB.classList.add('endpoint-highlight');
-      // Show default alert popup
+      // Show default showPopup popup
       const msg = `Missing connection: ${a.replace("point","")} → ${b.replace("point","")}`;
-      alert(msg);
+      showPopup(msg);
       // Voice guidance
       if (window.isGuideActive && window.isGuideActive()) {
         labSpeech.speak(`Connection between ${a.replace("point","")} and ${b.replace("point","")} is missing.`);
@@ -1269,7 +1348,7 @@ tableGuidanceActive = false;
 
 
   if (currentReading === 0 || rpmReading === 0) {
-    alert("Set field resistance to get readings first");
+    showPopup("Set field resistance to get readings first");
     return;
   }
 
@@ -1282,7 +1361,7 @@ tableGuidanceActive = false;
         parseFloat(cells[1].textContent) === parseFloat(currentReading.toFixed(2)) &&
         parseInt(cells[2].textContent) === rpmReading
       ) {
-        alert("This reading is already added");
+        showPopup("This reading is already added");
         return;
       }
     }
@@ -1425,7 +1504,7 @@ if (rpmDisplay) rpmDisplay.textContent = "0";
 
 
   if (reportReadings.length < 5) {
-    alert("Please take at least 5 readings to generate the report.");
+    showPopup("Please take at least 5 readings to generate the report.");
     return;
   }
 
@@ -1780,7 +1859,7 @@ if (reportBtn) {
   /* -------- DRAW GRAPH -------- */
  function renderGraph() {
     if (readingsRecorded.length < MIN_GRAPH_POINTS) {
-      alert(`Please take at least ${MIN_GRAPH_POINTS} readings.`);
+      showPopup(`Please take at least ${MIN_GRAPH_POINTS} readings.`);
       return;
     }
 
@@ -1825,7 +1904,7 @@ if (reportBtn) {
       // Enable Report button after graph is generated
       enableReportAfterGraph();
     }).catch(() => {
-      alert("Failed to load graph library.");
+      showPopup("Failed to load graph library.");
     });
   }
 
@@ -1867,7 +1946,7 @@ if (graphBtn) {
 
     // ❌ Not enough readings → NO VOICE
     if (count < MIN_GRAPH_POINTS) {
-      alert(
+      showPopup(
         `You have taken ${count} reading${count !== 1 ? "s" : ""}.\n` +
         `${remaining} more reading${remaining !== 1 ? "s" : ""} required to plot the graph.`
       );
