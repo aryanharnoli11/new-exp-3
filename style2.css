@@ -361,43 +361,109 @@
 
 
 .point-I {
-  left: 8.5%;
-  top: 98%;
+  left: 9.2%;
+  top: 100%;
 }
 #pointI {
-  left: 8.8%;
-  top: 85%;
+  left: 9.5%;
+  top: 86%;
 }
 
 
 
 .point-J {
-  left: 20.9%;
-  top: 98%;
+  left: 22.6%;
+  top: 100%;
 }
 #pointJ {
-  left: 21.3%;
-  top: 85%;
+  left: 23%;
+  top: 86%;
 }
 
 
 
 .point-L {
-  left: 42.3%;
-  top: 100%;
+  left: 298px;
+  top: 225px;
+  width: 24px;
+  height: 24px;
+  z-index: 8;
 }
 #pointL {
-  left: 42.5%;
-  top: 85%;
+  left: 300px;
+  top: 198px;
+  width: 12px;
+  height: 12px;
+  z-index: 6;
+  pointer-events: auto;
+  transform-box: initial;
+  will-change: auto;
 }
 
 
 
 .point-M {
-  left: 55.3%;
-  top: 100%;
+  left: 415px;
+  top: 225px;
+  width: 24px;
+  height: 24px;
+  z-index: 8;
 }
 #pointM {
-  left: 55.5%;
-  top: 85%;
+  left: 420px;
+  top: 198px;
+  width: 12px;
+  height: 12px;
+  z-index: 6;
+  pointer-events: auto;
+  transform-box: initial;
+  will-change: auto;
+}
+
+/* Lock L/M points to the ammeter card so they stay aligned on resize */
+.ammeter-card {
+  position: relative;
+  overflow: visible;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points .point-L,
+.ammeter-card .ammeter-inner .ammeter-points .point-M {
+  position: absolute;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: auto;
+  z-index: 8 !important;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points #pointL,
+.ammeter-card .ammeter-inner .ammeter-points #pointM {
+  position: absolute;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: auto;
+  z-index: 6 !important;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points .point-L {
+  left: 33% !important;
+  top: 99% !important;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points #pointL {
+  left: 29.5% !important;
+  top: 92% !important;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points .point-M {
+  left: 68% !important;
+  top: 99% !important;
+}
+
+.ammeter-card .ammeter-inner .ammeter-points #pointM {
+  left: 72.5% !important;
+  top: 92% !important;
 }

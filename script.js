@@ -1401,7 +1401,7 @@ if (addTableBtn) {
     // 🔊 Speak ONLY if guide active
     if (window.isGuideActive && window.isGuideActive()) {
       const text = totalReadingsAdded === 5
-        ? "Five readings are added. Now you can plot the graph."
+        ? "Five readings are added. Now you can plot the graph by clicking the Plot Graph button."
         : "Reading added. Now vary the field resistance to take further readings.";
 
       speakSafe(text);  // Use speakSafe for consistency

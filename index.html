@@ -112,22 +112,21 @@
                    <div id="pointJ" class="point"></div>
                   </div>
                   
-                         <div class="meter-card  ammeter-card">
-                            <div class="ammeter-inner">
-                            <img src="images/ammeter.png" alt="Ammeter">
-                            <div class="meter-needle1 ammeter-needle">
-                            <img src="images/needle.png" alt="needle">
-                            </div>
-                        </div>
-                    </div>
-                 <div>
+                          <div class="meter-card  ammeter-card">
+                             <div class="ammeter-inner">
+                             <img src="images/ammeter.png" alt="Ammeter">
+                             <div class="meter-needle1 ammeter-needle">
+                             <img src="images/needle.png" alt="needle">
+                             </div>
+                        <div class="ammeter-points">
                     <button class="point-L">L</button>
                    <button class="point-M">M</button>
                     
                    <div id="pointL" class="point"></div>
                    <div id="pointM" class="point"></div>
-                   
-                </div>
+                         </div>
+                        </div>
+                    </div>
                         <div class="meter-card rpm-card">
                                       <img src="images/rpm.png" id="rpm-indicator" alt="RPM Indicator">
                                         <div id="rpmDisplay" class="rpm-display">0</div>
@@ -187,6 +186,7 @@
             <aside class="right-column">
 
     <div class="pill-stack">
+        <div class="action-controls">
         <div class="instructions-wrapper">
        <button class="pill-btn instructions-btn">
       <i class="fa-solid fa-circle-info"style="font-size:16px;"></i>&nbsp;&nbsp;
@@ -248,11 +248,19 @@
 
 
         <button class="pill-btn obs-add-btn" id="addTableBtn" type="button">
-            <i class="fa-solid fa-table" style="font-size:16px;"></i>&nbsp;&nbsp;
+            <i class="fa-solid fa-table" style="font: size 18px;"></i>&nbsp;
             <span>Add To Table</span>
         </button>
 
-         <div class="observation-controls">
+
+          <button class="pill-btn" id="resetBtn">
+                <i class="fa-solid fa-arrow-rotate-right"  style="font-size:16px;"></i>&nbsp;&nbsp;
+                <span>Reset</span>
+            </button>
+            
+         </div>
+
+         <div class="observation-panel">
                          <section class="observation-section">
                         <div class="observation-header">
                             <div>
@@ -279,6 +287,7 @@
                         </div>
                     </section>
                         </div>
+    </div>
         
 </aside>
 
@@ -289,7 +298,7 @@
             
             <div class="graph-header">
                 <h3>Output Graph</h3>
-                <div class="center-actions">
+                <div class="graph-actions">
                     
 
             
@@ -304,14 +313,11 @@
 </button>
 
 
-             <button class="pill-btn" id="resetBtn">
-                <i class="fa-solid fa-arrow-rotate-right"  style="font-size:16px;"></i>&nbsp;&nbsp;
-                <span>Reset</span>
-            </button>
+           
             <button class="pill-btn">
                 <i class="fa-solid fa-print" style="font-size:16px;"></i>&nbsp;&nbsp;
                 <span>Print</span>
-            </button></br>
+            </button>
             </div>
                 <span class="graph-caption"></span>
             
@@ -320,8 +326,6 @@
   <div id="graphBars" class="graph-bars"></div>
   <div id="graphPlot" class="graph-plot"></div>
 </div>
-                
-            </div>
         </section>    
 
     </main>
