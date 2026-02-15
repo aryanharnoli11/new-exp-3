@@ -111,27 +111,7 @@
   transform: translate(-50%, -50%);
 }
 
-#pointL {
-  position: absolute;
-  left: 300px;
-  top: 198px;
-  transform: translate(-50%, -50%);
-  transform-box: border-box;
-  z-index: 9999;
-  pointer-events: auto;
-  will-change: auto;
-}
 
-#pointM {
-  position: absolute;
-  left: 420px;
-  top: 198px;
-  transform: translate(-50%, -50%);
-  transform-box: border-box;
-  z-index: 9999;
-  pointer-events: auto;
-  will-change: auto;
-}
 
 #pointC {
   position: absolute;
@@ -252,24 +232,7 @@
   transform: translate(-50%, -50%);
   font-weight: bold;
 }
-.point-L{
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: 298px;
-  top: 225px;
-  transform: translate(-50%, -50%);
-  font-weight: bold;
-}
-.point-M{
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: 415px;
-  top: 225px;
-  transform: translate(-50%, -50%);
-  font-weight: bold;
-}
+
 
 .point-C{
   position: absolute;
@@ -382,44 +345,6 @@
 
 
 
-.point-L {
-  left: 298px;
-  top: 225px;
-  width: 24px;
-  height: 24px;
-  z-index: 8;
-}
-#pointL {
-  left: 300px;
-  top: 198px;
-  width: 12px;
-  height: 12px;
-  z-index: 6;
-  pointer-events: auto;
-  transform-box: initial;
-  will-change: auto;
-}
-
-
-
-.point-M {
-  left: 415px;
-  top: 225px;
-  width: 24px;
-  height: 24px;
-  z-index: 8;
-}
-#pointM {
-  left: 420px;
-  top: 198px;
-  width: 12px;
-  height: 12px;
-  z-index: 6;
-  pointer-events: auto;
-  transform-box: initial;
-  will-change: auto;
-}
-
 /* Lock L/M points to the ammeter card so they stay aligned on resize */
 .ammeter-card {
   position: relative;
@@ -434,11 +359,14 @@
 
 .ammeter-card .ammeter-inner .ammeter-points .point-L,
 .ammeter-card .ammeter-inner .ammeter-points .point-M {
-  position: absolute;
-  transform: translate(-50%, -50%) !important;
+  width: clamp(14px, 2vw, 20px);
+  height: clamp(14px, 2vw, 20px);
+  font-size: clamp(9px, 1.2vw, 12px);
+  transform: translate(-50%, -50%);
   pointer-events: auto;
-  z-index: 8 !important;
+  z-index: 8;
 }
+
 
 .ammeter-card .ammeter-inner .ammeter-points #pointL,
 .ammeter-card .ammeter-inner .ammeter-points #pointM {
@@ -447,23 +375,50 @@
   pointer-events: auto;
   z-index: 6 !important;
 }
+/* ===========================
+   L & M FINAL PERFECT ALIGN
+=========================== */
 
-.ammeter-card .ammeter-inner .ammeter-points .point-L {
-  left: 33% !important;
-  top: 99% !important;
+.ammeter-inner .point-L,
+.ammeter-inner .point-M,
+.ammeter-inner #pointL,
+.ammeter-inner #pointM {
+  position: absolute;
+  transform: translate(-50%, -50%);
 }
 
-.ammeter-card .ammeter-inner .ammeter-points #pointL {
-  left: 29.5% !important;
-  top: 92% !important;
+/* Visible Buttons */
+
+.ammeter-inner .point-L {
+  left: 20%;
+  top: 110%;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
 }
 
-.ammeter-card .ammeter-inner .ammeter-points .point-M {
-  left: 68% !important;
-  top: 99% !important;
+.ammeter-inner .point-M {
+  left: 79%;
+  top:110%;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
 }
 
-.ammeter-card .ammeter-inner .ammeter-points #pointM {
-  left: 72.5% !important;
-  top: 92% !important;
+/* Hidden jsPlumb Endpoints */
+
+.ammeter-inner #pointL {
+  left: 18%;
+  top: 110%;
+  width: 10px;
+  height: 10px;
+  z-index: 5;
+}
+
+.ammeter-inner #pointM {
+  left: 87%;
+  top: 110%;
+  width: 10px;
+  height: 10px;
+  z-index: 5;
 }

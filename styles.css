@@ -27,7 +27,11 @@ body {
 
     min-height: auto;   /* ✅ IMPORTANT */
 }
-
+meter-card rpm-card {
+    width: 180px;        /* ← Manually set width */
+    height: auto;        /* Keep aspect ratio */
+    max-width: 100%;     /* Prevent overflow */
+}
 .top-row {
     position: relative; /* keep jsPlumb endpoints tied to this area when the viewport changes */
     display: grid;
@@ -193,23 +197,21 @@ h3 {
 
 
 .meter-panel {
-    --meter-panel-height: clamp(240px, 32vw, 280px);
     position: relative;
-    width:100%;
-    max-width: 900px;
-    height: var(--meter-panel-height);
-    aspect-ratio: 16 / 9;
+    width: 900px;           /* FIXED width */
+    max-width: 100%;
+    height: 280px;          /* FIXED height */
     background-image: url(images/wooden-texture.jpg);
     background-size: cover;
     background-position: center;
     border: 4px solid #8c6a48;
     border-radius: 6px;
-    padding: clamp(6px, 1vw, 10px);
+    padding: 10px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
     overflow: hidden;
-    padding-bottom: clamp(2px, 0.2vw, 2px);
 }
+
 .meters {
     position: absolute;
     display: flex;
@@ -223,8 +225,8 @@ h3 {
     margin-bottom: clamp(15px, 2.5vw, 20px);
 }
 .rpm-card img {
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
 }
 
@@ -507,7 +509,7 @@ h3 {
   width: 100%;
   justify-content: center;
   row-gap: 22px;
-  column-gap: 10px;
+  column-gap: 12px;
   margin: 10px 0 25px 0;
 }
 
@@ -555,7 +557,7 @@ h3 {
   justify-content: center;
   gap: 8px;
 
-  width: 210px;
+  width: 180px;
   height: 50px;
 
   border-radius: 50px;
@@ -1140,7 +1142,7 @@ img {
   position: relative;
 }
 .obs-add-btn {
-    width: 210px;
+    width: 180px;
     max-width: 260px;          /* same as other pill buttons */
     height: 50px;
     padding: 0 38px;           /* same padding as .pill-btn */
@@ -1203,17 +1205,18 @@ img {
 .rpm-card {
   position: relative;
   flex: 0 0 auto;
-  width: 230px;
-  height: 165px;
-  min-width: 230px;
-  min-height: 205px;
-  max-width: 230px;
-  max-height: 165px;
+
+  width: 230px;        /* ↓ reduced */
+  height: 216px;       /* ↓ reduced */
+
+ 
+
   align-self: center;
 }
 
+
 #rpm-indicator {
-  width: 100%;
+  width:80%;
   height: 100%;
   max-width: 100%;
   max-height: 100%;
@@ -1225,12 +1228,9 @@ img {
   left: 50%;
   top: 44%;
   transform: translate(-50%, -62%);
-  width: 120px;
-  height: 38px;
-  min-width: 120px;
-  min-height: 38px;
-  max-width: 120px;
-  max-height: 38px;
+  width: 150px;
+  height: 50px;
+ 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1485,8 +1485,8 @@ img {
 /* STEP 3: Increase ammeter size safely */
 .ammeter-card .ammeter-inner {
   position: relative;
-  width: 260px;
-  height: 260px;
+  width: 160px;
+  height: 160px;
   max-width: 100%;
   max-height: 100%;
   display: flex;
@@ -2108,3 +2108,4 @@ img {
     opacity: 0;
   }
 }
+
