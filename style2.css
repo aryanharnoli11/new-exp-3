@@ -214,24 +214,7 @@
    top: 258px;
    font-weight: bold;
  }
-.point-I{
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: 49px;
-  top: 220px;
-  transform: translate(-50%, -50%);
-  font-weight: bold;
-}
-.point-J{
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: 160px;
-  top: 220px;
-  transform: translate(-50%, -50%);
-  font-weight: bold;
-}
+
 
 
 .point-C{
@@ -390,16 +373,16 @@
 /* Visible Buttons */
 
 .ammeter-inner .point-L {
-  left: 20%;
-  top: 110%;
+  left: 19%;
+  top: 112%;
   width: 20px;
   height: 20px;
   z-index: 10;
 }
 
 .ammeter-inner .point-M {
-  left: 79%;
-  top:110%;
+  left: 80%;
+  top:112%;
   width: 20px;
   height: 20px;
   z-index: 10;
@@ -408,7 +391,7 @@
 /* Hidden jsPlumb Endpoints */
 
 .ammeter-inner #pointL {
-  left: 18%;
+  left: 12%;
   top: 110%;
   width: 10px;
   height: 10px;
@@ -416,7 +399,7 @@
 }
 
 .ammeter-inner #pointM {
-  left: 87%;
+  left: 90%;
   top: 110%;
   width: 10px;
   height: 10px;
