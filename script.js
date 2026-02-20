@@ -392,7 +392,7 @@ let rpmReading = 0;
 
 const voltmeterNeedle = document.querySelector(".meter-needle3");
 
-const VOLT_0_ANGLE = -3;   // 0 Volt position
+const VOLT_0_ANGLE = -12;   // 0 Volt position
 const VOLT_220_ANGLE = 70;  // 220 Volt position
 
 // Set needle to 0V (NO animation)
@@ -625,26 +625,21 @@ function stopRotorRotation() {
   }
 }
 
-// Map current (0–0.5A) to needle angle (adjust if needed)
 function setAmmeterCurrent(current) {
   if (!ammeterNeedle) return;
 
-  // Clamp safety
   current = Math.max(0, Math.min(1, current));
 
-  const MIN_ANGLE = -70; // 0 A
-  const MAX_ANGLE = 70;  // 1 A
+  const MIN_ANGLE = -75;   // 0 A
+  const MAX_ANGLE = 80;    // 1 A
 
   const angle =
     MIN_ANGLE + (current * (MAX_ANGLE - MIN_ANGLE));
 
   ammeterNeedle.style.transition = "transform 0.4s ease-in-out";
   ammeterNeedle.style.transform =
-    `translate(-60%, -90%) rotate(${angle}deg)`;
+    `translate(-50%, -90%) rotate(${angle}deg)`;
 }
-
-
-
 
 
   /* =====================================================

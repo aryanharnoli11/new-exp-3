@@ -923,10 +923,12 @@ img {
     position: absolute;
     width: 29px;
     height: auto;
-    left: 53%;
-    top: 50%;
-    transform-origin: 50% 90%;
-    transform: rotate(0deg);
+
+    left: 52%;           /* PERFECT CENTER */
+    top: 52%;
+
+    transform-origin: 50% 90%;   /* pivot at black knob */
+    pointer-events: none;
 }
 
 /* =============================
@@ -938,8 +940,8 @@ img {
   height: auto;
 
   /* true center of the meter */
-  left: 50%;
-  top: 50%;
+  left: 51%;
+  top: 52%;
 
   /* base of needle stays fixed */
   transform: translate(-50%, -90%) rotate(-70deg);
@@ -1173,25 +1175,11 @@ img {
   transition: left 0.2s ease;
 }
 
-/* Observation table */
-.observation-section {
-    background:#d7d0c4;
-    border:none;
-    border-radius: 6px;
-    padding: clamp(12px, 2vw, 16px);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.08);
-    display: flex;
-    flex-direction: column;
-    gap: clamp(10px, 2vw, 14px);
-    margin-top: clamp(12px, 2vw, 18px);
-}
 
 .observation-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
+    justify-content: center;   /* ✅ CENTER IT */
 }
 
 .observation-caption {
@@ -1245,25 +1233,51 @@ img {
     overflow-x: auto;
 }
 
+
+
+/* Title */
+.observation-header h3 {
+  display: inline-block;
+
+ padding: 8px 28px;
+background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radius: 6px;
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+  margin: 0 auto 14px;
+}
+
+/* Table */
 #observationTable {
-    width: 100%;
-    border-collapse: collapse;
-    background:transparent;
-    border:none;
+  width: 90%;
+  margin: 0 auto 10px;
+  border-collapse: collapse;
+  background:#805a0e;
 }
 
-#observationTable th,
+/* Header cells */
+#observationTable th {
+  background: #f8ebd1;
+  color: #2c1a0a;
+  padding: 10px;
+  border: 1px solid #333;
+  font-size: 14px;
+}
+
+/* Body cells */
 #observationTable td {
-    border: 1px solid #111;
-    padding: 8px 10px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 0.95rem;
+  background: #f3ede3;
+  padding: 9px;
+  border: 1px solid #333;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-#observationTable thead {
-    background: linear-gradient(135deg, #f7efde, #e2d5c2 50%, #cdb9a0);
-    color: #2c1a0a;
+/* Placeholder row */
+#observationTable .placeholder-row td {
+  color: #6b5e4e;
+  font-weight: 500;
 }
 
 #observationTable tbody tr:nth-child(even) {
@@ -1278,9 +1292,7 @@ img {
   transition: none;
 }
 
-.meter-needle1 {
-  transform: translate(-60%, -90%) rotate(-71deg);
-}
+
 .meter-needle1 {
   transform-origin: 50% 90%;
 }
@@ -2335,4 +2347,44 @@ body {
 
 .chatbot-text {
   top: 50%;
+}
+@media print {
+
+  body {
+    background: white !important;
+  }
+
+  .chatbot-widget,
+  .components-launcher,
+  .instructions-panel,
+  .modal,
+  .hover-tooltip,
+  .pill-stack,
+  .graph-actions {
+    display: none !important;
+  }
+
+  .panel {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+
+  .top-row {
+    display: block !important;
+  }
+
+  .left-column,
+  .center-column,
+  .right-column {
+    border: none !important;
+  }
+
+  .graph-plot {
+    display: block !important;
+  }
+
+  .graph-bars {
+    display: none !important;
+  }
+
 }
