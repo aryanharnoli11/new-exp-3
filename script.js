@@ -1264,7 +1264,37 @@ function announceIfAllConnectionsDone() {
     // );
   }
 }
+function announceIfAllConnectionsDone() {
+  if (isAutoConnecting) return;
+  if (allConnectionsAnnounced) return;
+  if (suppressAllAutoVoices) return;
 
+  const result = validateConnections();
+  if (result.status === "correct") {
+    allConnectionsAnnounced = true;
+  }
+}
+
+// ================= PRINT BUTTON =================
+const printBtn = document.getElementById("printBtn");
+
+if (printBtn) {
+  printBtn.addEventListener("click", () => {
+
+    if (window.labSpeech) {
+      window.labSpeech.stop();
+    }
+
+    if (typeof jsPlumb !== "undefined") {
+      jsPlumb.repaintEverything();
+    }
+
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  });
+}
+// ===============================================
 
 
 

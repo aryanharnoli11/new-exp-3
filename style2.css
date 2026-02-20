@@ -405,3 +405,46 @@
   height: 10px;
   z-index: 5;
 }
+
+/* Keep wiring point sizes fixed across viewport changes */
+.point-I,
+.point-J,
+.point-L,
+.point-M {
+  width: 24px;
+  height: 24px;
+}
+
+#pointI,
+#pointJ,
+#pointL,
+#pointM {
+  width: 10px;
+  height: 10px;
+}
+
+/* Anchor C/D to motor box so they stay fixed on resize */
+.motor-box .point-C,
+.motor-box .point-D,
+.motor-box #pointC,
+.motor-box #pointD {
+  position: absolute;
+  top: 10%;
+  transform: translate(-50%, -50%);
+}
+
+.motor-box .point-C {
+  left: 20%;
+}
+
+.motor-box #pointC {
+  left: 8%;
+}
+
+.motor-box .point-D {
+  left: 80%;
+}
+
+.motor-box #pointD {
+  left: 92%;
+}
