@@ -530,6 +530,7 @@ speakSafe(
 
   const rotor = document.getElementById("gr");
   if (rotor) rotor.style.transform = "rotate(0deg)";
+  
 
   // Reset RPM
   rpmReading = 0;
@@ -1538,7 +1539,11 @@ if (rpmDisplay) rpmDisplay.textContent = "0"; // RPM → 0
 
 const rotor = document.getElementById("gr");
 if (rotor) rotor.style.transform = "rotate(0deg)";
-
+showPopup(
+  "The simulation has been reset.\nYou can start again.",
+  "Simulation Reset",
+  "normal"
+);
     });
   }
 // Voltmeter must ALWAYS start at 0V
@@ -1831,22 +1836,49 @@ Plotly.newPlot("graph", [{
   w.document.write(html);
   w.document.close();
 
-  if (window.labSpeech && typeof window.labSpeech.speak === "function") {
-    window.labSpeech.speak(
-      "Report is ready. You can print it and reset the experiment when you are done."
-    );
-  }
+ if (window.isGuideActive && window.isGuideActive()) {
+  speakSafe(
+    "Report is ready. You can print it and reset the experiment when you are done."
+  );
+}
 }
 
 
 
 
 
-// ================= REPORT BUTTON =================
 if (reportBtn) {
-  reportBtn.addEventListener("click", generateReport);
-}
+  reportBtn.addEventListener("click", function () {
 
+    // Show popup normally
+    showPopup(
+      "Your report has been generated successfully.\nClick OK to view your report.",
+      "Report Generated",
+      "normal"
+    );
+
+    // Get OK button
+    const okBtn = document.getElementById("modalOkBtn");
+
+    if (okBtn) {
+
+      // Remove old click temporarily
+      okBtn.onclick = null;
+
+      okBtn.onclick = function () {
+
+        closeModal();   // close popup first
+
+        // Small delay to allow modal animation
+        setTimeout(() => {
+          generateReport();
+        }, 300);
+
+      };
+    }
+
+  });
+}
 
 /* ===============================
    GRAPH LOGIC (PLOTLY BASED)
@@ -2004,7 +2036,11 @@ if (reportBtn) {
   /* -------- BUTTON EVENTS -------- */
 if (graphBtn) {
   graphBtn.addEventListener("click", function () {
-
+ showPopup(
+      "The graph of speed vs field current has been plotted successfully.\n\nYour experiment is now complete.\nYou may view the report by clicking on the Report button, then use Print to print the page or Reset to start again.",
+      "Experiment Completed",
+      "normal"
+    );
     const count = readingsRecorded.length;
     const remaining = MIN_GRAPH_POINTS - count;
 
