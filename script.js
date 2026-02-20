@@ -497,6 +497,12 @@ if (fieldStepIndex >= 1 && fieldStepIndex <= 7) {
   // RPM
   rpmReading = FIELD_RPM_VALUES[fieldStepIndex];
   if (rpmDisplay) rpmDisplay.textContent = rpmReading;
+  // ✅ SHOW ALERT ON EACH ADJUSTMENT
+showPopup(
+  `\nField current is ${currentReading.toFixed(2)}  ampere and speed is ${rpmReading} RPM.\nNow, click on the Add to Table button to add the reading to the observation table.`,
+  "Field Rheostat Set",
+  "normal"
+);
   if (window.isGuideActive && window.isGuideActive() && !waitingForAddToTable) {
   waitingForAddToTable = true;
   tableGuidanceActive = true;
@@ -724,6 +730,12 @@ function setAmmeterCurrent(current) {
       updateStarterPosition(1);
       starterIsOn = true;
       labStage = "starter_on";
+        showPopup(
+      "Now, set the armature rheostat.",
+      "Starter IS ON",
+      "normal"
+    );
+
 if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Starter is on. Now set the armature resistance."
@@ -845,6 +857,11 @@ if (window.isGuideActive && window.isGuideActive()) {
         starterIsOn = false;
         armatureKnobUsed = false;
         mcbImg.src = "images/mcb-off.png";
+         showPopup(
+        "You turned off the DC Supply.\nTurn it back on to continue the simulation.",
+        "DC Supply OFF",
+        "danger"
+      );
         // Reset starter
         if (starterHandle) {
           updateStarterPosition(0);
@@ -900,6 +917,11 @@ if (knob2) {
       // TURN ON
       isMCBOn = true;
       mcbImg.src = "images/mcb-on.png";
+      showPopup(
+  "DC supply has been turned ON.\nNow move the starter handle from left to right.",
+  "DC Supply ON",
+  "normal"
+);
       setLabelButtonsDisabled(true); // <-- Disable label buttons
       setAutoCheckButtonsDisabled(true); // <-- Disable Auto Connect and Check buttons
       // 🔊 GUIDED VOICE (ONLY IF GUIDE IS ACTIVE)
@@ -1330,7 +1352,11 @@ if (!guideWasActive) {
     jsPlumb.repaintEverything();
     connectionsAreCorrect = true;        // wires exist
     connectionsAreVerified = false;      // ❌ user has NOT clicked Check
-
+   showPopup(
+  "Autoconnect completed.\nClick on the Check button to verify the connections.",
+  "ALERT",
+  "normal"
+);
 
 setTimeout(() => {
   suppressAllAutoVoices = false;
@@ -1412,6 +1438,25 @@ reportReadings.push({
 });
 // ✅ INCREASE COUNT
 totalReadingsAdded++;
+// ✅ ALERT ON 7TH READING
+if (totalReadingsAdded === 7) {
+  showPopup(
+    "You can add a maximum of 7 readings to the table.\nNow, click the Graph button.",
+    "Maximum Readings Reached",
+    "normal"
+  );
+}
+// ✅ SHOW ALERT WHEN 5 READINGS ARE ADDED
+if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
+
+  showPopup(
+    "You have added five readings.\nNow you can plot the graph by clicking on the Graph button or add more readings to the table.",
+    "Five Readings Completed",
+    "normal"
+  );
+
+  fiveReadingsAnnounced = true;
+}
 }
 
 if (addTableBtn) {
@@ -2408,7 +2453,22 @@ speakCurrentStep();
   /* ---------- EVENTS ---------- */
   closeEls.forEach(el => el.addEventListener("click", () => close()));
   skipBtn && skipBtn.addEventListener("click", () => close({ skip: true }));
+// ✅ SHOW ALERT WHEN SKIP IS CLICKED
+if (skipBtn) {
+  skipBtn.addEventListener("click", function () {
 
+    close({ skip: true });
+
+    setTimeout(() => {
+      showPopup(
+        "Now that you are familiar with all the components used in this experiment, you may now start the simulation.",
+        "Ready to Start",
+        "normal"
+      );
+    }, 200);
+
+  });
+}
   openBtns.forEach(btn =>
     btn.addEventListener("click", e => {
       e.preventDefault();
