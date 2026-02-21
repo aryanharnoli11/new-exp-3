@@ -7,12 +7,12 @@
   /* No custom layout wrapper or footer styles */
 }
 body {
- 
     min-height: 100vh;
     background: #d7d0c4;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: 'Lucida Sans', Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
+    align-items: stretch;
     padding: clamp(12px, 2vw, 24px);
 }
 .panel {
@@ -24,9 +24,11 @@ body {
     display: flex;
     flex-direction: column;
     gap: clamp(12px, 2vw, 20px);
+  margin: 0 auto;   /* ✅ ensure centering */
 
     min-height: auto;   /* ✅ IMPORTANT */
 }
+
 meter-card rpm-card {
     width: 180px;        /* ← Manually set width */
     height: auto;        /* Keep aspect ratio */
@@ -37,6 +39,7 @@ meter-card rpm-card {
     display: grid;
     grid-template-columns: 1fr 2.6fr 1.2fr;
     gap: 0;
+    min-height: 70px;
     align-items: start;
     border: 3px solid #111;
     border-radius: 8px;
@@ -46,13 +49,12 @@ meter-card rpm-card {
 .center-column,
 .right-column {
     padding: clamp(12px, 2vw, 18px);
-    border-right: 3px solid #111;
     min-width: 0;
 }
  
 .right-column {
     border-right: none;
-    /* border-left: 3px solid #111; */
+  
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -62,8 +64,7 @@ meter-card rpm-card {
 
 .center-column {
   border-right: none;
-    /* border-left: 3px solid #111; */
-    border-right: 3px solid #111;
+    
     display: flex;
     flex-direction: column;
     gap: clamp(12px, 3vw, 24px);
@@ -251,7 +252,7 @@ h3 {
 }
 #ammter1-label{
     position: absolute;
-    bottom: -10px;        /* distance below meter */
+    bottom: -5px;        /* distance below meter */
     left: 135px;
     transform: translateX(-50%);
 
@@ -907,6 +908,7 @@ img {
     .center-column,
     .right-column {
         border: none;
+        
         border-bottom: 3px solid #111;
     }
 
@@ -1042,7 +1044,7 @@ img {
   width: 31px;      
   height: 30px;
   cursor: grab;
-  pointer-events: auto;
+  pointer-events: grab;
   transition:none;
   aspect-ratio: 1 / 1;
   object-fit: contain;
@@ -2274,7 +2276,7 @@ body {
 
 .center-column {
   align-items: center;
-  gap: 16px;
+  gap: 50px;
   min-width: var(--lab-center-column);
 }
 
@@ -2387,4 +2389,25 @@ body {
     display: none !important;
   }
 
+}
+.panel-footer__copyright {
+    text-align: center;
+    font-size: clamp(0.75rem, 1vw, 0.9rem);
+    font-weight: 600;
+    color: rgb(43, 43, 43);
+    letter-spacing: 0.02em;
+    border-top: 2px solid rgba(0, 0, 0, 0.12);
+    padding: 0.65rem 0.9rem 0.8rem;
+}
+
+/* ===== RHEOSTAT KNOB CURSOR FIX ===== */
+.nob1,
+.nob2 {
+  cursor: grab !important;
+  pointer-events: auto !important;
+}
+
+.nob1:active,
+.nob2:active {
+  cursor: grabbing !important;
 }

@@ -497,12 +497,7 @@ if (fieldStepIndex >= 1 && fieldStepIndex <= 7) {
   // RPM
   rpmReading = FIELD_RPM_VALUES[fieldStepIndex];
   if (rpmDisplay) rpmDisplay.textContent = rpmReading;
-  // ✅ SHOW ALERT ON EACH ADJUSTMENT
-showPopup(
-  `\nField current is ${currentReading.toFixed(2)}  ampere and speed is ${rpmReading} RPM.\nNow, click on the Add to Table button to add the reading to the observation table.`,
-  "Field Rheostat Set",
-  "normal"
-);
+
   if (window.isGuideActive && window.isGuideActive() && !waitingForAddToTable) {
   waitingForAddToTable = true;
   tableGuidanceActive = true;
@@ -731,12 +726,7 @@ function setAmmeterCurrent(current) {
       updateStarterPosition(1);
       starterIsOn = true;
       labStage = "starter_on";
-        showPopup(
-      "Now, set the armature rheostat.",
-      "Starter IS ON",
-      "normal"
-    );
-
+      
 if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Starter is on. Now set the armature resistance."
@@ -863,6 +853,13 @@ if (window.isGuideActive && window.isGuideActive()) {
         "DC Supply OFF",
         "danger"
       );
+  // 🔄 RESET ARMATURE RHEOSTAT TO INITIAL POSITION
+armatureKnobUsed = false;
+
+if (knob2) {
+  knob2.style.left = ARM_ROD_MIN_X + "px";
+  knob2.style.cursor = "pointer";
+}    
         // Reset starter
         if (starterHandle) {
           updateStarterPosition(0);
@@ -884,30 +881,17 @@ if (window.isGuideActive && window.isGuideActive()) {
         setAutoCheckButtonsDisabled(false); // <-- Re-enable Auto Connect and Check buttons
         return; // 🚨 VERY IMPORTANT
       }
-
-      // ❌ No wires at all
-// ❌ No wires at all
-if (!connectionsAreCorrect) {
-  showPopup("Please complete the connections first");
+// 🚨 BLOCK DC SUPPLY IF CONNECTIONS NOT READY
+if (!connectionsAreCorrect || !connectionsAreVerified) {
+  showPopup(
+    "\nMake and check the connections before turning on the DC Supply.",
+    "DC Supply Alert",
+    "danger"
+  );
   setVoltmeterZero();
   return;
 }
 
-// ❌ Wires exist but NOT verified
-if (!connectionsAreVerified) {
-  showPopup("Please click on the Check button to confirm the connections");
-  setVoltmeterZero();
-  return;
-
-
-
-        stopRotorRotation();
-rotorAngle = 0;
-
-const rotor = document.getElementById("gr");
-if (rotor) rotor.style.transform = "rotate(0deg)";
-
-      }
 // Reset armature rheostat
 armatureKnobUsed = false;
 if (knob2) {
@@ -1139,8 +1123,17 @@ if (checkBtn) {
   let missingConnectionsQueue = [];
   let isGuidingMissing = false;
   checkBtn.addEventListener("click", function () {
+
     // Gather all missing connections
     const currentConnections = jsPlumb.getAllConnections();
+     if (currentConnections.length === 0) {
+    showPopup(
+      "Please make all the connections first.",
+      "Incomplete Connections",
+      "danger"
+    );
+    return;
+  }
     const currentSet = new Set(
       currentConnections.map(conn => [conn.sourceId, conn.targetId].sort().join("-"))
     );
@@ -1161,7 +1154,7 @@ if (checkBtn) {
       connectionsAreCorrect = true;
       connectionsAreVerified = true;
       labStage = "checked";
-      showPopup("Connections are correct ✅");
+      showPopup("Connections are correct, click on the DC Supply to turn it ON");
       // Voice confirmation
       if (window.isGuideActive && window.isGuideActive()) {
         labSpeech.speak("The connections are correct. Now you can turn on the D C supply.");
@@ -1353,11 +1346,7 @@ if (!guideWasActive) {
     jsPlumb.repaintEverything();
     connectionsAreCorrect = true;        // wires exist
     connectionsAreVerified = false;      // ❌ user has NOT clicked Check
-   showPopup(
-  "Autoconnect completed.\nClick on the Check button to verify the connections.",
-  "ALERT",
-  "normal"
-);
+
 
 setTimeout(() => {
   suppressAllAutoVoices = false;
@@ -1400,7 +1389,7 @@ tableGuidanceActive = false;
 
 
   if (currentReading === 0 || rpmReading === 0) {
-    showPopup("Set field resistance to get readings first");
+    showPopup("First, set the field rheostat");
     return;
   }
 
@@ -1534,11 +1523,28 @@ stopRotorRotation();
 rotorAngle = 0;
 if (rpmDisplay) rpmDisplay.textContent = "0"; // RPM → 0
 
+// 🔄 RESET FIELD RHEOSTAT TO INITIAL POSITION
+fieldKnobEnabled = false;
+fieldStepIndex = 0;
 
+if (knob1 && FIELD_POSITIONS.length > 0) {
+  knob1.style.left = FIELD_POSITIONS[0] + "px";
+  knob1.style.cursor = "not-allowed";
+}
 
+// Reset readings
+currentReading = 0;
+rpmReading = 0;
+setAmmeterCurrent(0);
+if (rpmDisplay) rpmDisplay.textContent = "0";
+
+// Stop rotor completely
+stopRotorRotation();
+rotorAngle = 0;
 
 const rotor = document.getElementById("gr");
 if (rotor) rotor.style.transform = "rotate(0deg)";
+
 showPopup(
   "The simulation has been reset.\nYou can start again.",
   "Simulation Reset",
@@ -2497,7 +2503,7 @@ if (skipBtn) {
 
     setTimeout(() => {
       showPopup(
-        "Now that you are familiar with all the components used in this experiment, you may now start the simulation.",
+        "Now that you are familiar with all the components used in this experiment, you may now start the simulation. An AI guide is available to assist you at every step",
         "Ready to Start",
         "normal"
       );
