@@ -304,7 +304,7 @@
   transform: translate(-50%, -50%);
 }
 
-
+/* #endpoint .label*/
 
 .point-I {
   left: 9%;
@@ -312,18 +312,18 @@
 }
 #pointI {
   left: 9.5%;
-  top: 92%;
+  top: 90.5%;
 }
 
 
 
 .point-J {
-  left: 22.6%;
+  left: 23.6%;
   top: 104%;
 }
 #pointJ {
-  left: 23%;
-  top: 92%;
+  left: 24%;
+  top: 90.5%;
 }
 
 
