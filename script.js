@@ -122,7 +122,7 @@ function showPopup(message, title = "Alert", type = "normal") {
 
   if (!modal || !modalBox || !msg || !ttl) return;
 
-  msg.textContent = message;
+  msg.innerHTML = message.replace(/\n/g, "<br>");
   ttl.textContent = title;
 
   modalBox.classList.remove("danger", "closing");
@@ -1120,92 +1120,105 @@ const checkBtn = Array.from(
 ).find(btn => btn.textContent.trim() === "Check");
 
 if (checkBtn) {
-  let missingConnectionsQueue = [];
-  let isGuidingMissing = false;
+
   checkBtn.addEventListener("click", function () {
 
-    // Gather all missing connections
     const currentConnections = jsPlumb.getAllConnections();
-     if (currentConnections.length === 0) {
-    showPopup(
-      "Please make all the connections first.",
-      "Incomplete Connections",
-      "danger"
-    );
-    return;
-  }
-    const currentSet = new Set(
-      currentConnections.map(conn => [conn.sourceId, conn.targetId].sort().join("-"))
-    );
-    missingConnectionsQueue = [];
-    for (let req of requiredConnections) {
-      if (!currentSet.has(req)) missingConnectionsQueue.push(req);
-    }
-    // Extra/wrong connections
-    for (let cur of currentSet) {
-      if (!requiredConnections.has(cur)) {
-        const [a, b] = cur.split("-");
-        showPopup(`Wrong connection ❌: ${a.replace("point","")} → ${b.replace("point","")}`);
-        return;
-      }
-    }
-    // If all correct
-    if (missingConnectionsQueue.length === 0) {
-      connectionsAreCorrect = true;
-      connectionsAreVerified = true;
-      labStage = "checked";
-      showPopup("Connections are correct, click on the DC Supply to turn it ON");
-      // Voice confirmation
-      if (window.isGuideActive && window.isGuideActive()) {
-        labSpeech.speak("The connections are correct. Now you can turn on the D C supply.");
-      }
-      // Remove any highlights
-      document.querySelectorAll('.endpoint-highlight').forEach(el => el.classList.remove('endpoint-highlight'));
+
+    if (currentConnections.length === 0) {
+      showPopup(
+        "Please make all the connections first.",
+        "Incomplete Connections",
+        "danger"
+      );
       return;
     }
-    // Sequential guidance for missing connections
-    let guidingIndex = 0;
-    isGuidingMissing = true;
-    function guideNextMissing() {
-      if (!isGuidingMissing || guidingIndex >= missingConnectionsQueue.length) return;
-      const [a, b] = missingConnectionsQueue[guidingIndex].split("-");
-      // Remove previous highlights
-      document.querySelectorAll('.endpoint-highlight').forEach(el => el.classList.remove('endpoint-highlight'));
-      // Highlight endpoints
-      const elA = document.getElementById(a);
-      const elB = document.getElementById(b);
-      if (elA) elA.classList.add('endpoint-highlight');
-      if (elB) elB.classList.add('endpoint-highlight');
-      // Show default showPopup popup
-      const msg = `Missing connection: ${a.replace("point","")} → ${b.replace("point","")}`;
-      showPopup(msg);
-      // Voice guidance
-      if (window.isGuideActive && window.isGuideActive()) {
-        labSpeech.speak(`Connection between ${a.replace("point","")} and ${b.replace("point","")} is missing.`);
+
+    const currentSet = new Set(
+      currentConnections.map(conn =>
+        [conn.sourceId, conn.targetId].sort().join("-")
+      )
+    );
+
+    const wrongConnections = [];
+    const missingConnections = [];
+
+    // 🔴 FIND WRONG CONNECTIONS
+    for (let cur of currentSet) {
+      if (!requiredConnections.has(cur)) {
+        wrongConnections.push(cur);
       }
     }
-    guideNextMissing();
-    // Listen for connection events to check if user fixed the current missing connection
-    jsPlumb.bind("connection", function checkMissingFix(info) {
-      if (!isGuidingMissing) return;
-      const fixedKey = [info.sourceId, info.targetId].sort().join("-");
-      if (fixedKey === missingConnectionsQueue[guidingIndex]) {
-        // Remove highlight and popup
-        document.querySelectorAll('.endpoint-highlight').forEach(el => el.classList.remove('endpoint-highlight'));
-        // No custom popup to remove
-        guidingIndex++;
-        // If more missing, guide next
-        if (guidingIndex < missingConnectionsQueue.length) {
-          guideNextMissing();
-        } else {
-          isGuidingMissing = false;
-          // All missing connections are now completed
-          if (window.isGuideActive && window.isGuideActive()) {
-            labSpeech.speak("Now all the missing connections are completed, now click on the check button to confirm the connection.");
-          }
-        }
+
+    // 🔵 FIND MISSING CONNECTIONS
+    for (let req of requiredConnections) {
+      if (!currentSet.has(req)) {
+        missingConnections.push(req);
       }
-    });
+    }
+
+    // ✅ IF ALL CORRECT
+    if (wrongConnections.length === 0 && missingConnections.length === 0) {
+
+      connectionsAreCorrect = true;
+      connectionsAreVerified = true;
+
+      showPopup(
+        "Connections are correct.\nClick on the DC Supply to turn it ON.",
+        "Success",
+        "normal"
+      );
+
+      return;
+    }
+
+let message = "";
+
+// 🔴 WRONG CONNECTIONS
+if (wrongConnections.length > 0) {
+
+  message += "Wrong connections: ";
+
+  wrongConnections.forEach((conn, index) => {
+    const [a, b] = conn.split("-");
+    message += `${a.replace("point","")} - ${b.replace("point","")}`;
+
+    if (index < wrongConnections.length - 1) {
+      message += ", ";
+    }
+  });
+
+  message += ".\n\n";   // ← forces next line with spacing
+}
+
+// 🔵 MISSING CONNECTIONS
+if (missingConnections.length > 0) {
+
+  message += "Missing connections: ";
+
+  const showLimit = 3;
+  const visibleMissing = missingConnections.slice(0, showLimit);
+
+  visibleMissing.forEach((conn, index) => {
+    const [a, b] = conn.split("-");
+    message += `Connection ${index + 1}: ${a.replace("point","")} - ${b.replace("point","")}`;
+
+    if (index < visibleMissing.length - 1) {
+      message += ", ";
+    }
+  });
+
+  const remaining = missingConnections.length - showLimit;
+
+  if (remaining > 0) {
+    message += ` and ${remaining} more.`;
+  } else {
+    message += ".";
+  }
+}
+
+showPopup(message.trim(), "Alert", "danger");
+
   });
 }
 // Add CSS for endpoint highlight only
@@ -1402,7 +1415,7 @@ tableGuidanceActive = false;
         parseFloat(cells[1].textContent) === parseFloat(currentReading.toFixed(2)) &&
         parseInt(cells[2].textContent) === rpmReading
       ) {
-        showPopup("This reading is already added");
+        showPopup("This reading is already added to the table.");
         return;
       }
     }
