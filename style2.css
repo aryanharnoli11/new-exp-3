@@ -129,7 +129,7 @@
 
   #pointK {
    position: absolute;
-   left:15px;
+   left:15.5px;
    top:224px;
  
  }
@@ -241,7 +241,7 @@
    position: absolute;
    width: 24px;
    height: 24px;
-   left:26px;
+   left:28.5px;
    top:210px;
    font-weight: bold;
  }
@@ -250,7 +250,7 @@
    position: absolute;
    width: 24px;
    height: 24px;
-   left:185px;
+   left:183px;
    top:208px;
    font-weight: bold;
  }
@@ -304,7 +304,6 @@
   transform: translate(-50%, -50%);
 }
 
-/* #endpoint .label*/
 
 .point-I {
   left: 9%;
@@ -454,3 +453,5 @@
   top: 7%;      /* adjust endpoint vertical */
   transform: translate(-50%, -50%);
 }
+
+/* #endpoint .label*/

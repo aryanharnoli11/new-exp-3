@@ -276,7 +276,7 @@ h3 {
 #voltmeter1-label {
     position: absolute;
     bottom: -42x;        /* distance below meter */
-    left: 54%;
+    left: 53.5%;
     transform: translateX(-50%);
 
     font-size: 12px;
@@ -2356,15 +2356,7 @@ body {
   top: 50%;
 }
 
-.panel-footer__copyright {
-    text-align: center;
-    font-size: clamp(0.75rem, 1vw, 0.9rem);
-    font-weight: 600;
-    color: rgb(43, 43, 43);
-    letter-spacing: 0.02em;
-    border-top: 2px solid rgba(0, 0, 0, 0.12);
-    padding: 0.65rem 0.9rem 0.8rem;
-}
+
 
 /* ===== RHEOSTAT KNOB CURSOR FIX ===== */
 .nob1,
@@ -2415,4 +2407,28 @@ body {
     transform-origin: top left;
   }
 
+}
+
+/* =========================
+   PANEL FOOTER (FINAL STYLE)
+========================= */
+
+.panel-footer {
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
+
+/* Dark bottom copyright bar */
+.panel-footer__copyright {
+  background: linear-gradient(to bottom, #1c2430, #0f141b);
+  color: #ffffff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 12px 0;
+  border-top: 2px solid rgba(255,255,255,0.05);
 }
