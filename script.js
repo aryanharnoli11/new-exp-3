@@ -392,8 +392,8 @@ let rpmReading = 0;
 
 const voltmeterNeedle = document.querySelector(".meter-needle3");
 
-const VOLT_0_ANGLE = -70;   // TRUE 0 position
-const VOLT_220_ANGLE = 20;  // adjust based on your scale
+const VOLT_0_ANGLE = -75;     // true 0 position
+const VOLT_220_ANGLE = 8;     // calibrated 220V position
 
 // Set needle to 0V (NO animation)
 function setVoltmeterZero() {
@@ -640,7 +640,7 @@ function setAmmeterCurrent(current) {
 
   ammeterNeedle.style.transition = "transform 0.4s ease-in-out";
   ammeterNeedle.style.transform =
-    `translate(-50%, -90%) rotate(${angle}deg)`;
+    `translate(-50%, -100%) rotate(${angle}deg)`;
 }
 
 

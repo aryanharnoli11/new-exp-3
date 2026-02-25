@@ -922,36 +922,42 @@ img {
 }
 
 .meter-needle1 {
-    position: absolute;
-    width: 29px;
-    height: auto;
-
-    left: 52%;           /* PERFECT CENTER */
-    top: 52%;
-
-    transform-origin: 50% 90%;   /* pivot at black knob */
-    pointer-events: none;
-}
-
-/* =============================
-   VOLTMETER NEEDLE (FIXED BASE)
-============================= */
-.meter-needle3 {
   position: absolute;
-  width: 35px;
+
+  width: 32px;      /* Adjust if needed */
   height: auto;
 
-  left: 51%;
-  top: 52%;
+  left: 50%;
+  top: 56%;
 
-  /* perfectly center the needle base */
-  transform: translate(-50%, -90%) rotate(-12deg);
+  /* Center horizontally */
+  transform: translate(-50%, -100%) rotate(-75deg);
 
-  transform-origin: 50% 90%;
+  /* Rotate exactly from bottom center */
+  transform-origin: 50% 100%;
+
   pointer-events: none;
 }
 
+/* =========================
+   VOLTMETER NEEDLE
+========================= */
+.meter-needle3 {
+  position: absolute;
+  width: 35px;      /* adjust if needed */
+  height: auto;
 
+  left: 52%;
+  top: 53%;
+
+  /* Bottom of needle sits exactly on knob center */
+  transform: translate(-50%, -100%) rotate(-10deg);
+
+  /* Rotate from bottom center */
+  transform-origin: 50% 100%;
+
+  pointer-events: none;
+}
 
 
 
@@ -2349,46 +2355,7 @@ body {
 .chatbot-text {
   top: 50%;
 }
-@media print {
 
-  body {
-    background: white !important;
-  }
-
-  .chatbot-widget,
-  .components-launcher,
-  .instructions-panel,
-  .modal,
-  .hover-tooltip,
-  .pill-stack,
-  .graph-actions {
-    display: none !important;
-  }
-
-  .panel {
-    width: 100% !important;
-    min-width: auto !important;
-  }
-
-  .top-row {
-    display: block !important;
-  }
-
-  .left-column,
-  .center-column,
-  .right-column {
-    border: none !important;
-  }
-
-  .graph-plot {
-    display: block !important;
-  }
-
-  .graph-bars {
-    display: none !important;
-  }
-
-}
 .panel-footer__copyright {
     text-align: center;
     font-size: clamp(0.75rem, 1vw, 0.9rem);
@@ -2409,4 +2376,43 @@ body {
 .nob1:active,
 .nob2:active {
   cursor: grabbing !important;
+}
+
+
+
+
+
+@media print {
+
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  /* Hide floating UI */
+  .chatbot-widget,
+  .components-launcher,
+  .instructions-panel,
+  .hover-tooltip,
+  .modal,
+  .graph-actions {
+    display: none !important;
+  }
+
+  .panel {
+    width: 1640px !important;
+    min-width: 1640px !important;
+
+    /* 🔥 slightly smaller so graph fits */
+    transform: scale(0.52);
+    transform-origin: top left;
+  }
+
 }
