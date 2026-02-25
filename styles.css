@@ -39,7 +39,7 @@ meter-card rpm-card {
     display: grid;
     grid-template-columns: 1fr 2.6fr 1.2fr;
     gap: 0;
-    min-height: 70px;
+    min-height: 700px;
     align-items: start;
     border: 3px solid #111;
     border-radius: 8px;
@@ -941,16 +941,13 @@ img {
   width: 35px;
   height: auto;
 
-  /* true center of the meter */
   left: 51%;
   top: 52%;
 
-  /* base of needle stays fixed */
-  transform: translate(-50%, -90%) rotate(-70deg);
+  /* perfectly center the needle base */
+  transform: translate(-50%, -90%) rotate(-12deg);
 
-  /* rotation pivot near bottom */
   transform-origin: 50% 90%;
-
   pointer-events: none;
 }
 
@@ -1274,6 +1271,8 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   border: 1px solid #333;
   font-size: 14px;
   font-weight: 600;
+  text-align: center;        /* ⬅ horizontal center */
+  vertical-align: middle;    /* ⬅ vertical center */
 }
 
 /* Placeholder row */

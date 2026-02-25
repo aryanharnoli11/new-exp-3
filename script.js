@@ -392,8 +392,8 @@ let rpmReading = 0;
 
 const voltmeterNeedle = document.querySelector(".meter-needle3");
 
-const VOLT_0_ANGLE = -12;   // 0 Volt position
-const VOLT_220_ANGLE = 70;  // 220 Volt position
+const VOLT_0_ANGLE = -70;   // TRUE 0 position
+const VOLT_220_ANGLE = 20;  // adjust based on your scale
 
 // Set needle to 0V (NO animation)
 function setVoltmeterZero() {
@@ -401,7 +401,7 @@ function setVoltmeterZero() {
 
   voltmeterNeedle.style.transition = "none";
   voltmeterNeedle.style.transform =
-    `translate(-50%, -92%) rotate(${VOLT_0_ANGLE}deg)`;
+    `translate(-50%, -90%) rotate(${VOLT_0_ANGLE}deg)`;
 }
 
 // Move needle to 220V (WITH animation)
@@ -410,7 +410,7 @@ function setVoltmeterTo220() {
 
   voltmeterNeedle.style.transition = "transform 0.8s ease-in-out";
   voltmeterNeedle.style.transform =
-    `translate(-50%, -92%) rotate(${VOLT_220_ANGLE}deg)`;
+    `translate(-50%, -90%) rotate(${VOLT_220_ANGLE}deg)`;
 
 if (rpmDisplay) rpmDisplay.textContent = "0";
 
@@ -1591,9 +1591,13 @@ if (rpmDisplay) rpmDisplay.textContent = "0";
 
   const startTime = new Date(window.sessionStart);
   const endTime = new Date();
-  const durationMinutes =
-    Math.round(((endTime - window.sessionStart) / 60000) * 10) / 10;
+const durationMs = endTime - window.sessionStart;
 
+const totalSeconds = Math.floor(durationMs / 1000);
+const minutes = Math.floor(totalSeconds / 60);
+const seconds = totalSeconds % 60;
+
+const durationText = `${minutes} min ${seconds} sec`;
   const currents = reportReadings.map(r => r.current);
   const speeds = reportReadings.map(r => r.speed);
 
@@ -1612,6 +1616,38 @@ body {
   padding: 25px;
 }
 
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+border: 1px solid #e5e9f2; 
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.vl-logo {
+  height: 90px;
+  width: auto;
+  max-width: 180px;
+}
+
+.report-title {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.title-line {
+  height: 3px;
+  width: 100%;
+  background: #2f6df6;
+  margin-top: 10px;
+}
 .report-wrapper {
   max-width: 1050px;
   margin: auto;
@@ -1722,6 +1758,18 @@ tr:nth-child(even) td {
   border-radius: 22px;
   cursor: pointer;
 }
+  .download-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 26px;
+  font-size: 14px;
+  border-radius: 22px;
+  cursor: pointer;
+}
+.download-btn:hover {
+  opacity: 0.9;
+}
 </style>
 </head>
 
@@ -1729,20 +1777,26 @@ tr:nth-child(even) td {
 
 <div class="report-wrapper">
 
-  <div class="report-title">Virtual Lab Simulation Report</div>
-  <div class="title-line"></div>
+<div class="header-row">
+  <img src="images/logo-left.png" class="vl-logo">
+  <div class="header-center">
+    <div class="report-title">Virtual Labs Simulation Report</div>
+    <div class="title-line"></div>
+  </div>
+  <img src="images/logo-right.png" class="vl-logo">
+</div>
 
   <!-- EXPERIMENT INFO -->
   <div class="card">
     <div class="badge">DC Machines Lab</div>
 
-    <p><b>Experiment Title:</b> Speed Control of DC Shunt Motor</p>
+    <p><b>Experiment Title:</b> To study the speed control of a DC motor by field resistance control method</p>
     <p><b>Date:</b> ${new Date().toLocaleDateString()}</p>
 
     <div class="info-grid">
       <div class="info-box"><b>Start Time</b><br>${startTime.toLocaleTimeString()}</div>
       <div class="info-box"><b>End Time</b><br>${endTime.toLocaleTimeString()}</div>
-      <div class="info-box"><b>Total Time Spent</b><br>${durationMinutes} minutes</div>
+      <div class="info-box"><b>Total Time Spent</b><br>${durationText}</div>
     </div>
   </div>
 
@@ -1780,7 +1834,7 @@ tr:nth-child(even) td {
       <div>
         <p><b>Key Parameters</b></p>
         <ul>
-          <li>Voltage Range: 0 - 410 V DC</li>
+          <li>Voltage Range: 0 - 420 V DC</li>
           <li>Ammeter Range: 0 – 1 A</li>
           <li>Speed Range: 0 – 1500 RPM</li>
         </ul>
@@ -1814,8 +1868,10 @@ tr:nth-child(even) td {
     <div id="graph" class="graph-box"></div>
   </div>
 
+<div style="margin-top:20px; display:flex; gap:12px;">
   <button class="print-btn" onclick="window.print()">PRINT</button>
-
+  <button class="download-btn" onclick="downloadPDF()">DOWNLOAD</button>
+</div>
 </div>
 
 <script>
@@ -1832,7 +1888,22 @@ Plotly.newPlot("graph", [{
   margin: { t: 50 }
 });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function downloadPDF() {
+  const element = document.querySelector(".report-wrapper");
 
+  const opt = {
+    margin: 0.3,
+    filename: "Virtual_Lab_Report.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
+</script>
 </body>
 </html>
 `;
