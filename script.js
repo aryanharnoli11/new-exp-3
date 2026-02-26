@@ -310,7 +310,22 @@ function speakOnlyIfGuideActive(text) {
     window.labSpeech.speak(text);
   }
 }
+// =====================================================
+// ENDPOINT HIGHLIGHT HELPERS — OUTER SCOPE (REQUIRED)
+// =====================================================
+function clearEndpointHighlight() {
+  document
+    .querySelectorAll(".endpoint-highlight")
+    .forEach(el => el.classList.remove("endpoint-highlight"));
+}
 
+function highlightEndpoints(fromId, toId) {
+  clearEndpointHighlight();
+  const fromEl = document.getElementById(fromId);
+  const toEl = document.getElementById(toId);
+  if (fromEl) fromEl.classList.add("endpoint-highlight");
+  if (toEl) toEl.classList.add("endpoint-highlight");
+}
 
 
   const requiredPairs = [
@@ -364,6 +379,7 @@ function connectRequiredPair(pair) {
   let starterIsOn = false;
   let allConnectionsAnnounced = false; // 🔊 voice only once
   let totalReadingsAdded = 0;
+  let firstReadingPopupShown = false;
   let fiveReadingsAnnounced = false; // 🔊 announce only once
   let firstReadingGuided = false; 
   let connectionsAreVerified = false; // ✅ NEW FLAG
@@ -1157,20 +1173,27 @@ if (checkBtn) {
       }
     }
 
-    // ✅ IF ALL CORRECT
-    if (wrongConnections.length === 0 && missingConnections.length === 0) {
+   if (wrongConnections.length === 0 && missingConnections.length === 0) {
 
-      connectionsAreCorrect = true;
-      connectionsAreVerified = true;
+  connectionsAreCorrect = true;
+  connectionsAreVerified = true;
+  labStage = "checked";
 
-      showPopup(
-        "Connections are correct.\nClick on the DC Supply to turn it ON.",
-        "Success",
-        "normal"
-      );
+  showPopup(
+    "Connections are correct.\nClick on the DC Supply to turn it ON.",
+    "Success",
+    "normal"
+  );
 
-      return;
-    }
+  setAutoCheckButtonsDisabled(true);
+
+  if (window.isGuideActive && window.isGuideActive()) {
+    clearEndpointHighlight();  // ✅ now reachable
+    speakSafe("All the connections are correct. Now turn on the D C supply."); // ✅ now fires
+  }
+
+  return;
+}
 
 let message = "";
 
@@ -1441,6 +1464,16 @@ reportReadings.push({
 });
 // ✅ INCREASE COUNT
 totalReadingsAdded++;
+// ✅ SHOW ALERT ONLY FOR FIRST READING
+if (totalReadingsAdded === 1 && !firstReadingPopupShown) {
+  showPopup(
+    "Reading added to the observation table.",
+    "Observation",
+    "normal"
+  );
+
+  firstReadingPopupShown = true;
+}
 // ✅ ALERT ON 7TH READING
 if (totalReadingsAdded === 7) {
   showPopup(
@@ -1642,16 +1675,20 @@ border: 1px solid #e5e9f2;
 .header-center {
   flex: 1;
   text-align: center;
+  padding: 0 16px;   /* controls gap between line-end and logos */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .vl-logo {
-  height: 90px;
+  height: 121px;
   width: auto;
   max-width: 180px;
 }
 
 .report-title {
-  font-size: 28px;
+  font-size: 40px;
   font-weight: 600;
 }
 
@@ -1659,8 +1696,11 @@ border: 1px solid #e5e9f2;
   height: 3px;
   width: 100%;
   background: #2f6df6;
-  margin-top: 10px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  display: block;
 }
+
 .report-wrapper {
   max-width: 1050px;
   margin: auto;
@@ -1679,7 +1719,9 @@ border: 1px solid #e5e9f2;
   height: 3px;
   width: 100%;
   background: #2f6df6;
-  margin: 14px 0 28px;
+  margin-top: 10px;
+  display: block;
+  align-self: stretch;
 }
 
 .card {
@@ -1783,6 +1825,7 @@ tr:nth-child(even) td {
 .download-btn:hover {
   opacity: 0.9;
 }
+
 </style>
 </head>
 
@@ -1791,20 +1834,24 @@ tr:nth-child(even) td {
 <div class="report-wrapper">
 
 <div class="header-row">
-  <img src="images/logo-left.png" class="vl-logo">
+  <img src="images/logo-left.png" class="vl-logo vl-logo-left">
   <div class="header-center">
     <div class="report-title">Virtual Labs Simulation Report</div>
-    <div class="title-line"></div>
   </div>
   <img src="images/logo-right.png" class="vl-logo">
 </div>
+<div class="title-line"></div>
 
   <!-- EXPERIMENT INFO -->
   <div class="card">
-    <div class="badge">DC Machines Lab</div>
+    <div class="badge">Electrical Machines Lab</div>
 
     <p><b>Experiment Title:</b> To study the speed control of a DC motor by field resistance control method</p>
-    <p><b>Date:</b> ${new Date().toLocaleDateString()}</p>
+    <p><b>Date:</b> ${new Date().toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+   })}</p>
 
     <div class="info-grid">
       <div class="info-box"><b>Start Time</b><br>${startTime.toLocaleTimeString()}</div>

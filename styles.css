@@ -1958,37 +1958,8 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
 .chatbot-panel iframe {
   border-radius: 0 0 22px 22px;  
 }
-/* ================================
-   ENDPOINT GUIDANCE ANIMATION
-================================ */
 
-/* Base point container */
-.point {
-  position: relative;
-  z-index: 10;
-}
 
-/* Active guidance state */
-.point.endpoint-highlight::before {
-  content: "";
-  position: absolute;
-  inset: -14px;               /* controls ring size */
-  border-radius: 50%;
-  border: 3px solid rgba(255, 0, 0, 0.85);
-  animation: endpointPulse 1.3s ease-out infinite;
-  pointer-events: none;
-}
-
-/* Secondary glow */
-.point.endpoint-highlight::after {
-  content: "";
-  position: absolute;
-  inset: -22px;
-  border-radius: 50%;
-  background: rgba(255, 0, 0, 0.25);
-  animation: endpointGlow 1.3s ease-out infinite;
-  pointer-events: none;
-}
 
 /* Pulse ring */
 @keyframes endpointPulse {

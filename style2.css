@@ -223,7 +223,7 @@
   height: 24px;
   left: 40px;
   top: 8px;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -5 0%);
   font-weight: bold;
 }
 
@@ -455,3 +455,83 @@
 }
 
 /* #endpoint .label*/
+
+
+
+
+
+/* ================================
+   ENDPOINT GUIDANCE ANIMATION
+================================ */
+/* Make visible buttons able to hold animation */
+.point-A,
+.point-B,
+.point-C,
+.point-D,
+.point-E,
+.point-F,
+.point-G,
+.point-H,
+.point-I,
+.point-J,
+.point-K,
+.point-L,
+.point-M,
+.point-Y,
+.point-P,
+.point-Q,
+.point-R {
+  position: absolute;
+}
+
+/* Perfect centered highlight */
+.endpoint-highlight::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 0, 0, 0.9);
+  animation: endpointPulse 1.2s ease-out infinite;
+  pointer-events: none;
+}
+
+.endpoint-highlight::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 0, 0, 0.25);
+  animation: endpointGlow 1.2s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Animation */
+@keyframes endpointPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes endpointGlow {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
