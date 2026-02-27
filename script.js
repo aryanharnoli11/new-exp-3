@@ -414,25 +414,41 @@ let rpmReading = 0;
 
 const voltmeterNeedle = document.querySelector(".meter-needle3");
 
-const VOLT_0_ANGLE = -75;     // true 0 position
-const VOLT_220_ANGLE = 8;     // calibrated 220V position
+const VOLT_0_ANGLE = -84;     // true 0 position
+const VOLT_220_ANGLE = 5;     // calibrated 220V position
+const VOLT_MIN = 0;
+const VOLT_MAX = 220;
+const NEEDLE_PIVOT_X = 50.37;
+const NEEDLE_PIVOT_Y = 82.44;
+const NEEDLE_BASE_TRANSLATE = `translate(-${NEEDLE_PIVOT_X}%, -${NEEDLE_PIVOT_Y}%)`;
+
+function getVoltmeterAngleForVoltage(voltage) {
+  const numericVoltage = Number(voltage);
+  const safeVoltage = Math.max(
+    VOLT_MIN,
+    Math.min(VOLT_MAX, Number.isFinite(numericVoltage) ? numericVoltage : 0)
+  );
+
+  const ratio = (safeVoltage - VOLT_MIN) / (VOLT_MAX - VOLT_MIN);
+  return VOLT_0_ANGLE + ratio * (VOLT_220_ANGLE - VOLT_0_ANGLE);
+}
+
+function setVoltmeterValue(voltage, { animate = false } = {}) {
+  if (!voltmeterNeedle) return;
+
+  const angle = getVoltmeterAngleForVoltage(voltage);
+  voltmeterNeedle.style.transition = animate ? "transform 0.8s ease-in-out" : "none";
+  voltmeterNeedle.style.transform = `${NEEDLE_BASE_TRANSLATE} rotate(${angle}deg)`;
+}
 
 // Set needle to 0V (NO animation)
 function setVoltmeterZero() {
-  if (!voltmeterNeedle) return;
-
-  voltmeterNeedle.style.transition = "none";
-  voltmeterNeedle.style.transform =
-    `translate(-50%, -90%) rotate(${VOLT_0_ANGLE}deg)`;
+  setVoltmeterValue(VOLT_MIN);
 }
 
 // Move needle to 220V (WITH animation)
 function setVoltmeterTo220() {
-  if (!voltmeterNeedle) return;
-
-  voltmeterNeedle.style.transition = "transform 0.8s ease-in-out";
-  voltmeterNeedle.style.transform =
-    `translate(-50%, -90%) rotate(${VOLT_220_ANGLE}deg)`;
+  setVoltmeterValue(VOLT_MAX, { animate: true });
 
 if (rpmDisplay) rpmDisplay.textContent = "0";
 
@@ -589,6 +605,9 @@ const ARM_ROD_MAX_X = 210;  // right end of green coil
 
 // ===== AMMETER CONTROL =====
 const ammeterNeedle = document.querySelector(".meter-needle1");
+const AMMETER_PIVOT_X = 50.37;
+const AMMETER_PIVOT_Y = 82.44;
+const AMMETER_BASE_TRANSFORM = `translate(-${AMMETER_PIVOT_X}%, -${AMMETER_PIVOT_Y}%)`;
 
 
 // Ammeter angles for each field rheostat division (index 1 → 7)
@@ -662,7 +681,7 @@ function setAmmeterCurrent(current) {
 
   ammeterNeedle.style.transition = "transform 0.4s ease-in-out";
   ammeterNeedle.style.transform =
-    `translate(-50%, -100%) rotate(${angle}deg)`;
+    `${AMMETER_BASE_TRANSFORM} rotate(${angle}deg)`;
 }
 
 

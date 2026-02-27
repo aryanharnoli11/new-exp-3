@@ -336,6 +336,18 @@ h3 {
     object-fit: contain;
 }
 
+.voltmeter-assembly {
+    position: relative;
+    width: 360px;
+    height: 180px;
+}
+
+.voltmeter-assembly .voltmeter-img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .ammeter-img {
     width: 320px;      /* adjust separately */
     height: 140px;
@@ -924,19 +936,25 @@ img {
 .meter-needle1 {
   position: absolute;
 
-  width: 32px;      /* Adjust if needed */
-  height: auto;
+  width: 32px;
+  height: 48px;
 
   left: 50%;
-  top: 56%;
+  top: 50%;
 
-  /* Center horizontally */
-  transform: translate(-50%, -100%) rotate(-75deg);
-
-  /* Rotate exactly from bottom center */
-  transform-origin: 50% 100%;
+  transform-origin: 50.37% 82.44%;
+  transform: translate(-50.37%, -82.44%) rotate(-75deg);
 
   pointer-events: none;
+}
+
+.meter-needle1 img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: none !important;
+  transform: none !important;
 }
 
 /* =========================
@@ -944,19 +962,28 @@ img {
 ========================= */
 .meter-needle3 {
   position: absolute;
-  width: 35px;      /* adjust if needed */
-  height: auto;
+  width: 40px;
+  height: 62px;
 
-  left: 52%;
-  top: 53%;
+  left: 50.11%;
+  top: 50.24%;
 
-  /* Bottom of needle sits exactly on knob center */
-  transform: translate(-50%, -100%) rotate(-10deg);
-
-  /* Rotate from bottom center */
-  transform-origin: 50% 100%;
-
+  transform-origin: 50.37% 82.44%;
+  transform: translate(-50.37%, -82.44%) rotate(-84deg);
+  transition: transform 0.8s ease-in-out;
+  will-change: transform;
+  z-index: 4;
   pointer-events: none;
+}
+
+.meter-needle3 .voltmeter-needle-img {
+  position: static;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: none !important;
+  transform: none !important;
 }
 
 
@@ -1301,7 +1328,7 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
 
 
 .meter-needle1 {
-  transform-origin: 50% 90%;
+  transform-origin: 50.37% 82.44%;
 }
 .observation-header h3 {
   white-space: nowrap;      /* 🚫 no line break */
