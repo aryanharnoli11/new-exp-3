@@ -2376,14 +2376,27 @@ body {
 
   @page {
     size: A4 landscape;
-    margin: 0;
+    margin: 6mm;
   }
 
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Hide floating UI */
@@ -2399,14 +2412,55 @@ body {
   .panel {
     width: 1640px !important;
     min-width: 1640px !important;
-
-    /* 🔥 slightly smaller so graph fits */
-    transform: scale(0.52);
-    transform-origin: top left;
+    max-width: none !important;
+    margin: 0 auto !important;
+    transform: none !important;
+    zoom: 0.58;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
-}
+  .top-row,
+  .panel-footer,
+  .graph-section,
+  .graph-canvas,
+  .graph-plot {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 
+  .top-row,
+  .panel-footer {
+    page-break-after: avoid !important;
+    break-after: avoid-page !important;
+  }
+
+  .panel-footer {
+    margin-top: 8px !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  .panel-footer__copyright {
+    padding: 6px 0 !important;
+  }
+
+  .graph-section {
+    margin-top: 0 !important;
+    padding: 10px !important;
+  }
+
+  .graph-canvas {
+    height: 220px !important;
+    overflow: hidden !important;
+  }
+
+  .right-column .pill-stack,
+  .observation-panel,
+  .observation-section {
+    overflow: visible !important;
+  }
+}
 /* =========================
    PANEL FOOTER (FINAL STYLE)
 ========================= */
@@ -2430,3 +2484,4 @@ body {
   padding: 12px 0;
   border-top: 2px solid rgba(255,255,255,0.05);
 }
+
