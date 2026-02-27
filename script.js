@@ -1843,6 +1843,16 @@ tr:nth-child(even) td {
   height: 360px;
 }
 
+.graph-print-image {
+  display: none;
+  width: 100%;
+  height: 360px;
+  object-fit: contain;
+  border: 1px solid #e6ecfa;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 .print-btn {
   background: #2f6df6;
   color: white;
@@ -1863,6 +1873,142 @@ tr:nth-child(even) td {
 }
 .download-btn:hover {
   opacity: 0.9;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .report-wrapper {
+    width: 100% !important;
+    max-width: 190mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .header-row {
+    margin-bottom: 8px !important;
+  }
+
+  .vl-logo {
+    height: 56px !important;
+    max-width: 110px !important;
+  }
+
+  .report-title {
+    font-size: 22px !important;
+  }
+
+  .title-line {
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .card {
+    padding: 12px !important;
+    margin-bottom: 8mm !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .report-card-summary {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .report-card-observation {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .section-title {
+    font-size: 16px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .badge {
+    padding: 4px 10px !important;
+    margin-bottom: 8px !important;
+    font-size: 12px !important;
+  }
+
+  .info-grid {
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .info-box {
+    padding: 8px !important;
+    font-size: 12px !important;
+  }
+
+  p, li, td, th {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  table {
+    margin-top: 8px !important;
+  }
+
+  th, td {
+    padding: 6px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .graph-box {
+    height: 82mm !important;
+    min-height: 82mm !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .graph-print-image {
+    display: block !important;
+    height: 82mm !important;
+    border: none !important;
+  }
+
+  .report-card-graph {
+    page-break-after: avoid !important;
+    break-after: avoid-page !important;
+  }
+
+  .report-actions {
+    margin-top: 8px !important;
+    gap: 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #graph,
+  #graph .js-plotly-plot,
+  #graph .plot-container {
+    display: none !important;
+    visibility: visible !important;
+  }
+
+  .print-btn {
+    display: inline-block !important;
+  }
+
+  .download-btn {
+    display: none !important;
+  }
 }
 
 </style>
@@ -1900,7 +2046,7 @@ tr:nth-child(even) td {
   </div>
 
   <!-- SUMMARY -->
-  <div class="card">
+  <div class="card report-card-summary">
     <div class="section-title">Summary</div>
 
     <p><b>Aim</b></p>
@@ -1914,7 +2060,10 @@ tr:nth-child(even) td {
       The DC supply was then enabled, the starter was operated, the armature resistance was set, and the field resistance was varied.
        The corresponding field current and speed readings were recorded, and a graph was generated.
     </p>
+  </div>
 
+  <div class="card report-card-components">
+    <div class="section-title">Components and Key Parameters</div>
     <div class="two-col">
       <div>
         <p><b>Components</b></p>
@@ -1942,7 +2091,7 @@ tr:nth-child(even) td {
   </div>
 
   <!-- OBSERVATION TABLE -->
-  <div class="card">
+  <div class="card report-card-observation">
     <div class="section-title"  style="text-align:center">Observation Table</div>
 
     <table>
@@ -1962,29 +2111,60 @@ tr:nth-child(even) td {
   </div>
 
   <!-- GRAPH -->
-  <div class="card">
+  <div class="card report-card-graph">
     <div class="section-title" style="text-align:center">Graph</div>
     <div id="graph" class="graph-box"></div>
+    <img id="graphPrintImage" class="graph-print-image" alt="Graph">
   </div>
 
-<div style="margin-top:20px; display:flex; gap:12px;">
-  <button class="print-btn" onclick="window.print()">PRINT</button>
+<div class="report-actions" style="margin-top:20px; display:flex; gap:12px;">
+  <button class="print-btn" onclick="printReport()">PRINT</button>
   <button class="download-btn" onclick="downloadPDF()">DOWNLOAD</button>
 </div>
 </div>
 
 <script>
-Plotly.newPlot("graph", [{
-  x: ${JSON.stringify(currents)},
-  y: ${JSON.stringify(speeds)},
-  type: "scatter",
-  mode: "lines+markers",
-  line: { color: "#2f6df6", width: 3 }
-}], {
-  title: "Speed vs Field Current",
-  xaxis: { title: "Field Current (A)" },
-  yaxis: { title: "Speed (RPM)" },
-  margin: { t: 50 }
+function renderReportGraph() {
+  const graphEl = document.getElementById("graph");
+  if (!graphEl || !window.Plotly) return Promise.resolve();
+
+  return Plotly.newPlot("graph", [{
+    x: ${JSON.stringify(currents)},
+    y: ${JSON.stringify(speeds)},
+    type: "scatter",
+    mode: "lines+markers",
+    line: { color: "#2f6df6", width: 3 }
+  }], {
+    title: "Speed vs Field Current",
+    xaxis: { title: "Field Current (A)" },
+    yaxis: { title: "Speed (RPM)" },
+    margin: { t: 50 }
+  }, {
+    displayModeBar: false,
+    responsive: true
+  }).then(() => {
+    Plotly.Plots.resize(graphEl);
+    return Plotly.toImage(graphEl, { format: "png", width: 1100, height: 620 });
+  }).then((imgData) => {
+    const printImg = document.getElementById("graphPrintImage");
+    if (printImg && imgData) {
+      printImg.src = imgData;
+    }
+  });
+}
+
+renderReportGraph();
+
+async function printReport() {
+  await renderReportGraph();
+  setTimeout(() => window.print(), 150);
+}
+
+window.addEventListener("beforeprint", () => {
+  const graphEl = document.getElementById("graph");
+  if (!graphEl || !window.Plotly) return;
+  Plotly.Plots.resize(graphEl);
+  renderReportGraph();
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

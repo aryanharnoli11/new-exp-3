@@ -1606,16 +1606,9 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
    PRINT OPTIMIZATION
 ========================= */
 @media print {
-  .graph-bars {
-    display: none !important;
-  }
-
-  .graph-plot {
-    display: block !important;
-  }
-
   .graph-actions {
-    display: none;
+    display: flex !important;
+    visibility: visible !important;
   }
 }
 
@@ -2404,8 +2397,7 @@ body {
   .components-launcher,
   .instructions-panel,
   .hover-tooltip,
-  .modal,
-  .graph-actions {
+  .modal {
     display: none !important;
   }
 
@@ -2453,6 +2445,18 @@ body {
   .graph-canvas {
     height: 220px !important;
     overflow: hidden !important;
+  }
+
+  .graph-actions {
+    display: flex !important;
+    visibility: visible !important;
+  }
+
+  #plotGraphBtn,
+  #reportBtn,
+  #printBtn {
+    display: inline-flex !important;
+    visibility: visible !important;
   }
 
   .right-column .pill-stack,
