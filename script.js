@@ -1,3 +1,9 @@
+const autoConnectVoice = new Audio("audio/autoconnect_completed.wav");
+autoConnectVoice.preload = "auto";
+
+const alertSound = new Audio("audio/progressreportalert.wav");
+alertSound.preload = "auto";
+
 // Utility to enable/disable Auto Connect and Check buttons with visual feedback
 function setAutoCheckButtonsDisabled(disabled) {
   const autoConnectBtn = Array.from(document.querySelectorAll('.pill-btn')).find(btn => btn.textContent.trim() === 'Auto Connect');
@@ -1346,6 +1352,11 @@ if (printBtn) {
 
 
 const autoConnectBtn = Array.from(
+
+
+
+
+  
   document.querySelectorAll(".pill-btn")
 ).find(btn => btn.textContent.trim() === "Auto Connect");
 
@@ -1360,8 +1371,6 @@ isAutoConnecting = true; // ✅ ADD THIS LINE
   const guideWasActive =
   window.isGuideActive && window.isGuideActive();
 
-// Stop current speech only
-if (window.labSpeech) labSpeech.stop();
 
 // ❌ DO NOT reset button UI if guide was active
 if (!guideWasActive) {
@@ -1380,6 +1389,17 @@ if (!guideWasActive) {
     requiredPairs.forEach(pair => connectRequiredPair(pair));
 
     jsPlumb.repaintEverything();
+showPopup(
+  "Autoconnect completed.\nClick on the Check button to verify the connections.",
+  "Instruction",
+  "normal"
+);
+
+if (window.isGuideActive && window.isGuideActive()) {
+  speakSafe(
+    "Autoconnect completed. Click on the check button to verify the connections."
+  );
+}
     connectionsAreCorrect = true;        // wires exist
     connectionsAreVerified = false;      // ❌ user has NOT clicked Check
 
