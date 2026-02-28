@@ -382,65 +382,30 @@
   </div>
 </div>
 <script>
-let audioEnabled = false;
-let currentUtterance = null;
-
-function unlockAudio() {
-  try {
-    speechSynthesis.cancel();
-    speechSynthesis.speak(new SpeechSynthesisUtterance(" "));
-    audioEnabled = true;
-  } catch (e) {}
+function postToComponentsFrame(type) {
+  const iframe = document.getElementById("componentsFrame");
+  iframe?.contentWindow?.postMessage({ type }, "*");
 }
 
-function playComponentAudio() {
-  if (!audioEnabled) unlockAudio();
+function setComponentsAudioButtonState(state = {}) {
+  const audioBtn = document.getElementById("componentsAudioBtn");
+  if (!audioBtn) return;
 
-  speechSynthesis.cancel();
-  currentUtterance = new SpeechSynthesisUtterance(
-    "This window shows the components used in the experiment."
-  );
-  currentUtterance.rate = 0.9;
-  speechSynthesis.speak(currentUtterance);
-}
+  const isPlaying = Boolean(state.playing);
+  const disabled = Boolean(state.disabled);
 
-function stopComponentAudio() {
-  speechSynthesis.cancel();
+  audioBtn.disabled = disabled;
+  audioBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+  audioBtn.textContent = isPlaying ? "Stop Audio" : "Play Audio";
 }
 
 window.addEventListener("message", (event) => {
+  const frame = document.getElementById("componentsFrame");
+  if (!frame || event.source !== frame.contentWindow) return;
+
   const data = event.data || {};
-
-  if (data.type === "component-audio-play") {
-    playComponentAudio();
-    event.source.postMessage(
-      { type: "component-audio-state", state: { playing: true } },
-      "*"
-    );
-  }
-
-  if (data.type === "component-audio-stop") {
-    stopComponentAudio();
-    event.source.postMessage(
-      { type: "component-audio-state", state: { playing: false } },
-      "*"
-    );
-  }
-
-  if (data.type === "component-audio-toggle") {
-    if (speechSynthesis.speaking) {
-      stopComponentAudio();
-      event.source.postMessage(
-        { type: "component-audio-state", state: { playing: false } },
-        "*"
-      );
-    } else {
-      playComponentAudio();
-      event.source.postMessage(
-        { type: "component-audio-state", state: { playing: true } },
-        "*"
-      );
-    }
+  if (data.type === "component-audio-state") {
+    setComponentsAudioButtonState(data.state || data);
   }
 });
 </script>
@@ -500,6 +465,7 @@ window.addEventListener("message", (event) => {
   componentsLauncher.addEventListener("click", () => {
     componentsModal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
+    postToComponentsFrame("component-audio-request");
   });
 
   // CLOSE MODAL
@@ -507,7 +473,7 @@ window.addEventListener("message", (event) => {
     btn.addEventListener("click", () => {
       componentsModal.classList.add("hidden");
       document.body.style.overflow = "";
-      if (window.speechSynthesis) speechSynthesis.cancel();
+      postToComponentsFrame("component-audio-stop");
     });
   })
 
@@ -516,7 +482,7 @@ window.addEventListener("message", (event) => {
     if (e.key === "Escape" && !componentsModal.classList.contains("hidden")) {
       componentsModal.classList.add("hidden");
       document.body.style.overflow = "";
-      if (window.speechSynthesis) speechSynthesis.cancel();
+      postToComponentsFrame("component-audio-stop");
     }
   });
 </script>
@@ -527,30 +493,9 @@ audioBtn.addEventListener("click", () => {
   const isPlaying = audioBtn.getAttribute("aria-pressed") === "true";
 
   if (isPlaying) {
-    // STOP AUDIO
-    stopComponentAudio();
-    audioBtn.textContent = "Play Audio";
-    audioBtn.setAttribute("aria-pressed", "false");
-
-    // sync iframe button state
-    const iframe = document.getElementById("componentsFrame");
-    iframe?.contentWindow?.postMessage(
-      { type: "component-audio-stop" },
-      "*"
-    );
-
+    postToComponentsFrame("component-audio-stop");
   } else {
-    // PLAY AUDIO
-    playComponentAudio();
-    audioBtn.textContent = "Stop Audio";
-    audioBtn.setAttribute("aria-pressed", "true");
-
-    // sync iframe button state
-    const iframe = document.getElementById("componentsFrame");
-    iframe?.contentWindow?.postMessage(
-      { type: "component-audio-play" },
-      "*"
-    );
+    postToComponentsFrame("component-audio-play");
   }
 });
 </script>

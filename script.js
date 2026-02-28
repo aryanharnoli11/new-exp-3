@@ -1,9 +1,3 @@
-const autoConnectVoice = new Audio("audio/autoconnect_completed.wav");
-autoConnectVoice.preload = "auto";
-
-const alertSound = new Audio("audio/progressreportalert.wav");
-alertSound.preload = "auto";
-
 // Utility to enable/disable Auto Connect and Check buttons with visual feedback
 function setAutoCheckButtonsDisabled(disabled) {
   const autoConnectBtn = Array.from(document.querySelectorAll('.pill-btn')).find(btn => btn.textContent.trim() === 'Auto Connect');
@@ -175,6 +169,220 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
 }
 resetSpeakButtonUI();
 
+const GUIDE_AUDIO_BY_EVENT = {
+  guide_intro: "audio/guide_intro.wav",
+  guide_checked: "audio/guide_checked.wav",
+  guide_starter_on: "audio/After starter ON.wav",
+  guide_all_complete: "audio/guide_all_complete.wav",
+  connection_ok_turn_on_mcb: "audio/connections_correct_turn_on_mcb.wav",
+  autoconnect_done: "audio/autoconnect_completed.wav",
+  wrong_connection: "audio/wrong_connection.wav",
+  field_selected: "audio/Field Rheostat Variation (1st time).wav",
+  reading_added: "audio/1st reading added.wav",
+  five_readings_done: "audio/After 5 readings Graph.wav",
+  graph_done: "audio/graph_complete.wav",
+  report_ready: "audio/report_ready.wav",
+  generic_step: "audio/before_connection_check.wav",
+  starter_instruction: "audio/please_move_starter.wav",
+  armature_done: "audio/Armature Rheostat Set.wav"
+};
+
+const ALERT_AUDIO_BY_EVENT = {
+  no_connections: "audio/please_check_connections_first.wav",
+  wrong_or_missing_connections: "audio/some_connection_wrong.wav",
+  before_dc_supply_on: "audio/before_connection_mcb_alert.wav",
+  dc_supply_on: "audio/mcb_turned_on.wav",
+  dc_supply_off: "audio/mcb_turned_off_between.wav",
+  duplicate_reading: "audio/For Duplicate Reading.wav",
+  max_readings: "audio/For max. readings.wav",
+  five_readings_done: "audio/After 5 readings Graph.wav",
+  seven_readings_done: "audio/After 7 readings done.wav",
+  add_to_table_prompt: "audio/Before adding reading, Add To Table.wav",
+  field_1st: "audio/Field Rheostat Variation (1st time).wav",
+  field_3rd: "audio/Field Rheostat 3rd time.wav",
+  field_4th: "audio/Field Rheostat 4th time.wav",
+  field_5th: "audio/Field Rheostat 5th time.wav",
+  field_7th: "audio/Field Rheostat 7th time.wav",
+  reading_1st: "audio/1st reading added.wav",
+  reading_2nd: "audio/2nd reading added.wav",
+  reading_3rd: "audio/3rd reading added.wav"
+};
+
+const GUIDE_STEP_AUDIO_BY_PAIR = {
+  "A-P": "audio/Connect point A to point P.wav",
+  "B-K": "audio/Connect point B to point K.wav",
+  "B-Y": "audio/Connect point B to point Y.wav",
+  "B-J": "audio/Connect point B to point J.wav",
+  "Q-L": "audio/Connect point Q to point L.wav",
+  "G-R": "audio/Connect point G to point R.wav",
+  "E-M": "audio/Connect point E to point M.wav",
+  "F-D": "audio/Connect point F to point D.wav",
+  "H-I": "audio/Connect point H to point I.wav",
+  "I-C": "audio/Connect point I to point C.wav",
+  "C-H": "audio/Connect point C to point H.wav"
+};
+
+const guideAudioCache = new Map();
+let activeGuideAudio = null;
+
+function resolveGuideAudioForText(text) {
+  const raw = String(text || "").trim();
+  const t = raw.toLowerCase();
+  if (!t) return null;
+
+  if (t.includes("lets connect the components")) {
+    return GUIDE_AUDIO_BY_EVENT.guide_intro;
+  }
+  if (t.startsWith("connect point")) {
+    const pairMatch = raw.match(/connect\s+point\s+([a-z0-9]+)\s+to\s+point\s+([a-z0-9]+)/i);
+    if (pairMatch) {
+      const from = pairMatch[1].toUpperCase();
+      const to = pairMatch[2].toUpperCase();
+      const key = `${from}-${to}`;
+      return GUIDE_STEP_AUDIO_BY_PAIR[key] || GUIDE_AUDIO_BY_EVENT.generic_step;
+    }
+    return GUIDE_AUDIO_BY_EVENT.generic_step;
+  }
+  if (t.includes("wrong connection")) {
+    return GUIDE_AUDIO_BY_EVENT.wrong_connection;
+  }
+  if (t.includes("all the connections are correct")) {
+    return GUIDE_AUDIO_BY_EVENT.connection_ok_turn_on_mcb;
+  }
+  if (t.includes("connections are already verified")) {
+    return GUIDE_AUDIO_BY_EVENT.guide_checked;
+  }
+  if (
+    t.includes("all connections are completed") ||
+    t.includes("all the connections are completed")
+  ) {
+    return GUIDE_AUDIO_BY_EVENT.guide_all_complete;
+  }
+  if (t.includes("d c supply is turned on") || t.includes("d c supply is already on")) {
+    return GUIDE_AUDIO_BY_EVENT.starter_instruction;
+  }
+  if (t.includes("starter is on") || t.includes("starter is already on")) {
+    return GUIDE_AUDIO_BY_EVENT.guide_starter_on;
+  }
+  if (t.includes("armature resistance")) {
+    return GUIDE_AUDIO_BY_EVENT.armature_done;
+  }
+  if (t.includes("field resistance set")) {
+    return GUIDE_AUDIO_BY_EVENT.field_selected;
+  }
+  if (t.includes("autoconnect completed")) {
+    return GUIDE_AUDIO_BY_EVENT.autoconnect_done;
+  }
+  if (t.includes("five readings are added")) {
+    return GUIDE_AUDIO_BY_EVENT.five_readings_done;
+  }
+  if (t.includes("reading added")) {
+    return GUIDE_AUDIO_BY_EVENT.reading_added;
+  }
+  if (t.includes("graph is plotted")) {
+    return GUIDE_AUDIO_BY_EVENT.graph_done;
+  }
+  if (t.includes("report is ready")) {
+    return GUIDE_AUDIO_BY_EVENT.report_ready;
+  }
+
+  return null;
+}
+
+function getGuideAudio(src) {
+  if (!src) return null;
+  if (!guideAudioCache.has(src)) {
+    const audio = new Audio(src);
+    audio.preload = "auto";
+    guideAudioCache.set(src, audio);
+  }
+  return guideAudioCache.get(src);
+}
+
+function stopGuideAudioPlayback() {
+  if (!activeGuideAudio) return;
+  try {
+    activeGuideAudio.pause();
+    activeGuideAudio.currentTime = 0;
+  } catch {}
+  activeGuideAudio = null;
+}
+
+function playGuideAudio(src, options = {}) {
+  const clip = getGuideAudio(src);
+  if (!clip) return Promise.resolve(false);
+
+  const opts = options || {};
+  const shouldInterrupt = opts.interrupt !== false;
+  if (shouldInterrupt) {
+    stopGuideAudioPlayback();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  activeGuideAudio = clip;
+  try {
+    clip.currentTime = 0;
+  } catch {}
+
+  return new Promise((resolve) => {
+    const finish = () => {
+      if (activeGuideAudio === clip) activeGuideAudio = null;
+      if (typeof opts.onend === "function") opts.onend();
+      resolve(true);
+    };
+
+    const fail = () => {
+      if (activeGuideAudio === clip) activeGuideAudio = null;
+      if (typeof opts.onend === "function") opts.onend();
+      resolve(false);
+    };
+
+    clip.onended = finish;
+    clip.onerror = fail;
+
+    const playAttempt = clip.play();
+    if (playAttempt && typeof playAttempt.catch === "function") {
+      playAttempt.catch(fail);
+    }
+  });
+}
+
+function playEventAudio(src, options = {}) {
+  if (!src) return Promise.resolve(false);
+  return playGuideAudio(src, options);
+}
+
+function playFieldGuidanceAudio(fieldStep) {
+  let variationSrc = ALERT_AUDIO_BY_EVENT.field_1st;
+  if (fieldStep === 3) variationSrc = ALERT_AUDIO_BY_EVENT.field_3rd;
+  if (fieldStep === 4) variationSrc = ALERT_AUDIO_BY_EVENT.field_4th;
+  if (fieldStep === 5) variationSrc = ALERT_AUDIO_BY_EVENT.field_5th;
+  if (fieldStep === 7) variationSrc = ALERT_AUDIO_BY_EVENT.field_7th;
+
+  playEventAudio(variationSrc, {
+    onend: () => {
+      playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt);
+    }
+  });
+}
+
+function playReadingAddedAudio(readingNumber) {
+  if (readingNumber === 1) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_1st);
+    return;
+  }
+  if (readingNumber === 2) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_2nd);
+    return;
+  }
+  if (readingNumber === 3) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_3rd);
+    return;
+  }
+}
+
 function pickPreferredVoice() {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -238,6 +446,28 @@ window.labSpeech = window.labSpeech || {};
 window.labSpeech.enabled = true;
 window.labSpeech.speak = function speak(text, options = {}) {
   if (!window.labSpeech.enabled) return Promise.resolve();
+  if (!text) return Promise.resolve();
+
+  const opts = options || {};
+  const shouldInterrupt = opts.interrupt !== false;
+
+  const matchedGuideAudio = resolveGuideAudioForText(text);
+  if (matchedGuideAudio) {
+    return playGuideAudio(matchedGuideAudio, {
+      interrupt: shouldInterrupt,
+      onend: opts.onend
+    });
+  }
+
+  const guideActiveNow =
+    typeof window !== "undefined" &&
+    typeof window.isGuideActive === "function" &&
+    window.isGuideActive();
+  if (guideActiveNow) {
+    if (typeof opts.onend === "function") opts.onend();
+    return Promise.resolve();
+  }
+
   if (
     typeof window === "undefined" ||
     !("speechSynthesis" in window) ||
@@ -245,10 +475,6 @@ window.labSpeech.speak = function speak(text, options = {}) {
   ) {
     return Promise.resolve();
   }
-  if (!text) return Promise.resolve();
-
-  const opts = options || {};
-  const shouldInterrupt = opts.interrupt !== false;
 
   return new Promise((resolve) => {
     whenVoicesReady(() => {
@@ -277,6 +503,7 @@ window.labSpeech.speak = function speak(text, options = {}) {
   });
 };
 window.labSpeech.stop = function stop() {
+  stopGuideAudioPlayback();
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
@@ -414,7 +641,7 @@ let rpmReading = 0;
 
 const voltmeterNeedle = document.querySelector(".meter-needle3");
 
-const VOLT_0_ANGLE = -84;     // true 0 position
+const VOLT_0_ANGLE = -80;     // true 0 position
 const VOLT_220_ANGLE = 5;     // calibrated 220V position
 const VOLT_MIN = 0;
 const VOLT_MAX = 220;
@@ -539,11 +766,7 @@ if (fieldStepIndex >= 1 && fieldStepIndex <= 7) {
   if (window.isGuideActive && window.isGuideActive() && !waitingForAddToTable) {
   waitingForAddToTable = true;
   tableGuidanceActive = true;
-
-speakSafe(
-  `Field resistance set. Current is ${currentReading.toFixed(2)} ampere and speed is ${rpmReading} R P M.
-   Now click on add to table button to add readings in observation table.`
-);
+  playFieldGuidanceAudio(fieldStepIndex);
 
 }
 
@@ -772,6 +995,8 @@ if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Starter is on. Now set the armature resistance."
   );
+} else {
+  playEventAudio(GUIDE_AUDIO_BY_EVENT.guide_starter_on);
 }
 
     } else {
@@ -869,6 +1094,8 @@ if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Armature resistance set and the voltage is 220 volt. Now adjust the field resistance knob to take readings."
   );
+} else {
+  playEventAudio(GUIDE_AUDIO_BY_EVENT.armature_done);
 }
 
   fieldKnobEnabled = true;
@@ -894,6 +1121,7 @@ if (window.isGuideActive && window.isGuideActive()) {
         "DC Supply OFF",
         "danger"
       );
+  playEventAudio(ALERT_AUDIO_BY_EVENT.dc_supply_off);
   // 🔄 RESET ARMATURE RHEOSTAT TO INITIAL POSITION
 armatureKnobUsed = false;
 
@@ -929,6 +1157,7 @@ if (!connectionsAreCorrect || !connectionsAreVerified) {
     "DC Supply Alert",
     "danger"
   );
+  playEventAudio(ALERT_AUDIO_BY_EVENT.before_dc_supply_on);
   setVoltmeterZero();
   return;
 }
@@ -948,6 +1177,9 @@ if (knob2) {
   "DC Supply ON",
   "normal"
 );
+      if (!(window.isGuideActive && window.isGuideActive())) {
+        playEventAudio(ALERT_AUDIO_BY_EVENT.dc_supply_on);
+      }
       setLabelButtonsDisabled(true); // <-- Disable label buttons
       setAutoCheckButtonsDisabled(true); // <-- Disable Auto Connect and Check buttons
       // 🔊 GUIDED VOICE (ONLY IF GUIDE IS ACTIVE)
@@ -1172,6 +1404,7 @@ if (checkBtn) {
         "Incomplete Connections",
         "danger"
       );
+      playEventAudio(ALERT_AUDIO_BY_EVENT.no_connections);
       return;
     }
 
@@ -1215,6 +1448,8 @@ if (checkBtn) {
   if (window.isGuideActive && window.isGuideActive()) {
     clearEndpointHighlight();  // ✅ now reachable
     speakSafe("All the connections are correct. Now turn on the D C supply."); // ✅ now fires
+  } else {
+    playEventAudio(GUIDE_AUDIO_BY_EVENT.connection_ok_turn_on_mcb);
   }
 
   return;
@@ -1266,6 +1501,7 @@ if (missingConnections.length > 0) {
 }
 
 showPopup(message.trim(), "Alert", "danger");
+playEventAudio(ALERT_AUDIO_BY_EVENT.wrong_or_missing_connections);
 
   });
 }
@@ -1413,6 +1649,9 @@ showPopup(
   "Instruction",
   "normal"
 );
+if (!(window.isGuideActive && window.isGuideActive())) {
+  playEventAudio(GUIDE_AUDIO_BY_EVENT.autoconnect_done);
+}
 
 if (window.isGuideActive && window.isGuideActive()) {
   speakSafe(
@@ -1463,6 +1702,16 @@ function addObservationRow() {
 tableGuidanceActive = false;
 
 
+  if (totalReadingsAdded >= 7) {
+    showPopup(
+      "You can add a maximum of 7 readings to the table.\nNow, click the Graph button.",
+      "Maximum Readings Reached",
+      "normal"
+    );
+    playEventAudio(ALERT_AUDIO_BY_EVENT.max_readings);
+    return;
+  }
+
   if (currentReading === 0 || rpmReading === 0) {
     showPopup("First, set the field rheostat");
     return;
@@ -1478,6 +1727,7 @@ tableGuidanceActive = false;
         parseInt(cells[2].textContent) === rpmReading
       ) {
         showPopup("This reading is already added to the table.");
+        playEventAudio(ALERT_AUDIO_BY_EVENT.duplicate_reading);
         return;
       }
     }
@@ -1503,6 +1753,11 @@ reportReadings.push({
 });
 // ✅ INCREASE COUNT
 totalReadingsAdded++;
+
+if (window.isGuideActive && window.isGuideActive()) {
+  playReadingAddedAudio(totalReadingsAdded);
+}
+
 // ✅ SHOW ALERT ONLY FOR FIRST READING
 if (totalReadingsAdded === 1 && !firstReadingPopupShown) {
   showPopup(
@@ -1520,6 +1775,7 @@ if (totalReadingsAdded === 7) {
     "Maximum Readings Reached",
     "normal"
   );
+  playEventAudio(ALERT_AUDIO_BY_EVENT.seven_readings_done);
 }
 // ✅ SHOW ALERT WHEN 5 READINGS ARE ADDED
 if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
@@ -1529,6 +1785,7 @@ if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
     "Five Readings Completed",
     "normal"
   );
+  playEventAudio(ALERT_AUDIO_BY_EVENT.five_readings_done);
 
   fiveReadingsAnnounced = true;
 }
@@ -1536,21 +1793,14 @@ if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
 
 if (addTableBtn) {
   addTableBtn.addEventListener("click", function () {
-    speechSynthesis.cancel();  // Keep this for gesture context
+    if (window.labSpeech && typeof window.labSpeech.stop === "function") {
+      window.labSpeech.stop();
+    }
 
     const beforeCount = totalReadingsAdded;
     addObservationRow();
 
     if (totalReadingsAdded === beforeCount) return;
-
-    // 🔊 Speak ONLY if guide active
-    if (window.isGuideActive && window.isGuideActive()) {
-      const text = totalReadingsAdded === 5
-        ? "Five readings are added. Now you can plot the graph by clicking the Plot Graph button."
-        : "Reading added. Now vary the field resistance to take further readings.";
-
-      speakSafe(text);  // Use speakSafe for consistency
-    }
   });
 }
   
@@ -1564,7 +1814,9 @@ if (addTableBtn) {
 if (window.labSpeech) {
   labSpeech.stop();
 }
-speechSynthesis.cancel();
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  window.speechSynthesis.cancel();
+}
 resetSpeakButtonUI();
 
       if (typeof jsPlumb.deleteEveryConnection === "function") {
@@ -2458,22 +2710,6 @@ function highlightEndpoints(fromId, toId) {
 ===================================================== */
 (function () {
 
-  // ---------- SAFELY WAIT FOR VOICES ----------
-  function waitForVoices(callback) {
-    const voices = speechSynthesis.getVoices();
-    if (voices.length) {
-      callback();
-    } else {
-      speechSynthesis.addEventListener(
-        "voiceschanged",
-        function handler() {
-          speechSynthesis.removeEventListener("voiceschanged", handler);
-          callback();
-        }
-      );
-    }
-  }
-
   const speakBtn = document.querySelector(".speak-btn");
   if (!speakBtn || !window.labSpeech) return;
 
@@ -2596,54 +2832,10 @@ function startGuide() {
   // 🔵 NORMAL CONNECTION GUIDANCE
   activateGuideUI();
   currentStep = firstIncomplete;
-
-  waitForVoices(() => {
-    const intro = new SpeechSynthesisUtterance(
-      "Lets connect the components."
-    );
-    intro.rate = 0.9;
-
-    const voices = speechSynthesis.getVoices();
-    intro.voice =
-      voices.find(v => v.lang.startsWith("en-IN")) ||
-      voices.find(v => v.lang.startsWith("en")) ||
-      voices[0];
-
-    intro.onend = () => {
+  labSpeech.speak("Lets connect the components.", {
+    onend: () => {
       if (guideActive) speakCurrentStep();
-    };
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(intro);
-  });
-
-
-
-  // 🔵 NORMAL GUIDED MODE
-  guideActive = true;
-  currentStep = firstIncomplete;
-
-  speakBtn.setAttribute("aria-pressed", "true");
-  speakBtn.querySelector(".speak-btn__label").textContent = "Guiding...";
-
-  waitForVoices(() => {
-    const intro = new SpeechSynthesisUtterance(
-      "Lets connect the components."
-    );
-    intro.rate = 0.9;
-
-    const voices = speechSynthesis.getVoices();
-    intro.voice =
-      voices.find(v => v.lang.startsWith("en-IN")) ||
-      voices.find(v => v.lang.startsWith("en")) ||
-      voices[0];
-
-    intro.onend = () => {
-      if (guideActive) speakCurrentStep();
-    };
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(intro);
+    }
   });
 }
 
@@ -2654,7 +2846,9 @@ function stopGuide({ resetUI = false } = {}) {
   guideActive = false;
   currentStep = 0;
  clearEndpointHighlight();
-  speechSynthesis.cancel();
+  if (window.labSpeech && typeof window.labSpeech.stop === "function") {
+    window.labSpeech.stop();
+  }
 
   if (resetUI) {
     resetSpeakButtonUI();
@@ -2695,7 +2889,12 @@ jsPlumb.bind("connection", function (info) {
 
     labSpeech.speak(
       `Wrong connection. You connected ${wrongA} to ${wrongB}. ` +
-      `Please connect ${correctA} to ${correctB}.`
+      `Please connect ${correctA} to ${correctB}.`,
+      {
+        onend: () => {
+          if (guideActive) speakCurrentStep();
+        }
+      }
     );
 
     return; // ⛔ DO NOT ADVANCE
@@ -2736,20 +2935,12 @@ speakCurrentStep();
 
   /* ---------- STORAGE ---------- */
   const SKIP_KEY = "vl_components_skipped";
-  const AUDIO_KEY = "vl_components_audio_played";
 
   let storage;
   try {
     storage = window.sessionStorage;
   } catch {
     storage = null;
-  }
-
-  let audioStorage;
-  try {
-    audioStorage = window.sessionStorage || window.localStorage;
-  } catch {
-    audioStorage = null;
   }
 
   const hasSkipped = () => {
@@ -2766,26 +2957,7 @@ speakCurrentStep();
     } catch {}
   };
 
-  const hasPlayedAudio = () => {
-    try {
-      return audioStorage && audioStorage.getItem(AUDIO_KEY) === "1";
-    } catch {
-      return false;
-    }
-  };
-
-  const markAudioPlayed = () => {
-    try {
-      audioStorage && audioStorage.setItem(AUDIO_KEY, "1");
-    } catch {}
-  };
-
   /* ---------- AUDIO STATE ---------- */
-  let frameReady = false;
-  let autoPlayPending = !hasPlayedAudio();
-  let autoPlayRequested = false;
-  let autoPlayRetryArmed = false;
-
   function post(type) {
     if (!frame || !frame.contentWindow) return;
     frame.contentWindow.postMessage({ type }, "*");
@@ -2797,29 +2969,8 @@ speakCurrentStep();
     audioBtn.setAttribute("aria-pressed", playing ? "true" : "false");
     if (audioLabel) {
       audioLabel.textContent =
-        label || (playing ? "Pause Audio" : "Play Audio");
+        label || (playing ? "Stop Audio" : "Play Audio");
     }
-  }
-
-  function tryAutoPlay() {
-    if (!autoPlayPending || !frameReady || autoPlayRequested) return;
-    post("component-audio-play");
-    autoPlayRequested = true;
-  }
-
-  function armRetry() {
-    if (autoPlayRetryArmed || !autoPlayPending) return;
-    autoPlayRetryArmed = true;
-
-    const retry = () => {
-      autoPlayRetryArmed = false;
-      if (!frameReady) return;
-      post("component-audio-play");
-      autoPlayRequested = true;
-    };
-
-    document.addEventListener("pointerdown", retry, { once: true });
-    document.addEventListener("keydown", retry, { once: true });
   }
 
   /* ---------- OPEN / CLOSE ---------- */
@@ -2830,7 +2981,6 @@ speakCurrentStep();
     document.body.classList.add("is-modal-open");
 
     post("component-audio-request");
-    tryAutoPlay();
   }
 
   function close({ skip = false } = {}) {
@@ -2883,9 +3033,7 @@ if (skipBtn) {
   /* ---------- IFRAME ---------- */
   frame &&
     frame.addEventListener("load", () => {
-      frameReady = true;
       post("component-audio-request");
-      tryAutoPlay();
     });
 
   /* ---------- MESSAGE HANDLING ---------- */
@@ -2896,20 +3044,6 @@ if (skipBtn) {
 
     if (data.type === "component-audio-state") {
       updateAudioUI(data.state || data);
-
-      if (autoPlayPending && data.playing) {
-        autoPlayPending = false;
-        markAudioPlayed();
-      }
-    }
-
-    if (data.type === "component-audio-blocked") {
-      autoPlayRequested = false;
-      armRetry();
-      updateAudioUI({
-        playing: false,
-        label: "Tap to enable audio"
-      });
     }
   });
 

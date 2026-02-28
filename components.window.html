@@ -542,35 +542,35 @@
         const components = [
             {
                 key: "mcb",
-                name: "MCB",
+                name: "DC Supply",
                 image:"./images/components/mcb-on.png",
                 description:
-                    "An MCB (Miniature Circuit Breaker) is an automatically operated electrical switching device used to protect a circuit from overcurrent, short circuit, or excessive load. It disconnects the circuit when abnormal conditions occur.",
-                audio: "../audio/mcb.wav"
+                    "A DC power supply is used to supply a constant voltage to the motor’s armature and field windings, ensuring stable operation during the experiment.",
+                audio: "./audio/DC Supply.wav"
             },
             {
                 key: "starter",
                 name: "3-Point Starter",
                 image: "./images/components/starter-on.png",
                 description:
-                    "A 3-point starter safely starts DC shunt and compound motors. It limits starting current, provides overload protection, and ensures smooth acceleration by gradually reducing resistance.",
-                audio: "../audio/3pointstarter.wav"
+                    "A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor. It ensures smooth acceleration by gradually reducing resistance as the motor gains speed, providing a safe start.",
+                audio: "./audio/3-Point Starter.wav"
             },
             {
                 key: "shuntmotor",
                 name: "DC Shunt Motor",
                 image: "./images/components/shuntmotor.png",
                 description:
-                    "In this experiment, the DC motor acts as a prime mover, converting electrical energy into mechanical energy. Its shaft is mechanically coupled to the DC shunt generator, and it receives the supply through the MCB and starter.",
-                audio: "../audio/dcMotor.wav"
+                    "The DC shunt motor is the machine whose speed is being controlled in this experiment.",
+                audio: "./audio/DC Shunt Motor.wav"
             },
             {
                 key: "generator",
                 name: "Rotor",
                 image:  "./images/components/DC-Shunt-Generator.png",
                 description:
-                    "The DC shunt generator converts the mechanical energy received from the motor into electrical energy, producing DC output voltage and current. Its terminals are connected to an ammeter in series and a voltmeter in parallel for measurement.",
-                audio: "../audio/dcShuntGenerator.wav"
+                    "A rotor is the rotating part of the motor that converts electrical energy into mechanical energy. In a DC shunt motor, the rotor is also called the armature. The main parts of the rotor are Armature core, Armature winding, Commutator and Shaft",
+                audio: "./audio/Rotor.wav"
             },
             
             {
@@ -579,7 +579,7 @@
                 image:   "./images/components/r.png",
                 description:                   
                  " The field current is controlled by varying the field resistance in the field circuit, which in turn affects the magnetic flux and consequently the motor speed.",
-                audio: "../audio/lampLoad.wav"
+                audio: "./audio/Field Rheostat.wav"
             },
 
                         {
@@ -588,32 +588,32 @@
                 image:   "./images/components/r.png",
                 description:
                     " The Armature rheostat is set once and kept constant. Therefore, speed is controlled only through the field rheostat.",
-                audio: "../audio/lampLoad.wav"
+                audio: "./audio/Armature Rheostat.wav"
             },
 
             {
                 key: "ammeter",
-                name: "Ammeter",
+                name: "DC Ammeter",
                 image: "./images/components/ammeter.png",
                 description:
-                    "This ammeter is connected in series with the DC motor. Its purpose is to measure the current drawn by the DC motor while it is operating.",
-                audio: "../audio/ammeter.wav"
+                    " DC Ammeter measures the current flowing through the field winding.",
+                audio: "./audio/DC Ammeter.wav"
             },
             {
                 key: "voltmeter",
-                name: "Voltmeter",
+                name: "DC Voltmeter",
                 image:"./images/components/voltmeter.png",
                 description:
-                    "It is connected in parallel across the MCB. The purpose of this voltmeter is to measure the voltage of the main supply.",
-                audio: "audio/voltmeter.wav"
+                    "The DC Voltmeter measures the voltage across the field winding.",
+                audio: "./audio/DC Voltmeter.wav"
             },
             {
                 key: "rpm-indicator",
-                name: "RPM-Indicator",
+                name: "RPM Indicator",
                 image:"./images/components/rpm.png",
                 description:
-                    "An RPM indicator measures the rotational speed of the motor shaft in revolutions per minute. It helps in monitoring and analyzing the speed performance of the DC machine under different operating conditions.",
-                audio: "audio/voltmeter.wav"
+                    "An RPM indicator (Revolutions Per Minute) is a measuring instrument used to display the rotational speed of a rotating shaft in an electrical machine such as motor or generator",
+                audio: "./audio/RPM Indicator.wav"
             },
             
            
@@ -636,6 +636,8 @@
             "speechSynthesis" in window && typeof window.SpeechSynthesisUtterance === "function";
         const isEmbedded = window.parent && window.parent !== window;
         let autoPlayFallbackArmed = false;
+        let isAudioPlaying = false;
+        let isAudioDisabled = false;
 
         let currentIndex = 0;
         let swapTimer = null;
@@ -687,18 +689,20 @@
         }
 
         function updateAudioButton(isPlaying) {
-            if (!audioBtn) return;
-            audioBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
-            if (audioLabelEl) {
-                audioLabelEl.textContent = isPlaying ? "Pause Audio" : "Play Audio";
+            isAudioPlaying = Boolean(isPlaying);
+            if (audioBtn) {
+                audioBtn.setAttribute("aria-pressed", isAudioPlaying ? "true" : "false");
+                if (audioLabelEl) {
+                    audioLabelEl.textContent = isAudioPlaying ? "Stop Audio" : "Play Audio";
+                }
             }
             if (isEmbedded) {
                 window.parent.postMessage(
                     {
                         type: "component-audio-state",
-                        playing: isPlaying,
-                        disabled: audioBtn.disabled,
-                        label: audioLabelEl ? audioLabelEl.textContent : ""
+                        playing: isAudioPlaying,
+                        disabled: isAudioDisabled,
+                        label: isAudioPlaying ? "Stop Audio" : "Play Audio"
                     },
                     "*"
                 );
@@ -824,6 +828,7 @@
             if (audioBtn) {
                 audioBtn.disabled = !hasFile && !speechSupported;
             }
+            isAudioDisabled = !hasFile && !speechSupported;
 
             if (hasFile) {
                 setAudioStatus("");
@@ -833,13 +838,13 @@
                 setAudioStatus(" ");
             }
 
-            if (isEmbedded && audioBtn) {
+            if (isEmbedded) {
                 window.parent.postMessage(
                     {
                         type: "component-audio-state",
-                        playing: audioBtn.getAttribute("aria-pressed") === "true",
-                        disabled: audioBtn.disabled,
-                        label: audioLabelEl ? audioLabelEl.textContent : ""
+                        playing: isAudioPlaying,
+                        disabled: isAudioDisabled,
+                        label: isAudioPlaying ? "Stop Audio" : "Play Audio"
                     },
                     "*"
                 );
@@ -946,7 +951,7 @@
                     autoPlayOnChange = false;
                 }
                 if (data.type === "component-audio-request") {
-                    updateAudioButton(audioBtn?.getAttribute("aria-pressed") === "true");
+                    updateAudioButton(isAudioPlaying);
                 }
                 if (data.type === "component-audio-stop") {
                     stopAudio();
