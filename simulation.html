@@ -1070,8 +1070,13 @@
         okBtn.style.display = popupMode === 'confirm' ? 'none' : 'inline-flex';
       }
       window.setTimeout(() => {
-        if (popupMode === 'confirm') yesBtn?.focus?.();
-        else okBtn?.focus?.();
+        try {
+          if (popupMode === 'confirm') yesBtn?.focus?.({ preventScroll: true });
+          else okBtn?.focus?.({ preventScroll: true });
+        } catch (e) {
+          if (popupMode === 'confirm') yesBtn?.focus?.();
+          else okBtn?.focus?.();
+        }
       }, 0);
 
       if (box) {

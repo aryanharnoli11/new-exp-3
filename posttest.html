@@ -992,7 +992,13 @@ function showPopup(message, title = "Alert", options = {}) {
 
   modal.classList.add("show");
   document.body.classList.add("is-modal-open");
-  window.setTimeout(() => okBtn?.focus?.(), 0);
+  window.setTimeout(() => {
+    try {
+      okBtn?.focus?.({ preventScroll: true });
+    } catch (e) {
+      okBtn?.focus?.();
+    }
+  }, 0);
 
   playMappedAlertAudio(sound, message);
 }
