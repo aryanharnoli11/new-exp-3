@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Speed-Torque Characteristics for Different Field Resistances</title>
+  <desc id="desc">Plot of Speed N versus Torque showing three lines labeled Rc1, Rc2, and Rc3.</desc>
+
+  <rect width="900" height="620" fill="#f5f5f5"/>
+
+  <g stroke="#111" stroke-width="6" fill="none" stroke-linecap="round">
+    <!-- Axes -->
+    <line x1="95" y1="75" x2="95" y2="545"/>
+    <line x1="95" y1="545" x2="740" y2="545"/>
+
+    <!-- Rc curves -->
+    <line x1="95" y1="205" x2="710" y2="205"/>
+    <line x1="95" y1="240" x2="710" y2="315"/>
+    <line x1="95" y1="275" x2="710" y2="405"/>
+  </g>
+
+  <g fill="#111" font-family="Arial, sans-serif" font-weight="700">
+    <text x="748" y="218" font-size="52">Rc1</text>
+    <text x="748" y="328" font-size="52">Rc 2</text>
+    <text x="748" y="418" font-size="52">Rc 3</text>
+    <text x="350" y="610" font-size="56">Torque</text>
+    <text transform="translate(62 365) rotate(-90)" font-size="56">Speed N</text>
+  </g>
+</svg>

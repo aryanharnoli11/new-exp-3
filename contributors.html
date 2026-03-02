@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Virtual Labs | Electrical Machines Lab - Theory</title>
+  <title>Virtual Labs | Electrical Machines Lab - Contributors</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./alert-theme.css">
-
-      <style>
+  <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     body {
@@ -97,7 +96,7 @@
 
     /* Virtual Labs specific styling */
     .vl-header {
-       height: 70px;
+      height: 70px;
       background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);
       box-shadow: 0 10px 30px rgba(2, 26, 44, 0.35);
     }
@@ -378,8 +377,8 @@
     }
 
     .chatbot-hint-dot {
-      position: relative;
-      left: -5px;
+        position: relative;
+  left: -5px;
       width: 22px;
       height: 22px;
       border-radius: 999px;
@@ -450,7 +449,7 @@
       pointer-events: auto;
     }
 
-   .chatbot-panel-header {
+    .chatbot-panel-header {
       padding: 1.1rem 1.35rem;
       background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);
       color: #fff;
@@ -568,13 +567,13 @@
 <body class="bg-gray-50 min-h-screen">
 
   <!-- HEADER -->
-    <header class="vl-header shadow-xl fixed top-0 left-0 right-0 z-50">
+   <header class="vl-header shadow-xl fixed top-0 left-0 right-0 z-50">
     <div class="header-inner px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between py-1 w-full">
         <!-- Logo Section - Absolute Left Corner -->
         <a href="../../main.html" class="logo-container hover:no-underline focus:no-underline"> <!-- Made logo clickable -->
           <img 
-             src="./images/image.png" 
+            src="./images/image.png"  
             alt="Virtual Labs Logo" 
             class="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-xl object-contain bg-white p-1.5 logo-glow"
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%230b60a8%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3EVL%3C/text%3E%3C/svg%3E'"
@@ -600,13 +599,13 @@
         <!-- Desktop Navigation (Optional) -->
          <nav class="top-nav hidden lg:flex items-center">
             <a href="../../main.html" class="nav-link">Home</a>
-            <a href="user_input.html?return=theory.html" class="nav-link nav-user-link" data-user-input-link data-redirect-return="theory.html">
+            <a href="user_input.html?return=contributors.html" class="nav-link nav-user-link" data-user-input-link data-redirect-return="contributors.html">
               <span class="nav-user-pill">
                
                 <span class="nav-user-text" data-user-text>User Input</span>
               </span>
             </a>
-           
+             
           </nav>
       </div>
     </div>
@@ -681,7 +680,7 @@
     </svg>
     Contributors
   </a>
-  <a id="progressReportNav" href="#progressreport" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group" data-progress-report-link>
+         <a id="progressReportNav" href="#progressreport" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group" data-progress-report-link>
 
               <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -689,9 +688,11 @@
               </svg>
               Progress report
             </a>
+
         </nav>
       </div>
     </aside>
+
 
     <!-- MOBILE OVERLAY -->
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
@@ -700,12 +701,12 @@
     <main class="flex-1 lg:ml-64 p-6">
 
       <!-- Breadcrumb -->
-      <nav class="mb-6 text-m text-gray-600 animate-slideInLeft flex items-center space-x-2">
+       <nav class="mb-6 text-m text-gray-600 animate-slideInLeft flex items-center space-x-2">
         <a href="#" class="hover:text-blue-600 transition-colors">Home</a>
         <span>></span>
         <a href="#" class="hover:text-blue-600">Electrical Machines Lab</a>
         <span>></span>
-        <span class="text-gray-800 font-medium">Theory</span>
+        <span class="text-gray-800 font-medium">Contributors</span>
       </nav>
 
       <!-- TITLE CARD -->
@@ -717,85 +718,95 @@
         </div>
       </div>
 
-      <!-- Theory Content -->
+      <!-- CONTRIBUTORS TABLE -->
       <section class="section-content vl-card p-6 animate-fadeInUp">
-       
+        <div class="border-l-4 border-blue-600 pl-4 mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">Lab Proposer / Subject Matter Experts</h2>
+        </div>
 
-        <div class="space-y-8 text-gray-700 text-lg leading-relaxed">
+        <div class="overflow-x-auto mt-4">
+          <table class="min-w-full border border-gray-300 bg-white rounded-lg">
+            <thead class="bg-gray-100">
+              <tr class="text-left text-gray-700 text-center">
+                <th class="border p-2">S.No.</th>
+                <th class="border p-2">Name</th>
+                <th class="border p-2">Email ID</th>
+                <th class="border p-2">Institute</th>
+                <th class="border p-2">Position</th>
+              </tr>
+            </thead>
 
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">Introduction</h3>
-            <p class="mb-6 text-justify">
-             A DC motor is an electromechanical machine that converts electrical energy (DC) into mechanical energy (rotation). It works on the principle that when a current-carrying conductor is placed in a magnetic field, it experiences a mechanical force. 
+            <tbody>
+              <tr class="text-gray-700 text-center">
+                <td class="border p-2">1</td>
+                <td class="border p-2">Dr RS Anand</td>
+                <td class="border p-2">anandfee@gmail.com</td>
+                <td class="border p-2">IIT Roorkee</td>
+                <td class="border p-2">Professor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="border-l-4 border-blue-600 pl-4 mb-4 mt-10">
+          <h2 class="text-2xl font-bold text-gray-800">Lab Contributed By</h2>
+        </div>
 
-            </p>
-            <div class="flex justify-center mb-4">
-              <img src="./images/theory_dc_shunt_generator_equivalent.svg" alt="Equivalent circuit of DC shunt generator for load characteristics" class="w-[500px] h-[250px] rounded-lg shadow-md">
-            </div>
-            <p class="text-center font-semibold text-gray-800"><b>Fig. 1  Equivalent circuit for field control of DC shunt motor
-</b></p>
+        <div class="overflow-x-auto mt-4">
+          <table class="min-w-full border border-gray-300 bg-white rounded-lg">
+            <thead class="bg-gray-100">
+              <tr class="text-left text-gray-700 text-center">
+                <th class="border p-2">S.No.</th>
+                <th class="border p-2">Name</th>
+                <th class="border p-2">Email ID</th>
+                <th class="border p-2">Institute</th>
+                <th class="border p-2">Position</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr class="text-gray-700 text-center">
+                <td class="border p-2">1</td>
+                <td class="border p-2">Aryan Harnoli</td>
+                <td class="border p-2">aryanharnoli83@gmail.com</td>
+                <td class="border p-2">IIT Roorkee</td>
+                <td class="border p-2">Project Intern</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="progressreport"
+               class="section-content vl-card mb-8 p-6 animate-fadeInUp hidden">
+
+        <div class="border-l-4 border-orange-600 pl-4 mb-4 flex items-center justify-between">
+          <div class="flex items-center">
+            <h2 class="text-2xl font-bold text-gray-800">
+              Progress Report
+            </h2>
           </div>
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800 ">Losses in a DC Shunt Generator</h3>
-            <p class="mb-4 text-justify">
-   
-             In a DC shunt generator, various losses occur during operation, such as armature copper losses, shunt field copper losses, iron losses, and mechanical losses. Among these, armature copper losses constitute a significant portion of the total losses. The copper losses in the armature of a DC shunt generator are approximately 30% of the total full-load losses. These losses occur due to the resistance of the armature winding and increase with load current, thereby affecting the efficiency and voltage regulation of the generator.
+          <span class="text-sm text-gray-600">
+            Embedded view (opens within this page)
+          </span>
+        </div>
 
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">Internal characteristic</h3>
-            <p class="mb-4">
-              The internal characteristic curve represents the relation between the generated voltage E<sub>g</sub> and the load current I<sub>L</sub>. When the generator is loaded then the generated voltage decreases due to armature reaction. So, generated voltage becomes lower than the emf generated at no load. Here in the figure below, AD curve shows the no-load voltage curve and AB is the internal characteristic curve.
-            </p>
-          </div>
-
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">External or Load characteristic</h3>
-            <p class="mb-4">
-              AC curve shows the external characteristic of the shunt wound DC generators. It shows the variation of terminal voltage with the load current. Ohmic drop due to armature resistance gives lesser terminal voltage than the generated voltage. That is why the curve lies below the internal characteristic curve.
-            </p>
-            <div class="text-center text-lg font-mono my-6 bg-gray-100 p-4 rounded-lg">
-              V = (E<sub>g</sub> − I<sub>a</sub>R<sub>a</sub>) = E<sub>g</sub> − (I<sub>L</sub> + I<sub>sh</sub>)R<sub>a</sub>
-            </div>
-            <p class="mb-4">
-              The terminal voltage can always be maintained constant by adjusting the load terminal. When the load resistance of a shunt-wound DC generator is decreased, the load current increases as shown in the above figure. But the load current can only be increased up to a certain limit (up to point C) with decrease of load resistance. Beyond this point, the characteristic reverses. Any further decrease of load resistance results in current reduction and consequently, the external characteristic curve turns back as shown in the dotted line, and ultimately the terminal voltage becomes zero (though some voltage remains due to residual magnetism).
-            </p>
-            <p class="mb-6">
-              When I<sub>L</sub> increases, terminal voltage decreases. After a certain limit, due to heavy load current and increased ohmic drop, the terminal voltage reduces drastically. This drastic reduction results in a drop in load current even though load resistance becomes low. Therefore, the load resistance of the machine must be maintained properly. The point at which the machine gives maximum current output is called the breakdown point (point C in the figure).
-            </p>
-            <div class="flex justify-center mb-4">
-              <img src="./images/theory_speed_torque_rc_curves.svg" alt="Speed-torque characteristics for different field resistance values" class="w-[500px] h-[250px] rounded-lg shadow-md">
-            </div>
-            <p class="text-center font-semibold text-gray-800"><b>Fig. 2  Speed-Torque characteristics of DC Shunt motor</b></p>
-            <p class="mb-0">
-              <b>Note:</b> It may be seen from the external characteristic that change in terminal voltage from no-load to full-load is small. The terminal voltage can always be maintained constant by adjusting the field rheostat R automatically.
-            </p>
-          </div>
-
+        <div class="w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner">
+          <iframe
+            src="progressreport.html"
+            title="Progress Report"
+            class="w-full"
+            style="min-height: 900px;"
+            loading="lazy">
+          </iframe>
         </div>
 
       </section>
-   <section id="progressreport" class="section-content vl-card mb-8 p-6 animate-fadeInUp hidden">
-          <div class="border-l-4 border-orange-600 pl-4 mb-4 flex items-center justify-between">
-            <div class="flex items-center">
-              <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                Progress Report
-              </h2>
-            </div>
-            <span class="text-sm text-gray-600">Embedded view (opens within this page)</span>
-          </div>
-          <div class="w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner">
-            <iframe
-              src="progressreport.html"
-              title="Progress Report"
-              class="w-full"
-              style="min-height: 900px;"
-              loading="lazy"
-            ></iframe>
-          </div>
-        </section>
+
     </main>
   </div>
- <!-- FOOTER -->
+
+  
+  <!-- FOOTER -->
 <footer class="vl-footer fixed bottom-0 left-0 right-0 z-50 h-12"> <!-- Key: h-12 = 48px -->
     <div class="footer-inner flex items-center justify-center h-full px-4">
       <p class="text-xs md:text-sm text-center text-sky-100 font-medium tracking-wide">

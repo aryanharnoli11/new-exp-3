@@ -390,7 +390,7 @@
 /* Hidden jsPlumb Endpoints */
 
 .ammeter-inner #pointL {
-  left: 12%;
+  left: 18%;
   top: 112%;
   width: 10px;
   height: 10px;
@@ -398,7 +398,7 @@
 }
 
 .ammeter-inner #pointM {
-  left: 90%;
+  left: 80%;
   top: 112%;
   width: 10px;
   height: 10px;
@@ -484,54 +484,30 @@
   position: absolute;
 }
 
-/* Perfect centered highlight */
-.endpoint-highlight::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  border: 3px solid rgba(255, 0, 0, 0.9);
-  animation: endpointPulse 1.2s ease-out infinite;
-  pointer-events: none;
+/* Guided connection effect on connector labels (no endpoint circles) */
+button[class^="point-"].endpoint-highlight,
+button[class*=" point-"].endpoint-highlight {
+  animation: labelGuidePulse 1.2s ease-in-out infinite;
+  border-color: rgba(5, 109, 122, 0.95) !important;
+  background: linear-gradient(145deg, #effcff, #bdeef6 56%, #8bdce9) !important;
+  color: #06343b !important;
+  box-shadow:
+    0 0 0 2px rgba(0, 173, 191, 0.5),
+    0 0 16px rgba(0, 173, 191, 0.45),
+    inset 0 1px 4px rgba(255, 255, 255, 0.75) !important;
 }
 
-.endpoint-highlight::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 80px;
-  height: 80px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: rgba(255, 0, 0, 0.25);
-  animation: endpointGlow 1.2s ease-out infinite;
-  pointer-events: none;
-}
-
-/* Animation */
-@keyframes endpointPulse {
-  0% {
-    transform: translate(-50%, -50%) scale(0.6);
-    opacity: 1;
+@keyframes labelGuidePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgba(0, 173, 191, 0.5),
+      0 0 16px rgba(0, 173, 191, 0.45),
+      inset 0 1px 4px rgba(255, 255, 255, 0.75);
   }
-  100% {
-    transform: translate(-50%, -50%) scale(1.4);
-    opacity: 0;
-  }
-}
-
-@keyframes endpointGlow {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0;
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(0, 173, 191, 0.72),
+      0 0 22px rgba(0, 173, 191, 0.65),
+      inset 0 1px 4px rgba(255, 255, 255, 0.75);
   }
 }

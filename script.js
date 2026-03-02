@@ -554,8 +554,14 @@ function clearEndpointHighlight() {
 
 function highlightEndpoints(fromId, toId) {
   clearEndpointHighlight();
-  const fromEl = document.getElementById(fromId);
-  const toEl = document.getElementById(toId);
+  const fromLabel = document.querySelector(
+    `.point-${String(fromId || "").replace(/^point/, "")}`
+  );
+  const toLabel = document.querySelector(
+    `.point-${String(toId || "").replace(/^point/, "")}`
+  );
+  const fromEl = fromLabel;
+  const toEl = toLabel;
   if (fromEl) fromEl.classList.add("endpoint-highlight");
   if (toEl) toEl.classList.add("endpoint-highlight");
 }
@@ -1508,16 +1514,31 @@ playEventAudio(ALERT_AUDIO_BY_EVENT.wrong_or_missing_connections);
 // Add CSS for endpoint highlight only
 const style = document.createElement('style');
 style.innerHTML = `
-.endpoint-highlight {
-  animation: endpointPulse 1.2s cubic-bezier(.4,0,.2,1) infinite;
-  box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 0 12px 4px rgba(255,0,0,0.18);
-  border-radius: 50% !important;
+button[class^="point-"].endpoint-highlight,
+button[class*=" point-"].endpoint-highlight {
+  animation: labelGuidePulse 1.2s ease-in-out infinite;
+  border-color: rgba(5, 109, 122, 0.95) !important;
+  background: linear-gradient(145deg, #effcff, #bdeef6 56%, #8bdce9) !important;
+  color: #06343b !important;
+  box-shadow:
+    0 0 0 2px rgba(0, 173, 191, 0.5),
+    0 0 16px rgba(0, 173, 191, 0.45),
+    inset 0 1px 4px rgba(255, 255, 255, 0.75) !important;
   z-index: 1000 !important;
 }
-@keyframes endpointPulse {
-  0% { box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 0 12px 4px rgba(255,0,0,0.18); }
-  50% { box-shadow: 0 0 0 10px rgba(255,0,0,0.45), 0 0 24px 8px rgba(255,0,0,0.25); }
-  100% { box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 0 12px 4px rgba(255,0,0,0.18); }
+@keyframes labelGuidePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgba(0, 173, 191, 0.5),
+      0 0 16px rgba(0, 173, 191, 0.45),
+      inset 0 1px 4px rgba(255, 255, 255, 0.75);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(0, 173, 191, 0.72),
+      0 0 22px rgba(0, 173, 191, 0.65),
+      inset 0 1px 4px rgba(255, 255, 255, 0.75);
+  }
 }
 `;
 document.head.appendChild(style);
@@ -2697,8 +2718,12 @@ function clearEndpointHighlight() {
 function highlightEndpoints(fromId, toId) {
   clearEndpointHighlight();
 
-  const fromEl = document.getElementById(fromId);
-  const toEl = document.getElementById(toId);
+  const fromEl = document.querySelector(
+    `.point-${String(fromId || "").replace(/^point/, "")}`
+  );
+  const toEl = document.querySelector(
+    `.point-${String(toId || "").replace(/^point/, "")}`
+  );
 
   if (fromEl) fromEl.classList.add("endpoint-highlight");
   if (toEl) toEl.classList.add("endpoint-highlight");

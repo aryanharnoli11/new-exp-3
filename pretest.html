@@ -3,29 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Virtual Labs | Electrical Machines Lab - Theory</title>
+  <title>Virtual Labs | Electrical Machines Lab - Pretest</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./alert-theme.css">
-
-      <style>
+  <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
     body {
       font-family: 'Inter', sans-serif;
     }
-
     /* Page blur when intro popup is open */
     body.body-blurred #page-wrapper {
       filter: blur(5px);
       pointer-events: none;
       user-select: none;
     }
-
     body.body-blurred {
       overflow: hidden;
     }
-
     /* Custom Animations */
     @keyframes fadeInUp {
       from {
@@ -37,26 +32,22 @@
         transform: translateY(0);
       }
     }
-
     .animate-fadeInUp {
       animation: fadeInUp 0.6s ease-out forwards;
     }
-
     @keyframes slideInLeft {
       from {
         opacity: 0;
         transform: translateX(-20px);
       }
-      to {
+        to {
         opacity: 1;
         transform: translateX(0);
       }
     }
-
     .animate-slideInLeft {
       animation: slideInLeft 0.5s ease-out forwards;
     }
-
     @keyframes chatbot-float {
       0%, 100% {
         transform: translateY(0);
@@ -80,7 +71,6 @@
         transform: translate(8px, -50%) scale(0.94);
       }
     }
-
     /* Stagger animation for menu items */
     .menu-item:nth-child(1) { animation-delay: 0.1s; }
     .menu-item:nth-child(2) { animation-delay: 0.2s; }
@@ -90,18 +80,15 @@
     .menu-item:nth-child(6) { animation-delay: 0.6s; }
     .menu-item:nth-child(7) { animation-delay: 0.7s; }
     .menu-item:nth-child(8) { animation-delay: 0.8s; }
-
     /* Section stagger */
     .section-content:nth-child(even) { animation-delay: 0.2s; }
     .section-content:nth-child(odd) { animation-delay: 0.1s; }
-
     /* Virtual Labs specific styling */
     .vl-header {
        height: 70px;
       background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);
       box-shadow: 0 10px 30px rgba(2, 26, 44, 0.35);
     }
-
     .header-inner {
       max-width: 1200px;
       margin: 0 auto;
@@ -110,12 +97,10 @@
       justify-content: space-between;
       padding: 0.75rem 1rem; /* Increased padding for better breathing room */
     }
-
     .top-nav {
       gap: 1.5rem; /* Increased gap for better spacing */
       align-items: center;
     }
-
     .nav-link {
       position: relative;
       color: #e2e8f0;
@@ -125,7 +110,6 @@
       border-radius: 0.375rem; /* Subtle rounding */
       text-decoration: none;
     }
-
     .nav-link::after {
       content: '';
       position: absolute;
@@ -139,41 +123,34 @@
       transform-origin: center;
       transition: transform 200ms ease;
     }
-
     .nav-link:hover,
     .nav-link:focus {
       color: #fff;
       transform: translateY(-1px); /* Subtle lift on hover */
       background: rgba(255, 255, 255, 0.1); /* Subtle background on hover */
     }
-
     .nav-link:hover::after,
     .nav-link:focus::after {
       transform: scaleX(1);
     }
-
     /* Logo improvements */
     .logo-container {
       display: flex;
       align-items: center;
       gap: 0.75rem; /* Consistent gap */
     }
-
     .logo-glow {
       transition: transform 200ms ease, box-shadow 200ms ease;
     }
-
     .logo-glow:hover {
       transform: scale(1.05);
       box-shadow: 0 0 20px rgba(11, 96, 168, 0.5);
     }
-
     .logo-text {
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
-
     .logo-title {
       color: #fff;
       font-size: 1.25rem;
@@ -181,18 +158,15 @@
       line-height: 1.2;
       margin: 0;
     }
-
     .logo-subtitle {
       color: #bfdbfe;
       font-size: 0.875rem;
       font-weight: 500;
       margin: 0;
     }
-
    .flex-1.pt-16 {
     flex: 1;
   }
-
   .vl-footer {
     background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);
     color: #e2e8f0;
@@ -206,14 +180,12 @@
     left: 0;
     right: 0;
   }
-
   .footer-inner {
     max-width: 1200px;
     margin: 0 auto;
     text-align: center;
     padding: 0 1.5rem;
   }
-
     .vl-sidebar {
       background: #f8fafc;
       border-right: 1px solid #e2e8f0;
@@ -277,6 +249,88 @@
       border-color: #0b60a8;
     }
 
+    /* Check button disabled state */
+    #check-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: linear-gradient(120deg, #cbd5e1, #e2e8f0);
+      color: #475569;
+      border-color: #cbd5e1;
+      box-shadow: none;
+    }
+
+    /* Refresh button disabled state */
+    #refresh-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: linear-gradient(120deg, #e2e8f0, #f8fafc);
+      color: #475569;
+      border-color: #e2e8f0;
+      box-shadow: none;
+    }
+
+    /* MCQ styling */
+    .mcq {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: linear-gradient(120deg, #ffffff, #f8fbff);
+      transition: all 160ms ease;
+      cursor: pointer;
+    }
+
+    .option-label:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 10px 20px rgba(14, 165, 233, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .option-label input {
+      accent-color: #0b60a8;
+      width: 18px;
+      height: 18px;
+    }
+
+    .option-label input:disabled {
+      opacity: 1;
+      filter: none;
+      cursor: default;
+    }
+
+    .option-label.disabled-option {
+      opacity: 0.82;
+      border-style: dashed;
+    }
+
+    .option-label.selected-option {
+      border-color: #0ea5e9;
+      background: linear-gradient(135deg, #e0f2fe, #eef2ff);
+      box-shadow: 0 12px 26px rgba(14, 165, 233, 0.22);
+    }
+
+    .option-label.correct-option {
+      border-color: #22c55e;
+      background: linear-gradient(135deg, #ecfdf3, #d1fae5);
+      box-shadow: 0 12px 26px rgba(34, 197, 94, 0.25);
+    }
+
+    .option-label.wrong-option {
+      border-color: #ef4444;
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      box-shadow: 0 12px 26px rgba(239, 68, 68, 0.22);
+    }
     #intro-text .intro-line {
       margin: 0 0 0.85rem;
       color: #1f2933;
@@ -284,18 +338,15 @@
       opacity: 0.65;
       transition: opacity 160ms ease, transform 160ms ease;
     }
-
     #intro-text .intro-line:last-child {
       margin-bottom: 0;
     }
-
     #intro-text .intro-line.active {
       opacity: 1;
       color: #0f172a;
       font-weight: 600;
       transform: translateX(2px);
     }
-
     .chatbot-launcher {
       width: 74px;
       height: 74px;
@@ -313,7 +364,6 @@
       z-index: 1;
       overflow: visible;
     }
-
     .chatbot-launcher::before,
     .chatbot-launcher::after {
       content: '';
@@ -332,22 +382,18 @@
       transition: opacity 180ms ease, transform 180ms ease;
       z-index: -1;
     }
-
     .chatbot-launcher::after {
       filter: blur(12px);
     }
-
     .chatbot-launcher:hover::before,
     .chatbot-launcher:hover::after {
       opacity: 1;
       transform: scale(1.05);
     }
-
     .chatbot-launcher:hover {
       transform: translateY(-2px) scale(1.02);
       box-shadow: 0 30px 60px rgba(15, 23, 42, 0.45);
     }
-
     .chatbot-launcher-image {
       width: 58px;
       height: 58px;
@@ -355,7 +401,6 @@
       filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.65));
       animation: chatbot-float 2.4s ease-in-out infinite;
     }
-
     .chatbot-hint-bubble {
       position: absolute;
       right: 100%;
@@ -376,10 +421,9 @@
       animation: chatbot-hint-pulse 4.2s ease-in-out infinite;
       pointer-events: none;
     }
-
     .chatbot-hint-dot {
-      position: relative;
-      left: -5px;
+        position: relative;
+  left: -5px;
       width: 22px;
       height: 22px;
       border-radius: 999px;
@@ -392,23 +436,19 @@
       font-weight: 700;
       color: #0f172a;
     }
-
     @media (max-width: 640px) {
       .chatbot-launcher {
         width: 64px;
         height: 64px;
       }
-
       .chatbot-launcher-image {
         width: 50px;
         height: 50px;
       }
-
       .chatbot-hint-bubble {
         display: none;
       }
     }
-
     .chatbot-widget {
       position: fixed;
       bottom: 28px;
@@ -420,13 +460,11 @@
       z-index: 90;
       max-width: calc(100vw - 32px);
     }
-
     .chatbot-widget.chatbot-open .chatbot-hint-bubble,
     .chatbot-widget:hover .chatbot-hint-bubble {
       animation: none;
       opacity: 0;
     }
-
     .chatbot-panel {
       width: min(420px, calc(100vw - 40px));
       height: min(600px, calc(100vh - 140px));
@@ -443,13 +481,11 @@
       display: flex;
       flex-direction: column;
     }
-
     .chatbot-panel.open {
       opacity: 1;
       transform: translateY(0) scale(1);
       pointer-events: auto;
     }
-
    .chatbot-panel-header {
       padding: 1.1rem 1.35rem;
       background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);
@@ -459,20 +495,16 @@
       align-items: center;
       gap: 1rem;
     }
-
-
     .chatbot-panel-title {
       font-size: 1.05rem;
       font-weight: 700;
       margin: 0;
     }
-
     .chatbot-panel-caption {
       font-size: 0.78rem;
       opacity: 0.9;
       margin: 0;
     }
-
     .chatbot-panel-close {
       border: none;
       background: rgba(255, 255, 255, 0.18);
@@ -486,18 +518,15 @@
       cursor: pointer;
       transition: background 120ms ease;
     }
-
     .chatbot-panel-close:hover {
       background: rgba(255, 255, 255, 0.3);
     }
-
     .chatbot-panel-body {
       flex: 1;
       background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
       position: relative;
       border-top: 1px solid rgba(15, 23, 42, 0.06);
     }
-
     .chatbot-panel-placeholder {
       position: absolute;
       inset: 0;
@@ -510,7 +539,6 @@
       font-size: 0.92rem;
       line-height: 1.5;
     }
-
     .chatbot-panel iframe {
       width: 100%;
       height: 100%;
@@ -521,72 +549,59 @@
       overflow: hidden;
       scrollbar-width: none;
     }
-
     .chatbot-panel iframe::-webkit-scrollbar {
       display: none;
     }
-
     .chatbot-panel iframe.chatbot-frame-visible {
       display: block;
     }
-
     /* Improved text alignment in sections */
     .section-text {
       text-align: left; /* Ensure left alignment for readability */
       line-height: 1.7; /* Improved line height for better spacing */
       hyphens: auto; /* Allow soft hyphens for long words */
     }
-
     .section-text p {
       margin-bottom: 1rem; /* Consistent paragraph spacing */
       text-indent: 0; /* No indentation, use spacing instead */
     }
-
     @media (max-width: 640px) {
       .chatbot-widget {
         bottom: 16px;
         right: 16px;
         width: calc(100vw - 24px);
       }
-
       .chatbot-panel {
         width: 100%;
         height: min(82vh, 580px);
         border-radius: 20px;
       }
     }
-
     @media (max-width: 480px) {
       .chatbot-panel {
         height: min(88vh, 620px);
       }
     }
-
   </style>
 </head>
-
 <body class="bg-gray-50 min-h-screen">
-
   <!-- HEADER -->
-    <header class="vl-header shadow-xl fixed top-0 left-0 right-0 z-50">
+  <header class="vl-header shadow-xl fixed top-0 left-0 right-0 z-50">
     <div class="header-inner px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between py-1 w-full">
-        <!-- Logo Section - Absolute Left Corner -->
-        <a href="../../main.html" class="logo-container hover:no-underline focus:no-underline"> <!-- Made logo clickable -->
+      <div class="flex items-center justify-between py-1 w-full gap-3">
+        <a href="../../main.html" class="logo-container hover:no-underline focus:no-underline">
           <img 
-             src="./images/image.png" 
+            src="./images/image.png" 
             alt="Virtual Labs Logo" 
             class="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-xl object-contain bg-white p-1.5 logo-glow"
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%230b60a8%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3EVL%3C/text%3E%3C/svg%3E'"
           >
           <div class="logo-text">
-          <h1 class="logo-title text-base sm:text-lg lg:text-xl">Virtual Labs</h1>
-          <p class="logo-subtitle text-[10px] sm:text-xs lg:text-sm">IIT Roorkee</p>
-
+            <h1 class="logo-title text-base sm:text-lg lg:text-xl">Virtual Labs</h1>
+            <p class="logo-subtitle text-[10px] sm:text-xs lg:text-sm">IIT Roorkee</p>
           </div>
         </a>
 
-        <!-- Mobile Menu Button - Right Side -->
         <button 
           id="mobile-menu-toggle" 
           class="lg:hidden text-white p-2 menu-button"
@@ -597,17 +612,16 @@
           </svg>
         </button>
 
-        <!-- Desktop Navigation (Optional) -->
-         <nav class="top-nav hidden lg:flex items-center">
-            <a href="../../main.html" class="nav-link">Home</a>
-            <a href="user_input.html?return=theory.html" class="nav-link nav-user-link" data-user-input-link data-redirect-return="theory.html">
-              <span class="nav-user-pill">
-               
-                <span class="nav-user-text" data-user-text>User Input</span>
-              </span>
-            </a>
-           
-          </nav>
+        <nav class="top-nav hidden lg:flex items-center gap-2 lg:gap-3">
+          <a href="../../main.html" class="nav-link">Home</a>
+          <a href="user_input.html?return=pretest.html" class="nav-link nav-user-link" data-user-input-link data-redirect-return="pretest.html">
+            <span class="nav-user-pill">
+          
+              <span class="nav-user-text" data-user-text>User Input</span>
+            </span>
+          </a>
+ 
+        </nav>
       </div>
     </div>
   </header>
@@ -625,7 +639,6 @@
     </svg>
     Aim
   </a>
-
   <a href="theory.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -633,7 +646,6 @@
     </svg>
     Theory
   </a>
-
   <a href="pretest.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -641,7 +653,6 @@
     </svg>
     Pretest
   </a>
-
   <a href="procedure.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -649,7 +660,6 @@
     </svg>
     Procedure
   </a>
-
   <a href="simulation.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -657,7 +667,6 @@
     </svg>
     Simulation
   </a>
-
   <a href="posttest.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -665,7 +674,6 @@
     </svg>
     Posttest
   </a>
-
   <a href="references.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -673,7 +681,6 @@
     </svg>
     References
   </a>
-
   <a href="contributors.html" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group">
     <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -681,33 +688,33 @@
     </svg>
     Contributors
   </a>
-  <a id="progressReportNav" href="#progressreport" class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group" data-progress-report-link>
+  <a id="progressReportNav"
+     href="#progressreport"
+     class="menu-item flex items-center px-4 py-3 text-gray-700 rounded-lg group"
+     data-progress-report-link>
 
-              <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-              </svg>
-              Progress report
-            </a>
+    <svg class="w-5 h-5 mr-3 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+    </svg>
+
+    Progress report
+  </a>
         </nav>
       </div>
     </aside>
-
     <!-- MOBILE OVERLAY -->
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
-
     <!-- MAIN CONTENT -->
     <main class="flex-1 lg:ml-64 p-6">
-
       <!-- Breadcrumb -->
-      <nav class="mb-6 text-m text-gray-600 animate-slideInLeft flex items-center space-x-2">
+      <nav class="mb-6 text-sm text-gray-600 animate-slideInLeft flex items-center space-x-2">
         <a href="#" class="hover:text-blue-600 transition-colors">Home</a>
         <span>></span>
         <a href="#" class="hover:text-blue-600">Electrical Machines Lab</a>
         <span>></span>
-        <span class="text-gray-800 font-medium">Theory</span>
+        <span class="text-gray-800 font-medium">Pretest</span>
       </nav>
-
       <!-- TITLE CARD -->
       <div class="vl-card mb-4 overflow-hidden animate-fadeInUp rounded-lg">
         <div class="px-4 py-3" style="background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);">
@@ -716,87 +723,56 @@
           </h1>
         </div>
       </div>
-
-      <!-- Theory Content -->
+      <!-- Theory Questions -->
       <section class="section-content vl-card p-6 animate-fadeInUp">
-       
-
-        <div class="space-y-8 text-gray-700 text-lg leading-relaxed">
-
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">Introduction</h3>
-            <p class="mb-6 text-justify">
-             A DC motor is an electromechanical machine that converts electrical energy (DC) into mechanical energy (rotation). It works on the principle that when a current-carrying conductor is placed in a magnetic field, it experiences a mechanical force. 
-
-            </p>
-            <div class="flex justify-center mb-4">
-              <img src="./images/theory_dc_shunt_generator_equivalent.svg" alt="Equivalent circuit of DC shunt generator for load characteristics" class="w-[500px] h-[250px] rounded-lg shadow-md">
-            </div>
-            <p class="text-center font-semibold text-gray-800"><b>Fig. 1  Equivalent circuit for field control of DC shunt motor
-</b></p>
-          </div>
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800 ">Losses in a DC Shunt Generator</h3>
-            <p class="mb-4 text-justify">
-   
-             In a DC shunt generator, various losses occur during operation, such as armature copper losses, shunt field copper losses, iron losses, and mechanical losses. Among these, armature copper losses constitute a significant portion of the total losses. The copper losses in the armature of a DC shunt generator are approximately 30% of the total full-load losses. These losses occur due to the resistance of the armature winding and increase with load current, thereby affecting the efficiency and voltage regulation of the generator.
-
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">Internal characteristic</h3>
-            <p class="mb-4">
-              The internal characteristic curve represents the relation between the generated voltage E<sub>g</sub> and the load current I<sub>L</sub>. When the generator is loaded then the generated voltage decreases due to armature reaction. So, generated voltage becomes lower than the emf generated at no load. Here in the figure below, AD curve shows the no-load voltage curve and AB is the internal characteristic curve.
-            </p>
-          </div>
-
-          <div>
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">External or Load characteristic</h3>
-            <p class="mb-4">
-              AC curve shows the external characteristic of the shunt wound DC generators. It shows the variation of terminal voltage with the load current. Ohmic drop due to armature resistance gives lesser terminal voltage than the generated voltage. That is why the curve lies below the internal characteristic curve.
-            </p>
-            <div class="text-center text-lg font-mono my-6 bg-gray-100 p-4 rounded-lg">
-              V = (E<sub>g</sub> − I<sub>a</sub>R<sub>a</sub>) = E<sub>g</sub> − (I<sub>L</sub> + I<sub>sh</sub>)R<sub>a</sub>
-            </div>
-            <p class="mb-4">
-              The terminal voltage can always be maintained constant by adjusting the load terminal. When the load resistance of a shunt-wound DC generator is decreased, the load current increases as shown in the above figure. But the load current can only be increased up to a certain limit (up to point C) with decrease of load resistance. Beyond this point, the characteristic reverses. Any further decrease of load resistance results in current reduction and consequently, the external characteristic curve turns back as shown in the dotted line, and ultimately the terminal voltage becomes zero (though some voltage remains due to residual magnetism).
-            </p>
-            <p class="mb-6">
-              When I<sub>L</sub> increases, terminal voltage decreases. After a certain limit, due to heavy load current and increased ohmic drop, the terminal voltage reduces drastically. This drastic reduction results in a drop in load current even though load resistance becomes low. Therefore, the load resistance of the machine must be maintained properly. The point at which the machine gives maximum current output is called the breakdown point (point C in the figure).
-            </p>
-            <div class="flex justify-center mb-4">
-              <img src="./images/theory_speed_torque_rc_curves.svg" alt="Speed-torque characteristics for different field resistance values" class="w-[500px] h-[250px] rounded-lg shadow-md">
-            </div>
-            <p class="text-center font-semibold text-gray-800"><b>Fig. 2  Speed-Torque characteristics of DC Shunt motor</b></p>
-            <p class="mb-0">
-              <b>Note:</b> It may be seen from the external characteristic that change in terminal voltage from no-load to full-load is small. The terminal voltage can always be maintained constant by adjusting the field rheostat R automatically.
-            </p>
-          </div>
-
-        </div>
-
+     
+        <div id="mcq-container" class="space-y-6 text-gray-700 text-lg"></div>
+<!-- Controls: Refresh + Check (LEFT SIDE) -->
+<div class="mt-6 flex items-center gap-3">
+  <div class="flex gap-2">
+    <button id="refresh-btn"
+      class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg font-semibold">
+      Refresh Questions
+    </button>
+    <button id="check-btn"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+      Check Answers
+    </button>
+  </div>
+  <div class="flex-1"></div>
+</div>
+<p id="result" class="mt-4 text-xl font-semibold"></p>
       </section>
-   <section id="progressreport" class="section-content vl-card mb-8 p-6 animate-fadeInUp hidden">
-          <div class="border-l-4 border-orange-600 pl-4 mb-4 flex items-center justify-between">
-            <div class="flex items-center">
-              <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                Progress Report
-              </h2>
-            </div>
-            <span class="text-sm text-gray-600">Embedded view (opens within this page)</span>
-          </div>
-          <div class="w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner">
-            <iframe
-              src="progressreport.html"
-              title="Progress Report"
-              class="w-full"
-              style="min-height: 900px;"
-              loading="lazy"
-            ></iframe>
-          </div>
-        </section>
+    <section id="progressreport"
+             class="section-content vl-card mb-8 p-6 animate-fadeInUp hidden">
+
+      <div class="border-l-4 border-orange-600 pl-4 mb-4 flex items-center justify-between">
+        <div class="flex items-center">
+          <h2 class="text-2xl font-bold text-gray-800">
+            Progress Report
+          </h2>
+        </div>
+        <span class="text-sm text-gray-600">
+          Embedded view (opens within this page)
+        </span>
+      </div>
+
+      <div class="w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner">
+        <iframe
+          src="progressreport.html"
+          title="Progress Report"
+          class="w-full"
+          style="min-height: 900px;"
+          loading="lazy">
+        </iframe>
+      </div>
+
+    </section>
+
     </main>
   </div>
- <!-- FOOTER -->
-<footer class="vl-footer fixed bottom-0 left-0 right-0 z-50 h-12"> <!-- Key: h-12 = 48px -->
+  <!-- FOOTER -->
+  <footer class="vl-footer fixed bottom-0 left-0 right-0 z-50 h-12"> <!-- Key: h-12 = 48px -->
     <div class="footer-inner flex items-center justify-center h-full px-4">
       <p class="text-xs md:text-sm text-center text-sky-100 font-medium tracking-wide">
         &copy; 2026 Virtual Labs IIT Roorkee
@@ -804,57 +780,402 @@
     </div>
   </footer>
 
-
-  <!-- SCRIPT -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const toggleBtn = document.getElementById('mobile-menu-toggle');
-
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    });
-
-    overlay.addEventListener('click', () => {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    });
-  </script>
-
-  <div class="chatbot-widget">
-    <div class="chatbot-panel" data-chat-url="https://vlab-exp-2.netlify.app/">
-      <div class="chatbot-panel-header">
-        <div>
-          <p class="chatbot-panel-title">Virtual Lab Assistant</p>
-          <p class="chatbot-panel-caption">Ask anything about this experiment</p>
-        </div>
-        <button type="button" class="chatbot-panel-close" aria-label="Close chatbot">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="chatbot-panel-body">
-        <div class="chatbot-panel-placeholder">Loading area for your chatbot. Update the <strong>data-chat-url</strong> to match your deployment.</div>
-        <iframe title="Chatbot assistant" referrerpolicy="no-referrer" scrolling="no"></iframe>
+  <!-- Alert Modal (matches simulation popup style) -->
+  <div id="warningModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMessage">
+    <div class="modal-box" role="document">
+      <h2 id="modalTitle">Alert</h2>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button type="button" class="modal-close-btn" data-modal-close>OK</button>
       </div>
     </div>
-      <button type="button" class="chatbot-launcher" aria-expanded="false" aria-label="Open chatbot assistant">
-      <span class="chatbot-hint-bubble">
-        <span class="chatbot-hint-dot">Hi </span>
-         Ask anything about this experiment
-        </span>
-        <img src="./images/chatbot.png" alt="" aria-hidden="true" class="chatbot-launcher-image">
-      </button>
   </div>
 
-  <audio id="chatbot-notification-audio" preload="auto">
-    <source src="live-chat-353605.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="alertSound" preload="auto"></audio>
 
-  <script>
+<script>
+/* ------------------ 20 QUESTIONS ------------------ */
+ const questions = [
+  {id:1,text:'DC shunt generator has terminal voltage versus load current characteristic which is',choices:['A. Constant','B. Slightly drooping','C. Slightly rising','D. Highly drooping'],answer:'B',selected:null},
+  {id:2,text:'Which dc generator gives constant output voltage at all loads?',choices:['A. Shunt generator','B. Series generator','C. Short shunt compound generator','D. Level compound generator'],answer:'D',selected:null},
+  {id:3,text:'In a DC shunt generator, the shunt field current mainly depends on:',choices:['A. Load current','B. Terminal voltage','C. Armature resistance','D. Speed only'],answer:'B',selected:null},
+  {id:4,text:'When a DC shunt generator is loaded, which loss increases significantly with load current?',choices:['A. Iron loss','B. Mechanical loss','C. Armature copper loss','D. Field copper loss'],answer:'C',selected:null},
+  {id:5,text:'The voltage regulation of a DC shunt generator is defined as:',choices:['A.  Change in speed from no-load to full-load','B. Ratio of generated emf to terminal voltage','C. Percentage change in terminal voltage from no-load to full-load','D. Ratio of load current to field current'],answer:'C',selected:null},
+  {id:6,text:'Main function of DC generator is:',choices:['A) Convert electrical→mechanical','B) Convert mechanical→electrical','C) Step up voltage','D) Step down current'],answer:'B',selected:null},
+  {id:7,text:'Field winding of DC shunt generator is connected:',choices:['A) In series','B) In parallel','C) Across load','D) In series with load'],answer:'B',selected:null},
+  {id:8,text:'Generated emf in DC generator:',choices:['A) E=V+IaRa','B) E=kΦN','C) E=V/I','D) E=P/I'],answer:'B',selected:null},
+  {id:9,text:'Armature reaction causes:',choices:['A) Increase flux','B) Decrease flux','C) No effect','D) Constant emf'],answer:'B',selected:null},
+  {id:10,text:'Load characteristic of DC shunt generator is:',choices:['A) Ia–If','B) V–IL','C) IL–speed','D) torque–speed'],answer:'B',selected:null},
+  {id:11,text:'As load current increases terminal voltage:',choices:['A) Increases','B) Decreases','C) Constant','D) Zero'],answer:'B',selected:null},
+  {id:12,text:'Drop in terminal voltage due to:',choices:['A) Armature reaction + resistance','B) Commutator resistance','C) Eddy current','D) Field resistance'],answer:'A',selected:null},
+  {id:13,text:'Residual magnetism needed for:',choices:['A) Commutation','B) Self-excitation','C) Speed control','D) Field regulation'],answer:'B',selected:null},
+  {id:14,text:'OCC curve represents:',choices:['A) V vs If (constant speed)','B) V vs IL','C) I vs R','D) torque vs speed'],answer:'A',selected:null},
+  {id:15,text:'Internal characteristic shows:',choices:['A) Eg–If','B) V–If','C) Eg–Ia','D) V–Ia'],answer:'C',selected:null},
+  {id:16,text:'External characteristic shows:',choices:['A) Eg–If','B) V–IL','C) Eg–Ia','D) torque–speed'],answer:'B',selected:null},
+  {id:17,text:'Losses in DC generator:',choices:['A) Copper','B) Iron','C) Mechanical','D) All'],answer:'D',selected:null},
+  {id:18,text:'Load test determines:',choices:['A) Armature efficiency','B) Speed regulation','C) Load characteristics','D) Field efficiency'],answer:'C',selected:null},
+  {id:19,text:'Field current in DC shunt generator is:',choices:['A) Constant','B) Depends on speed','C) Depends on load','D) Zero'],answer:'C',selected:null},
+  {id:20,text:'Terminal voltage at full load:',choices:['A) = Eg','B) > Eg','C) < Eg','D) Independent'],answer:'C',selected:null},
+];
+
+/* ------------------ SETTINGS ------------------ */
+const size = 5; // number of questions shown per refresh
+const container = document.getElementById("mcq-container");
+const result = document.getElementById("result");
+const refreshBtn = document.getElementById("refresh-btn");
+const checkBtn = document.getElementById("check-btn");
+
+let currentSetIndices = []; // indices into `questions` array for the current shown set
+let setLocked = false;
+let totalCorrect = readStoredNumber("vlab_exp2_pretest_score");
+let totalAttempted = readStoredNumber("vlab_exp2_pretest_total");
+let hasRenderedSet = false;
+
+function readStoredNumber(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function persistAssessmentTotals() {
+  const now = String(Date.now());
+  try {
+    localStorage.setItem("vlab_exp2_pretest_score", String(totalCorrect));
+    localStorage.setItem("vlab_exp2_pretest_total", String(totalAttempted));
+    localStorage.setItem("vlab_exp2_pretest_updated_at", now);
+    const activeHash = localStorage.getItem("vlab_exp2_active_user_hash");
+    if (activeHash) {
+      localStorage.setItem(`vlab_exp2_user_${activeHash}_pretest_score`, String(totalCorrect));
+      localStorage.setItem(`vlab_exp2_user_${activeHash}_pretest_total`, String(totalAttempted));
+      localStorage.setItem(`vlab_exp2_user_${activeHash}_pretest_updated_at`, now);
+    }
+  } catch (e) {}
+
+  try {
+    const PREFIX = "VLAB_EXP2::";
+    let data = {};
+    if (typeof window.name === "string" && window.name.startsWith(PREFIX)) {
+      data = JSON.parse(window.name.slice(PREFIX.length)) || {};
+    }
+    data["vlab_exp2_pretest_score"] = String(totalCorrect);
+    data["vlab_exp2_pretest_total"] = String(totalAttempted);
+    data["vlab_exp2_pretest_updated_at"] = now;
+    window.name = PREFIX + JSON.stringify(data);
+  } catch (e) {}
+}
+
+/* ------------------ UTIL: pick random unique set ------------------ */
+function pickRandomSet() {
+  // Fisher-Yates shuffle on index array, then slice first `size`
+  const indices = Array.from({length: questions.length}, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  currentSetIndices = indices.slice(0, size);
+  // reset selections for the newly chosen questions
+  currentSetIndices.forEach(idx => questions[idx].selected = null);
+  setLocked = false;
+  showPage();
+
+  if (hasRenderedSet) {
+    showPopup("Questions refreshed. A new set has been loaded.", "Refreshed");
+  } else {
+    hasRenderedSet = true;
+  }
+}
+
+/* ------------------ RENDER CURRENT SET (Q1..Q5) ------------------ */
+function showPage() {
+   container.innerHTML = "";
+  if (result) {
+    result.textContent = "";
+    result.classList.remove("text-green-600", "text-red-600");
+  }
+  // Show the chosen 5 questions, numbering Q1..Q5
+  currentSetIndices.forEach((qIndex, i) => {
+    const q = questions[qIndex];
+    const div = document.createElement("div");
+    div.className = "mcq";
+    div.dataset.answer = q.answer;
+    div.innerHTML = `
+      <p><b>Q${i + 1}.</b> ${q.text}</p>
+      ${q.choices.map(c => {
+        const val = c[0].toUpperCase();
+        return `
+          <label class="block option-label">
+            <input type="radio" name="q${q.id}" value="${val}" ${q.selected === val ? "checked":""}> ${c}
+          </label>
+        `;
+      }).join("")}
+    `;
+    container.appendChild(div);
+    // attach change listeners to save selection into the question object
+    div.querySelectorAll("input[type='radio']").forEach(inp => {
+      inp.addEventListener("change", () => {
+        if (setLocked) return;
+        q.selected = inp.value;
+        updateCheckButtonState();
+      });
+    });
+  });
+  result.innerHTML = "";
+  updateCheckButtonState();
+}
+
+function lockQuestionInputs(div) {
+  div.querySelectorAll(".option-label").forEach(label => {
+    label.classList.remove("selected-option", "disabled-option", "correct-option", "wrong-option", "text-green-600", "text-red-600");
+  });
+  div.querySelectorAll("input[type='radio']").forEach(input => {
+    input.disabled = true;
+    if (input.checked) input.parentElement.classList.add("selected-option");
+    else input.parentElement.classList.add("disabled-option");
+  });
+}
+
+function updateCheckButtonState() {
+  if (!checkBtn) return;
+  // Keep the button clickable so we can show alerts even when answers are missing.
+  checkBtn.disabled = false;
+}
+
+const PRETEST_WELCOME_ALERT_MESSAGE = "Here, you will receive 5 questions at a time. Each time you click on the Refresh button, a new set of questions will be generated. Please note that all your attempted questions will be recorded and reflected in your Progress Report if you choose to generate it.";
+const PRETEST_WELCOME_ALERT_AUDIO_SRC = "./audio/pretestpostestaudio.wav";
+let popupOnClose = null;
+
+function playMappedAlertAudio(soundEl, message) {
+  if (!soundEl || typeof soundEl.play !== "function") return;
+  const normalizedMessage = String(message || "").trim();
+  if (normalizedMessage !== PRETEST_WELCOME_ALERT_MESSAGE) return;
+  if (soundEl.getAttribute("src") !== PRETEST_WELCOME_ALERT_AUDIO_SRC) {
+    soundEl.setAttribute("src", PRETEST_WELCOME_ALERT_AUDIO_SRC);
+  }
+  soundEl.currentTime = 0;
+  const playPromise = soundEl.play();
+  if (playPromise && typeof playPromise.catch === "function") {
+    playPromise.catch(() => {});
+  }
+}
+
+ function showPopup(message, title = "Alert", options = {}) {
+   if (!message) return;
+   const onClose = typeof options?.onClose === "function" ? options.onClose : null;
+   popupOnClose = onClose;
+
+   const modal = document.getElementById("warningModal");
+   if (!modal) {
+     window.alert(String(message));
+     if (onClose) onClose();
+     return;
+   }
+
+   const box = modal.querySelector(".modal-box");
+   const msg = modal.querySelector("#modalMessage");
+   const ttl = modal.querySelector("#modalTitle");
+   const sound = document.getElementById("alertSound");
+   const okBtn = modal.querySelector("[data-modal-close]");
+
+   if (ttl) ttl.textContent = String(title || "Alert");
+   if (msg) msg.textContent = String(message);
+
+   if (box) {
+     box.classList.remove("closing");
+     box.classList.remove("danger");
+   }
+
+   modal.classList.add("show");
+   document.body.classList.add("is-modal-open");
+   window.setTimeout(() => okBtn?.focus?.(), 0);
+
+   playMappedAlertAudio(sound, message);
+ }
+
+ function closePopup() {
+   const modal = document.getElementById("warningModal");
+   if (!modal) return;
+   const box = modal.querySelector(".modal-box");
+   const sound = document.getElementById("alertSound");
+   const onClose = popupOnClose;
+   popupOnClose = null;
+
+   if (box) {
+     box.classList.add("closing");
+   }
+
+   window.setTimeout(() => {
+     modal.classList.remove("show");
+     if (box) {
+       box.classList.remove("closing");
+     }
+     document.body.classList.remove("is-modal-open");
+     if (onClose) onClose();
+   }, 450);
+
+   if (sound && typeof sound.pause === "function") {
+     sound.pause();
+   }
+ }
+
+ function isPopupOpen() {
+   const modal = document.getElementById("warningModal");
+   return !!(modal && modal.classList.contains("show"));
+ }
+
+ (function initAlertModal() {
+   const modal = document.getElementById("warningModal");
+   if (!modal) return;
+
+   const closeBtn = modal.querySelector("[data-modal-close]");
+   if (closeBtn) closeBtn.addEventListener("click", closePopup);
+
+   modal.addEventListener("click", (event) => {
+     if (event.target === modal) {
+       closePopup();
+     }
+   });
+
+   document.addEventListener("keydown", (event) => {
+     if (event.key === "Escape" && isPopupOpen()) {
+       closePopup();
+     }
+   });
+ })();
+
+/* ------------------ CHECK ANSWERS for CURRENT SET ------------------ */
+function attemptAlreadyUsedAlert() {
+  showPopup("This set is already checked. Use Refresh Questions to load a new set.", "Notice");
+}
+
+function finalizeAttempt() {
+  setLocked = true;
+  // Lock current selections to prevent re-submission tweaks
+  container.querySelectorAll("input[type='radio']").forEach(input => {
+    input.disabled = true;
+  });
+}
+
+function checkAnswers() {
+  if (setLocked) {
+    attemptAlreadyUsedAlert();
+    return;
+  }
+  const unanswered = currentSetIndices.filter((qIndex) => {
+    const q = questions[qIndex];
+    return !container.querySelector(`input[name="q${q.id}"]:checked`);
+  });
+
+  if (unanswered.length) {
+    const first = questions[unanswered[0]];
+    const firstInput = first
+      ? container.querySelector(`input[name="q${first.id}"]`)
+      : null;
+    showPopup("Please attend all the questions before checking the answers.", "Reminder", {
+      onClose: () => {
+        try {
+          firstInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstInput?.focus?.({ preventScroll: true });
+        } catch (e) {}
+      }
+    });
+    return;
+  }
+
+  let score = 0;
+  // remove previous highlight classes
+  container.querySelectorAll(".option-label").forEach(l => {
+    l.classList.remove("text-green-600", "text-red-600", "correct-option", "wrong-option");
+  });
+
+  currentSetIndices.forEach(qIndex => {
+    const q = questions[qIndex];
+    // find the selected input (if any) for this question
+    const selectedInput = container.querySelector(`input[name="q${q.id}"]:checked`);
+    if (selectedInput.value === q.answer) {
+      score++;
+      selectedInput.parentElement.classList.remove("selected-option", "disabled-option");
+      selectedInput.parentElement.classList.add("text-green-600", "correct-option");
+    } else {
+      selectedInput.parentElement.classList.remove("selected-option", "disabled-option");
+      selectedInput.parentElement.classList.add("text-red-600", "wrong-option");
+      const correctInput = container.querySelector(`input[name="q${q.id}"][value="${q.answer}"]`);
+      if (correctInput) {
+        correctInput.parentElement.classList.remove("disabled-option");
+        correctInput.parentElement.classList.add("text-green-600", "correct-option");
+      }
+    }
+  });
+
+  const setTotal = currentSetIndices.length;
+  totalCorrect += score;
+  totalAttempted += setTotal;
+  persistAssessmentTotals();
+
+  result.innerHTML = `Set Score: ${score} / ${setTotal} • Overall Score: ${totalCorrect} / ${totalAttempted}`;
+  result.classList.remove("text-green-600", "text-red-600");
+  result.classList.add(score === setTotal ? "text-green-600" : "text-red-600");
+
+  finalizeAttempt();
+  updateCheckButtonState();
+}
+
+/* ------------------ BUTTON BINDINGS ------------------ */
+refreshBtn.addEventListener("click", () => {
+  pickRandomSet();
+  refreshBtn.blur();
+});
+checkBtn.addEventListener("click", () => {
+  checkAnswers();
+  checkBtn.blur();
+});
+
+/* ------------------ INITIALIZE ------------------ */
+const pretestWelcomeMessage = PRETEST_WELCOME_ALERT_MESSAGE;
+pickRandomSet();
+showPopup(pretestWelcomeMessage, "Welcome to the Pretest section");
+</script>
+
+<!-- CHATBOT WIDGET -->
+<div class="chatbot-widget">
+  <div class="chatbot-panel" data-chat-url="https://vlab-exp-2.netlify.app/">
+    <div class="chatbot-panel-header">
+      <div>
+        <p class="chatbot-panel-title">Virtual Lab Assistant</p>
+        <p class="chatbot-panel-caption">Ask anything about this experiment</p>
+      </div>
+      <button type="button" class="chatbot-panel-close" aria-label="Close chatbot">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="chatbot-panel-body">
+      <div class="chatbot-panel-placeholder">
+        Loading area for your chatbot. Update the <strong>data-chat-url</strong> to match your deployment.
+      </div>
+      <iframe title="Chatbot assistant" referrerpolicy="no-referrer" scrolling="no"></iframe>
+    </div>
+  </div>
+
+    <button type="button" class="chatbot-launcher" aria-expanded="false" aria-label="Open chatbot assistant">
+    <span class="chatbot-hint-bubble">
+      <span class="chatbot-hint-dot">Hi </span>
+       Ask anything about this experiment 
+      </span>
+      <img src="images/chatbot.png" alt="" aria-hidden="true" class="chatbot-launcher-image">
+  </button>
+</div>
+
+<audio id="chatbot-notification-audio" preload="auto">
+  <source src="live-chat-353605.mp3" type="audio/mpeg">
+</audio>
+ <script>
     (function () {
       const widget = document.querySelector('.chatbot-widget');
       if (!widget) {
@@ -926,6 +1247,7 @@
     })();
   </script>   
 
+ 
   <script src="./user_input_modal.js"></script>
   <script src="./progress_tracker.js"></script>
   <script src="./progress_report_embed.js"></script>
@@ -959,4 +1281,3 @@
   </script>
 </body>
 </html>
-
