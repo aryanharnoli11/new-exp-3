@@ -795,27 +795,27 @@
 
 <script>
 /* ------------------ 20 QUESTIONS ------------------ */
- const questions = [
-  {id:1,text:'DC shunt generator has terminal voltage versus load current characteristic which is',choices:['A. Constant','B. Slightly drooping','C. Slightly rising','D. Highly drooping'],answer:'B',selected:null},
-  {id:2,text:'Which dc generator gives constant output voltage at all loads?',choices:['A. Shunt generator','B. Series generator','C. Short shunt compound generator','D. Level compound generator'],answer:'D',selected:null},
-  {id:3,text:'In a DC shunt generator, the shunt field current mainly depends on:',choices:['A. Load current','B. Terminal voltage','C. Armature resistance','D. Speed only'],answer:'B',selected:null},
-  {id:4,text:'When a DC shunt generator is loaded, which loss increases significantly with load current?',choices:['A. Iron loss','B. Mechanical loss','C. Armature copper loss','D. Field copper loss'],answer:'C',selected:null},
-  {id:5,text:'The voltage regulation of a DC shunt generator is defined as:',choices:['A.  Change in speed from no-load to full-load','B. Ratio of generated emf to terminal voltage','C. Percentage change in terminal voltage from no-load to full-load','D. Ratio of load current to field current'],answer:'C',selected:null},
-  {id:6,text:'Main function of DC generator is:',choices:['A) Convert electrical→mechanical','B) Convert mechanical→electrical','C) Step up voltage','D) Step down current'],answer:'B',selected:null},
-  {id:7,text:'Field winding of DC shunt generator is connected:',choices:['A) In series','B) In parallel','C) Across load','D) In series with load'],answer:'B',selected:null},
-  {id:8,text:'Generated emf in DC generator:',choices:['A) E=V+IaRa','B) E=kΦN','C) E=V/I','D) E=P/I'],answer:'B',selected:null},
-  {id:9,text:'Armature reaction causes:',choices:['A) Increase flux','B) Decrease flux','C) No effect','D) Constant emf'],answer:'B',selected:null},
-  {id:10,text:'Load characteristic of DC shunt generator is:',choices:['A) Ia–If','B) V–IL','C) IL–speed','D) torque–speed'],answer:'B',selected:null},
-  {id:11,text:'As load current increases terminal voltage:',choices:['A) Increases','B) Decreases','C) Constant','D) Zero'],answer:'B',selected:null},
-  {id:12,text:'Drop in terminal voltage due to:',choices:['A) Armature reaction + resistance','B) Commutator resistance','C) Eddy current','D) Field resistance'],answer:'A',selected:null},
-  {id:13,text:'Residual magnetism needed for:',choices:['A) Commutation','B) Self-excitation','C) Speed control','D) Field regulation'],answer:'B',selected:null},
-  {id:14,text:'OCC curve represents:',choices:['A) V vs If (constant speed)','B) V vs IL','C) I vs R','D) torque vs speed'],answer:'A',selected:null},
-  {id:15,text:'Internal characteristic shows:',choices:['A) Eg–If','B) V–If','C) Eg–Ia','D) V–Ia'],answer:'C',selected:null},
-  {id:16,text:'External characteristic shows:',choices:['A) Eg–If','B) V–IL','C) Eg–Ia','D) torque–speed'],answer:'B',selected:null},
-  {id:17,text:'Losses in DC generator:',choices:['A) Copper','B) Iron','C) Mechanical','D) All'],answer:'D',selected:null},
-  {id:18,text:'Load test determines:',choices:['A) Armature efficiency','B) Speed regulation','C) Load characteristics','D) Field efficiency'],answer:'C',selected:null},
-  {id:19,text:'Field current in DC shunt generator is:',choices:['A) Constant','B) Depends on speed','C) Depends on load','D) Zero'],answer:'C',selected:null},
-  {id:20,text:'Terminal voltage at full load:',choices:['A) = Eg','B) > Eg','C) < Eg','D) Independent'],answer:'C',selected:null},
+const questions = [
+  {id:1,text:'The speed of a DC shunt motor is directly proportional to:',choices:['A. Armature current','B. Flux','C. Back emf and inversely proportional to flux','D. Torque'],answer:'C',selected:null},
+  {id:2,text:'Which of the following equations represents the speed of a DC motor?',choices:['A. N = (V−IaRa)/kΦ','B. N = kΦ/V','C. N = IaRa/V','D. N = Φ/V'],answer:'A',selected:null},
+  {id:3,text:'In the field control method of speed control, speed is varied by:',choices:['A. Changing armature resistance','B. Changing supply voltage','C. Changing field current','D. Changing load'],answer:'C',selected:null},
+  {id:4,text:'When the field resistance of a DC shunt motor is increased, the speed:',choices:['A. Increases','B. Decreases','C. Remains constant','D. Becomes zero'],answer:'A',selected:null},
+  {id:5,text:'The field control method is suitable for:',choices:['A. Speeds above rated speed','B. Speeds below rated speed','C. Zero speed','D. Constant torque only'],answer:'A',selected:null},
+  {id:6,text:'The torque of a DC motor is proportional to:',choices:['A. Armature resistance','B. Speed','C. Product of armature current and flux','D. Supply voltage'],answer:'C',selected:null},
+  {id:7,text:'The flux in a DC motor is directly proportional to:',choices:['A. Armature current','B. Field current','C. Load torque','D. Speed'],answer:'B',selected:null},
+  {id:8,text:'Which component controls the field current in a DC shunt motor?',choices:['A. Armature rheostat','B. Field rheostat','C. Load resistor','D. Commutator'],answer:'B',selected:null},
+  {id:9,text:'Which of the following is a disadvantage of the field control method?',choices:['A. Limited speed range','B. Reduced torque','C. Risk of overspeed','D. All of the above'],answer:'D',selected:null},
+  {id:10,text:'The speed of a DC motor increases if the field current is:',choices:['A. Increased','B. Decreased','C. Constant','D. Doubled'],answer:'B',selected:null},
+  {id:11,text:'If field resistance is increased too much, the motor may:',choices:['A. Stop','B. Slow down','C. Run dangerously fast','D. Reverse direction'],answer:'C',selected:null},
+  {id:12,text:'The field control method is also known as:',choices:['A. Armature control method','B. Voltage control method','C. Flux control method','D. Speed control method'],answer:'C',selected:null},
+  {id:13,text:'In the field control method, power loss is:',choices:['A. High','B. Low','C. Zero','D. Very high'],answer:'B',selected:null},
+  {id:14,text:'What will happen if the field winding of a DC motor opens during operation?',choices:['A. Motor stops','B. Motor speed will increase uncontrollably','C. Torque increases','D. Voltage drops'],answer:'B',selected:null},
+  {id:15,text:'Why is the field control method preferred for light loads?',choices:['A. High torque required','B. Low efficiency','C. High voltage needed','D. Because the torque requirement is low'],answer:'D',selected:null},
+  {id:16,text:'In field control of a DC shunt motor, which parameter is intentionally weakened to increase speed?',choices:['A. Armature current','B. Field flux','C. Supply voltage','D. Armature resistance'],answer:'B',selected:null},
+  {id:17,text:'Field control method is most effective in which type of DC motor?',choices:['A. Series motor','B. Shunt motor','C. Compound motor','D. Universal motor'],answer:'B',selected:null},
+  {id:18,text:'Which of the following remains approximately constant during field control speed regulation?',choices:['A. Armature current','B. Supply voltage','C. Flux','D. Torque'],answer:'B',selected:null},
+  {id:19,text:'In field control, weakening the field mainly affects which motor characteristic?',choices:['A. Speed only','B. Voltage','C. Torque capability','D. Resistance'],answer:'C',selected:null},
+  {id:20,text:'Field control is generally not suitable for heavy loads because:',choices:['A. Speed decreases','B. Voltage increases','C. Torque reduces with flux weakening','D. Current becomes zero'],answer:'C',selected:null},
 ];
 
 /* ------------------ SETTINGS ------------------ */
