@@ -199,13 +199,17 @@ const ALERT_AUDIO_BY_EVENT = {
   seven_readings_done: "audio/After 7 readings done.wav",
   add_to_table_prompt: "audio/Before adding reading, Add To Table.wav",
   field_1st: "audio/Field Rheostat Variation (1st time).wav",
+  field_2nd: "audio/Field Rheostat 2nd time.wav",
   field_3rd: "audio/Field Rheostat 3rd time.wav",
   field_4th: "audio/Field Rheostat 4th time.wav",
   field_5th: "audio/Field Rheostat 5th time.wav",
-  field_7th: "audio/Field Rheostat 7th time.wav",
+  field_6th: "audio/Field Rheostat 6th time.wav",
+  field_7th: "audio/Field Rheostat 7th time n.wav",
   reading_1st: "audio/1st reading added.wav",
   reading_2nd: "audio/2nd reading added.wav",
-  reading_3rd: "audio/3rd reading added.wav"
+  reading_3rd: "audio/3rd reading added.wav",
+  reading_4th: "audio/2nd reading added.wav",
+  reading_6th: "audio/2nd reading added.wav"
 };
 
 const GUIDE_STEP_AUDIO_BY_PAIR = {
@@ -264,7 +268,10 @@ function resolveGuideAudioForText(text) {
   if (t.includes("starter is on") || t.includes("starter is already on")) {
     return GUIDE_AUDIO_BY_EVENT.guide_starter_on;
   }
-  if (t.includes("armature resistance")) {
+  if (
+    t.includes("armature resistance set") ||
+    t.includes("armature resistance is already set")
+  ) {
     return GUIDE_AUDIO_BY_EVENT.armature_done;
   }
   if (t.includes("field resistance set")) {
@@ -282,7 +289,11 @@ function resolveGuideAudioForText(text) {
   if (t.includes("graph is plotted")) {
     return GUIDE_AUDIO_BY_EVENT.graph_done;
   }
-  if (t.includes("report is ready")) {
+  if (
+    t.includes("report is ready") ||
+    t.includes("your report has been generated successfully") ||
+    t.includes("click ok to view your report")
+  ) {
     return GUIDE_AUDIO_BY_EVENT.report_ready;
   }
 
@@ -308,11 +319,24 @@ function stopGuideAudioPlayback() {
   activeGuideAudio = null;
 }
 
+function isVoiceGuidanceOn() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.isGuideActive === "function" &&
+    window.isGuideActive()
+  );
+}
+
 function playGuideAudio(src, options = {}) {
+  const opts = options || {};
+  if (!isVoiceGuidanceOn()) {
+    if (typeof opts.onend === "function") opts.onend();
+    return Promise.resolve(false);
+  }
+
   const clip = getGuideAudio(src);
   if (!clip) return Promise.resolve(false);
 
-  const opts = options || {};
   const shouldInterrupt = opts.interrupt !== false;
   if (shouldInterrupt) {
     stopGuideAudioPlayback();
@@ -356,16 +380,13 @@ function playEventAudio(src, options = {}) {
 
 function playFieldGuidanceAudio(fieldStep) {
   let variationSrc = ALERT_AUDIO_BY_EVENT.field_1st;
+  if (fieldStep === 2) variationSrc = ALERT_AUDIO_BY_EVENT.field_2nd;
   if (fieldStep === 3) variationSrc = ALERT_AUDIO_BY_EVENT.field_3rd;
   if (fieldStep === 4) variationSrc = ALERT_AUDIO_BY_EVENT.field_4th;
   if (fieldStep === 5) variationSrc = ALERT_AUDIO_BY_EVENT.field_5th;
+  if (fieldStep === 6) variationSrc = ALERT_AUDIO_BY_EVENT.field_6th;
   if (fieldStep === 7) variationSrc = ALERT_AUDIO_BY_EVENT.field_7th;
-
-  playEventAudio(variationSrc, {
-    onend: () => {
-      playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt);
-    }
-  });
+  playEventAudio(variationSrc);
 }
 
 function playReadingAddedAudio(readingNumber) {
@@ -379,6 +400,14 @@ function playReadingAddedAudio(readingNumber) {
   }
   if (readingNumber === 3) {
     playEventAudio(ALERT_AUDIO_BY_EVENT.reading_3rd);
+    return;
+  }
+  if (readingNumber === 4) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_4th);
+    return;
+  }
+  if (readingNumber === 6) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_6th);
     return;
   }
 }
@@ -450,6 +479,11 @@ window.labSpeech.speak = function speak(text, options = {}) {
 
   const opts = options || {};
   const shouldInterrupt = opts.interrupt !== false;
+  const guideActiveNow = isVoiceGuidanceOn();
+  if (!guideActiveNow) {
+    if (typeof opts.onend === "function") opts.onend();
+    return Promise.resolve();
+  }
 
   const matchedGuideAudio = resolveGuideAudioForText(text);
   if (matchedGuideAudio) {
@@ -459,10 +493,6 @@ window.labSpeech.speak = function speak(text, options = {}) {
     });
   }
 
-  const guideActiveNow =
-    typeof window !== "undefined" &&
-    typeof window.isGuideActive === "function" &&
-    window.isGuideActive();
   if (guideActiveNow) {
     if (typeof opts.onend === "function") opts.onend();
     return Promise.resolve();
@@ -2484,6 +2514,9 @@ if (reportBtn) {
       "Your report has been generated successfully.\nClick OK to view your report.",
       "Report Generated",
       "normal"
+    );
+    speakOnlyIfGuideActive(
+      "Report: Your report has been generated successfully. Click OK to view your report."
     );
 
     // Get OK button
