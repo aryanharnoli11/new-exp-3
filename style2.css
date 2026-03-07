@@ -390,7 +390,7 @@
 /* Hidden jsPlumb Endpoints */
 
 .ammeter-inner #pointL {
-  left: 18%;
+  left: 12%;
   top: 112%;
   width: 10px;
   height: 10px;
@@ -398,7 +398,7 @@
 }
 
 .ammeter-inner #pointM {
-  left: 80%;
+  left: 90%;
   top: 112%;
   width: 10px;
   height: 10px;

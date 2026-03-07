@@ -2012,8 +2012,6 @@ body {
   margin-bottom: 20px;
 }
 
-border: 1px solid #e5e9f2; 
-
 .header-center {
   flex: 1;
   text-align: center;
@@ -2047,8 +2045,10 @@ border: 1px solid #e5e9f2;
   max-width: 1050px;
   margin: auto;
   background: #ffffff;
+  border: 1px solid #e5e9f2;
   border-radius: 16px;
   padding: 32px;
+  box-sizing: border-box;
   box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
@@ -2178,6 +2178,26 @@ tr:nth-child(even) td {
   opacity: 0.9;
 }
 
+.report-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.report-wrapper.exporting-pdf #graph,
+.report-wrapper.exporting-pdf #graph .js-plotly-plot,
+.report-wrapper.exporting-pdf #graph .plot-container {
+  display: none !important;
+}
+
+.report-wrapper.exporting-pdf .graph-print-image {
+  display: block !important;
+}
+
+.report-wrapper.exporting-pdf .report-actions {
+  display: none !important;
+}
+
 @page {
   size: A4 portrait;
   margin: 10mm;
@@ -2197,6 +2217,7 @@ tr:nth-child(even) td {
     max-width: 190mm !important;
     margin: 0 auto !important;
     padding: 0 !important;
+    border: none !important;
     background: #ffffff !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -2225,16 +2246,6 @@ tr:nth-child(even) td {
     margin-bottom: 8mm !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-
-  .report-card-summary {
-    page-break-after: always !important;
-    break-after: page !important;
-  }
-
-  .report-card-observation {
-    page-break-after: always !important;
-    break-after: page !important;
   }
 
   .section-title {
@@ -2287,15 +2298,12 @@ tr:nth-child(even) td {
   }
 
   .report-card-graph {
-    page-break-after: avoid !important;
-    break-after: avoid-page !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 
   .report-actions {
-    margin-top: 8px !important;
-    gap: 8px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    display: none !important;
   }
 
   #graph,
@@ -2303,10 +2311,6 @@ tr:nth-child(even) td {
   #graph .plot-container {
     display: none !important;
     visibility: visible !important;
-  }
-
-  .print-btn {
-    display: inline-block !important;
   }
 
   .download-btn {
@@ -2420,7 +2424,7 @@ tr:nth-child(even) td {
     <img id="graphPrintImage" class="graph-print-image" alt="Graph">
   </div>
 
-<div class="report-actions" style="margin-top:20px; display:flex; gap:12px;">
+<div class="report-actions">
   <button class="print-btn" onclick="printReport()">PRINT</button>
   <button class="download-btn" onclick="downloadPDF()">DOWNLOAD</button>
 </div>
@@ -2438,10 +2442,16 @@ function renderReportGraph() {
     mode: "lines+markers",
     line: { color: "#2f6df6", width: 3 }
   }], {
-    title: "Speed vs Field Current",
-    xaxis: { title: "Field Current (A)" },
-    yaxis: { title: "Speed (RPM)" },
-    margin: { t: 50 }
+    title: { text: "<b>Speed(RPM) vs Field Current(A)</b>" },
+    xaxis: {
+      title: { text: "<b>Field Current(A)</b>", standoff: 14 },
+      automargin: true
+    },
+    yaxis: {
+      title: { text: "<b>Speed (RPM)</b>", standoff: 10 },
+      automargin: true
+    },
+    margin: { l: 70, r: 20, t: 44, b: 64 }
   }, {
     displayModeBar: false,
     responsive: true
@@ -2456,34 +2466,79 @@ function renderReportGraph() {
   });
 }
 
+function waitForReportImages(rootEl) {
+  if (!rootEl) return Promise.resolve();
+  const images = Array.from(rootEl.querySelectorAll("img"));
+  const pending = images.map((img) => {
+    if (img.complete) return Promise.resolve();
+    return new Promise((resolve) => {
+      img.addEventListener("load", resolve, { once: true });
+      img.addEventListener("error", resolve, { once: true });
+    });
+  });
+  return Promise.all(pending);
+}
+
+function setReportExportingPdf(active) {
+  const wrapper = document.querySelector(".report-wrapper");
+  if (!wrapper) return;
+  wrapper.classList.toggle("exporting-pdf", !!active);
+}
+
+async function prepareReportOutput({ forPdf = false } = {}) {
+  setReportExportingPdf(forPdf);
+  await renderReportGraph();
+  const wrapper = document.querySelector(".report-wrapper");
+  await waitForReportImages(wrapper);
+  await new Promise((resolve) => setTimeout(resolve, 120));
+}
+
 renderReportGraph();
 
 async function printReport() {
-  await renderReportGraph();
-  setTimeout(() => window.print(), 150);
+  await prepareReportOutput({ forPdf: false });
+  window.print();
 }
 
 window.addEventListener("beforeprint", () => {
+  setReportExportingPdf(false);
   const graphEl = document.getElementById("graph");
   if (!graphEl || !window.Plotly) return;
   Plotly.Plots.resize(graphEl);
   renderReportGraph();
 });
+
+window.addEventListener("afterprint", () => {
+  setReportExportingPdf(false);
+});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-function downloadPDF() {
+async function downloadPDF() {
   const element = document.querySelector(".report-wrapper");
+  if (!element || typeof html2pdf !== "function") return;
+
+  await prepareReportOutput({ forPdf: true });
 
   const opt = {
-    margin: 0.3,
+    margin: [0.25, 0.25, 0.25, 0.25],
     filename: "Virtual_Lab_Report.pdf",
     image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      scrollY: 0,
+      backgroundColor: "#ffffff"
+    },
+    jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: ["css", "legacy"] }
   };
 
-  html2pdf().set(opt).from(element).save();
+  try {
+    await html2pdf().set(opt).from(element).save();
+  } finally {
+    setReportExportingPdf(false);
+  }
 }
 </script>
 </body>
