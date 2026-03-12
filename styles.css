@@ -43,6 +43,7 @@ meter-card rpm-card {
     align-items: start;
     border: 3px solid #111;
     border-radius: 8px;
+    max-height: 700px;
 }
 
 .left-column,
@@ -356,7 +357,6 @@ h3 {
 
 .workspace {
     background: #d7d0c4;
-    border: 3px solid #111;
     min-height: 330px;
     padding: clamp(48px, 2vw, 18px);
 }
@@ -2240,14 +2240,36 @@ body {
   width: 100%;
   min-width: var(--lab-panel-min-width);
   grid-template-columns: var(--lab-left-column) var(--lab-center-column) var(--lab-right-column);
+  overflow: hidden;
+}
+
+.top-row::before,
+.top-row::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #111;
+  pointer-events: none;
+}
+
+.top-row::before {
+  left: calc(var(--lab-left-column) - 1.5px);
+}
+
+.top-row::after {
+  left: calc(var(--lab-left-column) + var(--lab-center-column) - 1.5px);
 }
 
 .left-column,
 .center-column,
 .right-column {
-  min-height: 100%;
+  height: 100%;
+  min-height: 0;
+  align-self: stretch;
   border-bottom: none;
-  border-right: 3px solid #111;
+  border-right: none;
 }
 
 .left-column {

@@ -2190,12 +2190,32 @@ tr:nth-child(even) td {
   display: none !important;
 }
 
+.report-wrapper.exporting-pdf {
+  width: 190mm !important;
+  min-width: 190mm !important;
+  max-width: 190mm !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+
 .report-wrapper.exporting-pdf .graph-print-image {
   display: block !important;
 }
 
 .report-wrapper.exporting-pdf .report-actions {
   display: none !important;
+}
+
+.report-wrapper.exporting-pdf .card,
+.report-wrapper.exporting-pdf tr,
+.report-wrapper.exporting-pdf th,
+.report-wrapper.exporting-pdf td {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
 }
 
 @page {
@@ -2373,22 +2393,21 @@ tr:nth-child(even) td {
     <div class="section-title">Components and Key Parameters</div>
     <div class="two-col">
       <div>
-        <p><b>Components</b></p>
         <ul>
-        <li>DC Power Supply</li>
-        <li>Starter</li>
-        <li>Field Rheostat</li>
-        <li>Armature Rheostat</li>
-        <li>DC Shunt Motor</li>
-        <li>DC Voltmeter</li>
-        <li>DC Ammeter</li>
-        <li>RPM Indicator</li>
+        <li>DC Supply</li>
+        <li>3-Point Starter: 220V DC, 7.5 HP</li>
+        <li>Field Rheostat: 300 ohm, 3A</li>
+        <li>Armature Rheostat: 75 ohm, 5A</li>
+        <li>DC Shunt Motor: 5 HP, 220 V DC, 19 A (max), 1500 RPM</li>
+        <li>DC Voltmeter: 0-420 V</li>
+        
         </ul>
       </div>
 
       <div>
-        <p><b>Key Parameters</b></p>
         <ul>
+        <li>DC Ammeter: 0-1 A</li>
+        <li>RPM Indicator: 0-2000 RPM</li>
           <li>Voltage Range: 0 - 420 V DC</li>
           <li>Ammeter Range: 0 – 1 A</li>
           <li>Speed Range: 0 – 1500 RPM</li>
@@ -2480,16 +2499,27 @@ function waitForReportImages(rootEl) {
 }
 
 function setReportExportingPdf(active) {
+  const bodyEl = document.body;
   const wrapper = document.querySelector(".report-wrapper");
+  if (bodyEl) bodyEl.classList.toggle("exporting-pdf", !!active);
   if (!wrapper) return;
   wrapper.classList.toggle("exporting-pdf", !!active);
 }
 
 async function prepareReportOutput({ forPdf = false } = {}) {
-  setReportExportingPdf(forPdf);
-  await renderReportGraph();
   const wrapper = document.querySelector(".report-wrapper");
+  setReportExportingPdf(false);
+  await renderReportGraph();
   await waitForReportImages(wrapper);
+
+  if (forPdf) {
+    setReportExportingPdf(true);
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+    await waitForReportImages(wrapper);
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 120));
 }
 
@@ -2521,17 +2551,20 @@ async function downloadPDF() {
   await prepareReportOutput({ forPdf: true });
 
   const opt = {
-    margin: [0.25, 0.25, 0.25, 0.25],
+    margin: [5, 5, 5, 5],
     filename: "Virtual_Lab_Report.pdf",
     image: { type: "jpeg", quality: 0.98 },
     html2canvas: {
-      scale: 2,
+      scale: 2.4,
       useCORS: true,
       scrollY: 0,
       backgroundColor: "#ffffff"
     },
-    jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-    pagebreak: { mode: ["css", "legacy"] }
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
+    pagebreak: {
+      mode: ["css", "legacy"],
+      avoid: [".card", "tr", "th", "td", ".info-box"]
+    }
   };
 
   try {
@@ -3184,23 +3217,23 @@ if (skipBtn) {
       {
         id: "mcb",
         selector: ".mcb-toggle, .mcb-label, .mcb-block",
-        text: "MCB: Main supply breaker for the setup; trips on overload/short-circuit to protect the circuit and users."
+        text: "Purpose: A DC power supply is used to supply a constant voltage to the motor’s armature and field windings, ensuring stable operation during the experiment."
       },
       {
         id: "starter",
         selector: ".starter-block, .starter-body, .starter-handle, .starter-label",
-        text: "3-Point Starter: Limits the DC motor starting current and provides no-volt/overload protection; drag the handle after turning ON the MCB."
+        text: "Purpose: A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor."
       },
       
       {
         id: "voltmeter",
         selector: ".meters > .meter-card:nth-of-type(1), #voltmeter1-label",
-        text: "Voltmeter: Measures the motor/supply current (connected in series)."
+        text: "Purpose:  To measure the voltage across the field winding."
       },
       {
         id: "ammeter",
         selector: ".meters > .meter-card:nth-of-type(3), #ammeter1-label",
-        text: "Ammeter: Measures the load current through the lamp load (connected in series with the load)."
+        text: "Purpose: To measure the current flowing through the field winding. "
       },
  
      {
