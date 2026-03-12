@@ -2578,6 +2578,46 @@ async function downloadPDF() {
 </html>
 `;
 
+  const updatedAt = String(Date.now());
+  const simulationReportPayload = {
+    type: "vlab:simulation_report_generated",
+    html,
+    updatedAt
+  };
+
+  try {
+    localStorage.setItem("vlab_exp2_simulation_report_html", html);
+    localStorage.setItem("vlab_exp2_simulation_report_updated_at", updatedAt);
+    const activeHash = localStorage.getItem("vlab_exp2_active_user_hash");
+    if (activeHash) {
+      localStorage.setItem(`vlab_exp2_user_${activeHash}_simulation_report_html`, html);
+      localStorage.setItem(`vlab_exp2_user_${activeHash}_simulation_report_updated_at`, updatedAt);
+    }
+  } catch {}
+
+  try {
+    const PREFIX = "VLAB_EXP2::";
+    let wn = {};
+    if (typeof window.name === "string" && window.name.startsWith(PREFIX)) {
+      wn = JSON.parse(window.name.slice(PREFIX.length)) || {};
+    }
+    wn.vlab_exp2_simulation_report_html = html;
+    wn.vlab_exp2_simulation_report_updated_at = updatedAt;
+    window.name = PREFIX + JSON.stringify(wn);
+  } catch {}
+
+  const postSimulationReportMessage = (targetWindow) => {
+    try {
+      if (!targetWindow || typeof targetWindow.postMessage !== "function") return;
+      targetWindow.postMessage(simulationReportPayload, "*");
+    } catch {}
+  };
+
+  postSimulationReportMessage(window);
+  if (window.parent && window.parent !== window) postSimulationReportMessage(window.parent);
+  if (window.top && window.top !== window) postSimulationReportMessage(window.top);
+  if (window.opener && !window.opener.closed) postSimulationReportMessage(window.opener);
+
   const w = window.open("", "_blank");
   w.document.open();
   w.document.write(html);

@@ -286,6 +286,39 @@
     return !!(state.user && state.user.name && state.user.email && state.user.designation);
   }
 
+  function hasSimulationReport() {
+    try {
+      const activeHash = localStorage.getItem("vlab_exp2_active_user_hash");
+      const keys = [];
+      if (activeHash) keys.push(`vlab_exp2_user_${activeHash}_simulation_report_html`);
+      keys.push("vlab_exp2_simulation_report_html");
+
+      for (const key of keys) {
+        const html = localStorage.getItem(key);
+        if (html && String(html).trim()) return true;
+      }
+    } catch {
+      // ignore storage failures
+    }
+
+    try {
+      const PREFIX = "VLAB_EXP2::";
+      if (typeof window.name === "string" && window.name.startsWith(PREFIX)) {
+        const data = JSON.parse(window.name.slice(PREFIX.length)) || {};
+        const html = (data.vlab_exp2_simulation_report_html || "").toString();
+        if (html.trim()) return true;
+      }
+    } catch {
+      // ignore parse failures
+    }
+
+    return false;
+  }
+
+  function canAccessProgressReport() {
+    return hasUser() && hasSimulationReport();
+  }
+
   function declineReport() {
     const state = loadState();
     state.flags.reportDeclined = true;
@@ -329,6 +362,8 @@
     logStep,
     setUser,
     hasUser,
+    hasSimulationReport,
+    canAccessProgressReport,
     declineReport,
     clearDecline,
     mark,
