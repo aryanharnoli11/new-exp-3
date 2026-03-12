@@ -103,7 +103,7 @@
       line-height: 1.2 !important;
       padding: 0.5rem 0.9rem !important;
     }
- 
+
     #downloadBtn {
       background: #1f2937 !important;
       color: #ffffff !important;
@@ -348,7 +348,6 @@
  
       </div>
       <div class="flex flex-wrap gap-2">
-        
         <button id="downloadBtn" class="px-4 py-2 font-semibold">Download</button>
         <button id="resetBtn" class="px-4 py-2 font-semibold">Reset Data</button>
       </div>
@@ -786,17 +785,50 @@
       if (!body) return null;
 
       const docEl = doc.documentElement;
+      let exportStyleEl = null;
 
-      const canvas = await html2canvas(body, {
+      try {
+        exportStyleEl = doc.createElement("style");
+        exportStyleEl.setAttribute("data-progress-export-style", "true");
+        exportStyleEl.textContent = `
+          .report-actions,
+          .print-btn,
+          .download-btn {
+            display: none !important;
+          }
+        `;
+        doc.head?.appendChild(exportStyleEl);
+      } catch {}
+
+      await sleep(50);
+      const target =
+        doc.querySelector(".report-wrapper") ||
+        doc.getElementById("reportRoot") ||
+        body;
+
+      const targetWidth = Math.max(
+        target.scrollWidth || 0,
+        target.clientWidth || 0,
+        docEl?.clientWidth || 0
+      );
+      const targetHeight = Math.max(
+        target.scrollHeight || 0,
+        target.clientHeight || 0,
+        docEl?.scrollHeight || 0
+      );
+
+      const canvas = await html2canvas(target, {
         scale: Math.min(2, window.devicePixelRatio || 1.5),
         useCORS: true,
         allowTaint: true,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: docEl?.scrollWidth || undefined,
-        windowHeight: docEl?.scrollHeight || undefined,
+        windowWidth: targetWidth || undefined,
+        windowHeight: targetHeight || undefined,
         backgroundColor: "#ffffff"
       });
+
+      try { exportStyleEl?.remove(); } catch {}
 
       const img = new Image();
       img.src = canvas.toDataURL("image/png");
@@ -805,6 +837,79 @@
       img.style.width = "100%";
       img.loading = "lazy";
       return img;
+    }
+
+    async function captureSimulationFrameForPdf(frameEl) {
+      if (!frameEl) return null;
+      if (typeof html2canvas !== "function") return null;
+
+      await waitForIframeReady(frameEl);
+      await sleep(160);
+
+      const doc = frameEl.contentDocument;
+      const body = doc?.body;
+      if (!body) return null;
+
+      const docEl = doc.documentElement;
+      const target =
+        doc.querySelector(".report-wrapper") ||
+        doc.getElementById("reportRoot") ||
+        body;
+
+      let exportStyleEl = null;
+      try {
+        exportStyleEl = doc.createElement("style");
+        exportStyleEl.textContent = `
+          .report-actions,
+          .print-btn,
+          .download-btn {
+            display: none !important;
+          }
+        `;
+        doc.head?.appendChild(exportStyleEl);
+      } catch {}
+
+      await sleep(60);
+      const targetWidth = Math.max(
+        target.scrollWidth || 0,
+        target.clientWidth || 0,
+        docEl?.clientWidth || 0
+      );
+      const targetHeight = Math.max(
+        target.scrollHeight || 0,
+        target.clientHeight || 0,
+        docEl?.scrollHeight || 0
+      );
+
+      const canvas = await html2canvas(target, {
+        scale: 2.4,
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: targetWidth || undefined,
+        windowHeight: targetHeight || undefined,
+        backgroundColor: "#ffffff"
+      });
+
+      try { exportStyleEl?.remove(); } catch {}
+
+      let splitY = null;
+      try {
+        const splitEl =
+          doc.querySelector(".report-card-observation") ||
+          doc.querySelector(".report-card-graph");
+        if (splitEl && target && splitEl.getBoundingClientRect && target.getBoundingClientRect) {
+          const targetRect = target.getBoundingClientRect();
+          const splitRect = splitEl.getBoundingClientRect();
+          const cssY = Math.max(1, splitRect.top - targetRect.top);
+          const sourceCssHeight = Math.max(target.scrollHeight || 0, target.clientHeight || 0, 1);
+          const ratio = cssY / sourceCssHeight;
+          splitY = Math.max(1, Math.min(canvas.height - 1, Math.round(canvas.height * ratio)));
+        }
+      } catch {}
+
+      return { canvas, splitY };
     }
 
     function expandSimulationFrameForPrint() {
@@ -960,11 +1065,117 @@
       }
     }
 
+    function appendCanvasIntoMaxTwoPages(pdf, canvas, { margin = 20, startNewPage = true } = {}) {
+      if (!pdf || !canvas || !canvas.width || !canvas.height) return;
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
+
+      const sourceWidth = canvas.width;
+      const sourceHeight = canvas.height;
+
+      const scaleForWidth = usableWidth / sourceWidth;
+      const scaleForTwoPages = (usableHeight * 2) / sourceHeight;
+      const scale = Math.min(scaleForWidth, scaleForTwoPages);
+
+      const renderWidth = sourceWidth * scale;
+      const x = margin + (usableWidth - renderWidth) / 2;
+
+      const firstSliceSourceHeight = Math.min(
+        sourceHeight,
+        Math.max(1, Math.ceil(usableHeight / scale))
+      );
+      const secondSliceSourceHeight = Math.max(0, sourceHeight - firstSliceSourceHeight);
+
+      const addSlice = (sliceY, sliceHeight, addNewPage) => {
+        if (sliceHeight <= 0) return;
+        if (addNewPage) pdf.addPage();
+
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = sourceWidth;
+        sliceCanvas.height = sliceHeight;
+
+        const ctx = sliceCanvas.getContext("2d");
+        if (!ctx) throw new Error("Unable to prepare simulation PDF slice.");
+        ctx.drawImage(
+          canvas,
+          0, sliceY, sourceWidth, sliceHeight,
+          0, 0, sourceWidth, sliceHeight
+        );
+
+        const renderHeight = sliceHeight * scale;
+        pdf.addImage(
+          sliceCanvas.toDataURL("image/png"),
+          "PNG",
+          x,
+          margin,
+          renderWidth,
+          renderHeight,
+          undefined,
+          "FAST"
+        );
+      };
+
+      addSlice(0, firstSliceSourceHeight, !!startNewPage);
+      if (secondSliceSourceHeight > 0) {
+        addSlice(firstSliceSourceHeight, secondSliceSourceHeight, true);
+      }
+    }
+
+    function appendCanvasSplitIntoTwoPages(pdf, canvas, splitY, { margin = 20, startNewPage = true } = {}) {
+      if (!pdf || !canvas || !canvas.width || !canvas.height) return;
+      const sourceWidth = canvas.width;
+      const sourceHeight = canvas.height;
+      const safeSplitY = Math.max(1, Math.min(sourceHeight - 1, Math.round(splitY || sourceHeight / 2)));
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
+
+      const addSlice = (sliceY, sliceHeight, addNewPage) => {
+        if (sliceHeight <= 0) return;
+        if (addNewPage) pdf.addPage();
+
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = sourceWidth;
+        sliceCanvas.height = sliceHeight;
+        const ctx = sliceCanvas.getContext("2d");
+        if (!ctx) throw new Error("Unable to prepare split PDF slice.");
+        ctx.drawImage(
+          canvas,
+          0, sliceY, sourceWidth, sliceHeight,
+          0, 0, sourceWidth, sliceHeight
+        );
+
+        const scale = Math.min(usableWidth / sourceWidth, usableHeight / sliceHeight);
+        const renderWidth = sourceWidth * scale;
+        const renderHeight = sliceHeight * scale;
+        const x = margin + (usableWidth - renderWidth) / 2;
+
+        pdf.addImage(
+          sliceCanvas.toDataURL("image/png"),
+          "PNG",
+          x,
+          margin,
+          renderWidth,
+          renderHeight,
+          undefined,
+          "FAST"
+        );
+      };
+
+      addSlice(0, safeSplitY, !!startNewPage);
+      addSlice(safeSplitY, sourceHeight - safeSplitY, true);
+    }
+
     async function prepareExportNodes() {
       const sourceNode = reportContainer || contentEl;
       if (!sourceNode) return null;
 
-      const width = sourceNode.offsetWidth || sourceNode.clientWidth || 900;
+      const width = 960;
       const wrappers = [];
       const appendWrapper = (wrapper) => {
         document.body.appendChild(wrapper);
@@ -975,6 +1186,7 @@
       const firstPageClone = sourceNode.cloneNode(true);
       firstPageClone.style.width = "100%";
       firstPageClone.style.maxWidth = "none";
+      firstPageClone.style.paddingBottom = "0";
       const firstPageActions = firstPageClone.querySelector("#downloadBtn")?.parentElement;
       if (firstPageActions) firstPageActions.remove();
       firstPageClone.querySelector("#reportSimulationSection")?.remove();
@@ -987,6 +1199,7 @@
 
       if (liveSimulationSection) {
         simulationClone = liveSimulationSection.cloneNode(true);
+        simulationClone.style.marginTop = "0";
       } else {
         simulationClone = document.createElement("section");
         simulationClone.className = "report-section";
@@ -1054,7 +1267,6 @@
     const downloadBtn = document.getElementById("downloadBtn");
     const resetBtn = document.getElementById("resetBtn");
 
-    
     downloadBtn?.addEventListener("click", downloadReportCanvas);
     resetBtn?.addEventListener("click", () => {
       showReportAlert("Reset all saved user data, assessments, timings, and simulation report?", "Confirm Reset", {
@@ -1147,10 +1359,15 @@
       let exportCleanup = null;
 
       try {
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Preparing PDF...";
+        }
+
         const latestSimReport = getSimulationReportData();
         if (latestSimReport) currentSimulationReport = latestSimReport;
 
-        const captureScale = Math.min(2, window.devicePixelRatio || 1.5);
+        const captureScale = 2;
         const captureOptions = {
           scale: captureScale,
           useCORS: true,
@@ -1167,11 +1384,34 @@
         exportCleanup = exportContext.cleanup;
 
         const firstCanvas = await html2canvas(exportContext.firstNode, captureOptions);
-        const simulationCanvas = await html2canvas(exportContext.simulationNode, captureOptions);
+        let simulationCanvas = null;
+        let simulationSplitY = null;
+
+        try {
+          const liveFrame = document.getElementById("simulationReportFrame");
+          const simulationCapture = await captureSimulationFrameForPdf(liveFrame);
+          if (simulationCapture?.canvas) {
+            simulationCanvas = simulationCapture.canvas;
+            simulationSplitY = simulationCapture.splitY;
+          }
+        } catch (err) {
+          console.error("High-quality simulation capture failed", err);
+        }
+
+        if (!simulationCanvas) {
+          simulationCanvas = await html2canvas(exportContext.simulationNode, captureOptions);
+        }
 
         const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
-        addCanvasFittedSinglePage(pdf, firstCanvas, 24);
-        appendCanvasPaged(pdf, simulationCanvas, { margin: 24, startNewPage: true });
+        const margin = 20;
+        // Page 1: content up to Assessment section only.
+        addCanvasFittedSinglePage(pdf, firstCanvas, margin);
+        // Page 2-3: Simulation report starts fresh with a clean split and no cut text.
+        if (simulationSplitY) {
+          appendCanvasSplitIntoTwoPages(pdf, simulationCanvas, simulationSplitY, { margin, startNewPage: true });
+        } else {
+          appendCanvasIntoMaxTwoPages(pdf, simulationCanvas, { margin, startNewPage: true });
+        }
 
         pdf.save("progress-report.pdf");
       } catch (error) {
@@ -1180,6 +1420,7 @@
       } finally {
         if (exportCleanup) exportCleanup();
         if (btn) {
+          btn.disabled = false;
           if (typeof originalLabel === "string") btn.textContent = originalLabel;
         }
       }
