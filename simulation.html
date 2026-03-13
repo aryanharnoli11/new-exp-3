@@ -1056,9 +1056,13 @@
 
       if (ttl) ttl.textContent = String(title || 'Alert');
       if (msg) {
-  msg.textContent = String(message);
-  msg.style.textAlign = opts.center ? 'center' : '';
-}
+        msg.textContent = String(message);
+        msg.style.textAlign = opts.center ? 'center' : (opts.justify ? 'justify' : '');
+        msg.style.textJustify = opts.justify ? 'auto' : '';
+        msg.style.textAlignLast = opts.justify ? 'left' : '';
+        msg.style.maxWidth = opts.justify ? '52ch' : '';
+        msg.style.wordSpacing = opts.justify ? 'normal' : '';
+      }
 
       if (actions) {
         const shouldShowActions = popupMode === 'confirm';
@@ -1068,6 +1072,7 @@
       if (okBtn) {
         okBtn.hidden = popupMode === 'confirm';
         okBtn.style.display = popupMode === 'confirm' ? 'none' : 'inline-flex';
+        okBtn.style.marginTop = popupMode === 'confirm' ? '' : (opts.justify ? '1.1rem' : '');
       }
       window.setTimeout(() => {
         try {
@@ -1082,6 +1087,7 @@
       if (box) {
         box.classList.remove('closing');
         box.classList.remove('danger');
+        box.style.width = opts.justify ? 'min(620px, 95vw)' : '';
         if (opts.variant === 'danger') box.classList.add('danger');
       }
 
@@ -1169,7 +1175,7 @@
       function showSimulationTabsIntro() {
         if (simulationIntroAlertShown) return;
         simulationIntroAlertShown = true;
-        showPopup(SIMULATION_TABS_ALERT_MESSAGE, 'Instruction');
+        showPopup(SIMULATION_TABS_ALERT_MESSAGE, 'Instruction', { justify: true });
         highlightDemoTab();
       }
 

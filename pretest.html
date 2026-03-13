@@ -947,7 +947,7 @@ function updateCheckButtonState() {
 }
 
 function showPretestWelcomePopup() {
-  showPopup(PRETEST_WELCOME_MESSAGE, PRETEST_WELCOME_TITLE);
+  showPopup(PRETEST_WELCOME_MESSAGE, PRETEST_WELCOME_TITLE, { noWrapTitle: true });
 }
 
 let popupOnClose = null;
@@ -955,6 +955,7 @@ let popupOnClose = null;
  function showPopup(message, title = "Alert", options = {}) {
    if (!message) return;
    const onClose = typeof options?.onClose === "function" ? options.onClose : null;
+   const noWrapTitle = Boolean(options?.noWrapTitle);
    popupOnClose = onClose;
 
    const modal = document.getElementById("warningModal");
@@ -970,11 +971,13 @@ let popupOnClose = null;
   const okBtn = modal.querySelector("[data-modal-close]");
 
    if (ttl) ttl.textContent = String(title || "Alert");
+   if (ttl) ttl.style.whiteSpace = noWrapTitle ? "nowrap" : "";
    if (msg) msg.textContent = String(message);
 
    if (box) {
      box.classList.remove("closing");
      box.classList.remove("danger");
+     box.style.width = noWrapTitle ? "min(620px, 95vw)" : "";
    }
 
    modal.classList.add("show");
