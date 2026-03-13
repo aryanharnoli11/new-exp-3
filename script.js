@@ -1985,7 +1985,7 @@ const totalSeconds = Math.floor(durationMs / 1000);
 const minutes = Math.floor(totalSeconds / 60);
 const seconds = totalSeconds % 60;
 
-const durationText = `${minutes} min ${seconds} sec`;
+const durationText = minutes > 0 ? `${minutes} min ${seconds} sec` : `${seconds} sec`;
   const currents = reportReadings.map(r => r.current);
   const speeds = reportReadings.map(r => r.speed);
 

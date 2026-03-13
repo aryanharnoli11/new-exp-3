@@ -826,6 +826,8 @@ const container = document.getElementById("mcq-container");
 const result = document.getElementById("result");
 const refreshBtn = document.getElementById("refresh-btn");
 const checkBtn = document.getElementById("check-btn");
+const POSTTEST_WELCOME_TITLE = "Welcome to the Posttest section";
+const POSTTEST_WELCOME_MESSAGE = "Here, you will receive 5 questions at a time. Each time you click on the Refresh button, a new set of questions will be generated. Please note that all your attempted questions will be recorded and reflected in your Progress Report if you choose to generate it.";
 
 let currentSetIndices = []; // indices into `questions` array for the current shown set
 let setLocked = false;
@@ -944,6 +946,10 @@ function updateCheckButtonState() {
   if (!checkBtn) return;
   // Keep the button clickable so we can show alerts even when answers are missing.
   checkBtn.disabled = false;
+}
+
+function showPosttestWelcomePopup() {
+  showPopup(POSTTEST_WELCOME_MESSAGE, POSTTEST_WELCOME_TITLE);
 }
 
 let popupOnClose = null;
@@ -1125,6 +1131,7 @@ checkBtn.addEventListener("click", () => {
 
 /* ------------------ INITIALIZE ------------------ */
 pickRandomSet();
+window.setTimeout(showPosttestWelcomePopup, 120);
 </script>
 
 <!-- CHATBOT WIDGET -->

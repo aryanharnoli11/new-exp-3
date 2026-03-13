@@ -1164,6 +1164,15 @@
     })();
 
     (function initSimulationTabsAlert() {
+      let simulationIntroAlertShown = false;
+
+      function showSimulationTabsIntro() {
+        if (simulationIntroAlertShown) return;
+        simulationIntroAlertShown = true;
+        showPopup(SIMULATION_TABS_ALERT_MESSAGE, 'Instruction');
+        highlightDemoTab();
+      }
+
       function highlightDemoTab(durationMs = 12000) {
         const demoCard = document.getElementById('v1-card');
         if (!demoCard) return;
@@ -1177,14 +1186,17 @@
         if (trigger) trigger.addEventListener('click', clear, { once: true });
       }
 
-      window.addEventListener(
-        'load',
-        () => {
-          showPopup(SIMULATION_TABS_ALERT_MESSAGE, 'Instruction');
-          highlightDemoTab();
-        },
-        { once: true }
-      );
+      if (document.readyState === 'complete') {
+        window.setTimeout(showSimulationTabsIntro, 120);
+      } else {
+        window.addEventListener(
+          'load',
+          () => {
+            window.setTimeout(showSimulationTabsIntro, 120);
+          },
+          { once: true }
+        );
+      }
     })();
 
     (function initSimulationLinkReminder() {

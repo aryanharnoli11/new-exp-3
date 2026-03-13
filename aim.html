@@ -1478,7 +1478,7 @@
   <div
     id="intro-modal"
     class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-    data-intro-autoshow="once"
+    data-intro-autoshow="always"
     style="display: none;"
   >
     <div class="modal-container bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden">
@@ -2076,14 +2076,8 @@
         showIntroModal();
       });
     }
-    function isProgressReportView() {
-      const hash = String(window.location.hash || '').toLowerCase();
-      return hash.includes('#progressreport');
-    }
-
     function autoShowIntro() {
       if (introAutoShown || !introModal) return;
-      if (isProgressReportView()) return;
       const autoShowMode = String(introModal.dataset.introAutoshow || 'once').toLowerCase();
       const shouldAutoShow = autoShowMode === 'always' || !hasIntroBeenShown();
       if (!shouldAutoShow) return;
