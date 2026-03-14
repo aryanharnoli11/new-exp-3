@@ -1537,7 +1537,15 @@ if (missingConnections.length > 0) {
 }
 
 showPopup(message.trim(), "Alert", "danger");
-playEventAudio(ALERT_AUDIO_BY_EVENT.wrong_or_missing_connections);
+if (wrongConnections.length === 0 && missingConnections.length > 0) {
+  playEventAudio(GUIDE_AUDIO_BY_EVENT.generic_step); // audio/before_connection_check.wav
+} else if (wrongConnections.length === 1) {
+  playEventAudio(GUIDE_AUDIO_BY_EVENT.wrong_connection);
+} else if (wrongConnections.length > 1) {
+  playEventAudio(ALERT_AUDIO_BY_EVENT.wrong_or_missing_connections);
+} else {
+  playEventAudio(ALERT_AUDIO_BY_EVENT.wrong_or_missing_connections);
+}
 
   });
 }
