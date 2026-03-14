@@ -1647,6 +1647,11 @@ const printBtn = document.getElementById("printBtn");
 
 if (printBtn) {
   printBtn.addEventListener("click", () => {
+    try {
+      const printClickAudio = new Audio("audio/print.wav");
+      printClickAudio.preload = "auto";
+      printClickAudio.play().catch(() => {});
+    } catch {}
 
     if (window.labSpeech) {
       window.labSpeech.stop();
@@ -1868,6 +1873,11 @@ if (addTableBtn) {
      ===================================================== */
   if (resetBtn) {
     resetBtn.addEventListener("click", function () {
+      try {
+        const resetClickAudio = new Audio("audio/reset.wav");
+        resetClickAudio.preload = "auto";
+        resetClickAudio.play().catch(() => {});
+      } catch {}
 
       // 🔴 STOP ALL SPEECH IMMEDIATELY
 if (window.labSpeech) {
@@ -2533,7 +2543,16 @@ async function prepareReportOutput({ forPdf = false } = {}) {
 
 renderReportGraph();
 
+function playReportPrintAudio() {
+  try {
+    const audio = new Audio("audio/print.wav");
+    audio.preload = "auto";
+    audio.play().catch(() => {});
+  } catch {}
+}
+
 async function printReport() {
+  playReportPrintAudio();
   await prepareReportOutput({ forPdf: false });
   window.print();
 }
@@ -2631,11 +2650,6 @@ async function downloadPDF() {
   w.document.write(html);
   w.document.close();
 
- if (window.isGuideActive && window.isGuideActive()) {
-  speakSafe(
-    "Report is ready. You can print it and reset the experiment when you are done."
-  );
-}
 }
 
 
