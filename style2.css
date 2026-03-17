@@ -79,20 +79,20 @@
    left: 89px;
    top:200px;
  }
- #pointP {
+ .starter-points #pointP {
    position: absolute;
-   left:55px;
-   top:235px;
+   left:26px;
+   top:6px;
  }
- #pointQ {
+ .starter-points #pointQ {
    position: absolute;
-   left:95px;
-   top:235px;
+   left:76px;
+   top:6px;
  }
- #pointR {
+ .starter-points #pointR {
    position: absolute;
-   left:135px;
-   top:235px;
+   left:126px;
+   top:6px;
  }
 /* Meter connectors (I, J, L, M) and generator connectors (C, D)
    Align the hidden jsPlumb endpoints with the visible buttons so
@@ -190,28 +190,28 @@
    left: 78px;
    top: 218px;
  }
-.point-P {
+.starter-points .point-P {
    position: absolute;
    width: 24px;
    height: 24px;
-   left: 43px;
-   top: 258px;
+   left: 14px;
+   top: 20px;
    font-weight: bold;
  }
- .point-Q{
+ .starter-points .point-Q{
    position: absolute;
    width: 24px;
    height: 24px;
-   left:83px;
-   top: 258px;
+   left:64px;
+   top: 20px;
    font-weight: bold;
  }
- .point-R{
+ .starter-points .point-R{
    position: absolute;
    width: 24px;
    height: 24px;
-   left: 122px;
-   top: 258px;
+   left: 114px;
+   top: 20px;
    font-weight: bold;
  }
 

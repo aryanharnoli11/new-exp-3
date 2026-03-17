@@ -189,12 +189,16 @@ const GUIDE_AUDIO_BY_EVENT = {
 
 const ALERT_AUDIO_BY_EVENT = {
   no_connections: "audio/please_check_connections_first.wav",
+  check_success: "audio/After making correct connections, check the button.wav",
   wrong_or_missing_connections: "audio/some_connection_wrong.wav",
   before_dc_supply_on: "audio/before_connection_mcb_alert.wav",
-  dc_supply_on: "audio/mcb_turned_on.wav",
+  dc_supply_on: "audio/DC Supply ON.wav",
   dc_supply_off: "audio/mcb_turned_off_between.wav",
+  dc_supply_off_during_run: "Between Exp. DC Supply OFF (1).wav",
+  turn_off_dc_supply_before_removing_conn: "audio/Turn_off_DCSupply_before_removing conn.wav",
   duplicate_reading: "audio/For Duplicate Reading.wav",
   max_readings: "audio/For max. readings.wav",
+  graph_click: "audio/Graph.wav",
   five_readings_done: "audio/After 5 readings Graph.wav",
   seven_readings_done: "audio/After 7 readings done.wav",
   add_to_table_prompt: "audio/Before adding reading, Add To Table.wav",
@@ -945,12 +949,12 @@ function setAmmeterCurrent(current) {
 
 
   /* =====================================================
-     STARTER SEMICIRCLE CONFIG (DO NOT CHANGE)
+     STARTER SEMICIRCLE CONFIG
      ===================================================== */
-  const START_LEFT = 16.67;
-  const END_LEFT = 68;
-  const BASE_TOP = 37.04;
-  const ARC_HEIGHT = 15;
+  const START_LEFT = 9;
+  const END_LEFT = 73.5;
+  const BASE_TOP = 28.6;
+  const ARC_HEIGHT = 18;
 
   let isDragging = false;
   let dragStartX = 0;
@@ -1147,6 +1151,12 @@ if (window.isGuideActive && window.isGuideActive()) {
     mcbImg.addEventListener("click", function () {
 
       if (isMCBOn) {
+        const wasExperimentRunning =
+          starterIsOn ||
+          armatureKnobUsed ||
+          fieldStepIndex > 0 ||
+          totalReadingsAdded > 0;
+
         // ===== TURN MCB OFF =====
         isMCBOn = false;
         starterIsOn = false;
@@ -1157,7 +1167,11 @@ if (window.isGuideActive && window.isGuideActive()) {
         "DC Supply OFF",
         "danger"
       );
-  playEventAudio(ALERT_AUDIO_BY_EVENT.dc_supply_off);
+  playEventAudio(
+    wasExperimentRunning
+      ? ALERT_AUDIO_BY_EVENT.dc_supply_off_during_run
+      : ALERT_AUDIO_BY_EVENT.dc_supply_off
+  );
   // 🔄 RESET ARMATURE RHEOSTAT TO INITIAL POSITION
 armatureKnobUsed = false;
 
@@ -1213,18 +1227,12 @@ if (knob2) {
   "DC Supply ON",
   "normal"
 );
-      if (!(window.isGuideActive && window.isGuideActive())) {
-        playEventAudio(ALERT_AUDIO_BY_EVENT.dc_supply_on);
-      }
+      playEventAudio(ALERT_AUDIO_BY_EVENT.dc_supply_on, {
+        interrupt: true
+      });
       setLabelButtonsDisabled(true); // <-- Disable label buttons
       setAutoCheckButtonsDisabled(true); // <-- Disable Auto Connect and Check buttons
-      // 🔊 GUIDED VOICE (ONLY IF GUIDE IS ACTIVE)
       labStage = "dc_on";
-      if (window.isGuideActive && window.isGuideActive()) {
-        labSpeech.speak(
-          "D C supply is turned on. Now turn on the starter by moving the handle from left to right."
-        );
-      }
       if (starterHandle) {
         starterHandle.classList.remove("disabled");
       }
@@ -1379,8 +1387,13 @@ Object.keys(buttonToEndpointMap).forEach(buttonClass => {
 
   button.addEventListener("click", function (e) {
     if (isMCBOn) {
-      // Ignore click if MCB is ON
       e.stopPropagation();
+      showPopup(
+        "Turn off the DC Supply before removing the connections",
+        "DC Supply ON",
+        "danger"
+      );
+      playEventAudio(ALERT_AUDIO_BY_EVENT.turn_off_dc_supply_before_removing_conn);
       return;
     }
     e.stopPropagation(); // important
@@ -1481,12 +1494,15 @@ if (checkBtn) {
 
   setAutoCheckButtonsDisabled(true);
 
-  if (window.isGuideActive && window.isGuideActive()) {
-    clearEndpointHighlight();  // ✅ now reachable
-    speakSafe("All the connections are correct. Now turn on the D C supply."); // ✅ now fires
-  } else {
-    playEventAudio(GUIDE_AUDIO_BY_EVENT.connection_ok_turn_on_mcb);
-  }
+  playEventAudio(ALERT_AUDIO_BY_EVENT.check_success, {
+    interrupt: true,
+    onend: () => {
+      if (window.isGuideActive && window.isGuideActive()) {
+        clearEndpointHighlight();
+        speakSafe("All the connections are correct. Now turn on the D C supply.");
+      }
+    }
+  });
 
   return;
 }
@@ -1647,11 +1663,13 @@ const printBtn = document.getElementById("printBtn");
 
 if (printBtn) {
   printBtn.addEventListener("click", () => {
-    try {
-      const printClickAudio = new Audio("audio/print.wav");
-      printClickAudio.preload = "auto";
-      printClickAudio.play().catch(() => {});
-    } catch {}
+    if (window.isGuideActive && window.isGuideActive()) {
+      try {
+        const printClickAudio = new Audio("audio/print.wav");
+        printClickAudio.preload = "auto";
+        printClickAudio.play().catch(() => {});
+      } catch {}
+    }
 
     if (window.labSpeech) {
       window.labSpeech.stop();
@@ -2071,7 +2089,7 @@ body {
 }
 
 .report-title {
-  font-size: 28px;
+  font-size: 38px;
   font-weight: 600;
 }
 
@@ -2414,21 +2432,18 @@ tr:nth-child(even) td {
         <ul>
         <li>DC Supply</li>
         <li>3-Point Starter: 220V DC, 7.5 HP</li>
-        <li>Field Rheostat: 300 ohm, 3A</li>
-        <li>Armature Rheostat: 75 ohm, 5A</li>
         <li>DC Shunt Motor: 5 HP, 220 V DC, 19 A (max), 1500 RPM</li>
-        <li>DC Voltmeter: 0-420 V</li>
-        
+        <li>Field Rheostat: 300 ohm, 3A</li>
+        <li>Armature Rheostat: 75 ohm, 5A</li>        
         </ul>
       </div>
 
       <div>
         <ul>
-        <li>DC Ammeter: 0-1 A</li>
-        <li>RPM Indicator: 0-2000 RPM</li>
-          <li>Voltage Range: 0 - 420 V DC</li>
-          <li>Ammeter Range: 0 – 1 A</li>
-          <li>Speed Range: 0 – 1500 RPM</li>
+          <li>DC Ammeter: 0-1 A</li>
+            <li>DC Voltmeter: 0-420 V</li>
+          <li>RPM Indicator: 0-2000 RPM</li>
+          <li>Connecting Leads</li>
         </ul>
       </div>
     </div>
@@ -2543,16 +2558,7 @@ async function prepareReportOutput({ forPdf = false } = {}) {
 
 renderReportGraph();
 
-function playReportPrintAudio() {
-  try {
-    const audio = new Audio("audio/print.wav");
-    audio.preload = "auto";
-    audio.play().catch(() => {});
-  } catch {}
-}
-
 async function printReport() {
-  playReportPrintAudio();
   await prepareReportOutput({ forPdf: false });
   window.print();
 }
@@ -2872,12 +2878,15 @@ if (graphBtn) {
     }
 
     // ✅ Plot graph
+    playEventAudio(ALERT_AUDIO_BY_EVENT.graph_click, {
+      interrupt: true,
+      onend: () => {
+        speakOnlyIfGuideActive(
+          "Graph is plotted. Now you can generate the report by clicking the Report button."
+        );
+      }
+    });
     renderGraph();
-
-    // 🔊 Speak ONLY if guide is active
-    speakOnlyIfGuideActive(
-      "Graph is plotted. Now you can generate the report by clicking the Report button."
-    );
   });
 }
 
@@ -3283,7 +3292,7 @@ if (skipBtn) {
       },
       {
         id: "starter",
-        selector: ".starter-block, .starter-body, .starter-handle, .starter-label",
+        selector: ".starter-body, .starter-handle",
         text: "Purpose: A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor."
       },
       

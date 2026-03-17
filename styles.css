@@ -136,25 +136,39 @@ h3 {
 
 .starter-block {
   position: absolute;
-  top: -9.42%;
-  right: -7.25%;
+  top: 1%;
+  right: 1.5%;
+  width: max-content;
+}
+
+.starter-visual {
+  position: relative;
+  width: 152px;
+  margin-top: 12px;
+}
+
+.starter-points {
+  position: relative;
+  width: 152px;
+  height: 40px;
+  margin-top: 0;
 }
 
 .starter-body {
   display: block;
   width: 100%;
-  height: 290px;
+  height: auto;
 }
 
 .starter-handle {
   position: absolute;
   width: 16.67%;
   height: auto;
-  top: 37.04%;
-  left: 16.67%;
+  top: 28.6%;
+  left: 9%;
   transform: none;
   cursor: default;
-  z-index: 5;
+  z-index: 10;
   pointer-events: auto;
 }
 
@@ -163,8 +177,8 @@ h3 {
 }
 
 .starter-handle.moved {
-  left: 68%;
-  top: 35%;
+  left: 73.5%;
+  top: 28.6%;
 }
 
 .led-row {
@@ -1007,9 +1021,7 @@ img {
 
 .starter-label {
   position: absolute;
-
-  /* FIXED pixel reference */
-  top: 288px;
+  top: 246px;
   left: 47%;
 
   transform: translateX(-50%);
@@ -1172,36 +1184,6 @@ img {
 .starter-handle.disabled {
   cursor: not-allowed;
   opacity: 1;
-}
-.starter-block {
-  position: absolute;
-  top: -13.42%;
-  right: -2.25%;
-    
-  
-}
-
- 
-
-.starter-handle {
-  position: absolute;
-  width: 16.67%;
-  height: auto;
-  top: 2.04px;
-  left: 11.67px;
-  transform: none;
-  cursor: default;
-  z-index: 10;
-  pointer-events: auto;
-}
-
-.starter-handle:active {
-  cursor: default;
-}
-
-.starter-handle.moved {
-  left: 68%;
-  top: 15%;
 }
 #nob2 {
   transition: left 0.2s ease;
