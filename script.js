@@ -652,7 +652,6 @@ function connectRequiredPair(pair) {
   let starterIsOn = false;
   let allConnectionsAnnounced = false; // 🔊 voice only once
   let totalReadingsAdded = 0;
-  let firstReadingPopupShown = false;
   let fiveReadingsAnnounced = false; // 🔊 announce only once
   let firstReadingGuided = false; 
   let connectionsAreVerified = false; // ✅ NEW FLAG
@@ -1129,7 +1128,7 @@ function stopArmatureKnob() {
   knob2.style.cursor = "not-allowed";
   setVoltmeterTo220();
   labStage = "armature_set";
-  showPopup("Armature resistance set");
+  showPopup("Armature resistance is set. Voltage is 220 volt. Now, vary the field resistance by moving the rheostat knob to take the reading.");
 if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Armature resistance set and the voltage is 220 volt. Now adjust the field resistance knob to take readings."
@@ -1425,10 +1424,12 @@ function setLabelButtonsDisabled(disabled) {
     if (button) {
       if (disabled) {
         button.setAttribute("aria-disabled", "true");
-        button.style.pointerEvents = "none";
+        button.style.pointerEvents = "auto"; // keep clickable to show lock alert
+        button.style.cursor = "not-allowed";
       } else {
         button.removeAttribute("aria-disabled");
         button.style.pointerEvents = "auto";
+        button.style.cursor = "";
       }
     }
   });
@@ -1726,20 +1727,11 @@ if (!guideWasActive) {
     requiredPairs.forEach(pair => connectRequiredPair(pair));
 
     jsPlumb.repaintEverything();
-showPopup(
-  "Autoconnect completed.\nClick on the Check button to verify the connections.",
-  "Instruction",
-  "normal"
-);
-if (!(window.isGuideActive && window.isGuideActive())) {
-  playEventAudio(GUIDE_AUDIO_BY_EVENT.autoconnect_done);
-}
-
-if (window.isGuideActive && window.isGuideActive()) {
-  speakSafe(
-    "Autoconnect completed. Click on the check button to verify the connections."
-  );
-}
+    if (window.isGuideActive && window.isGuideActive()) {
+      speakSafe(
+        "Autoconnect completed. Click on the check button to verify the connections."
+      );
+    }
     connectionsAreCorrect = true;        // wires exist
     connectionsAreVerified = false;      // ❌ user has NOT clicked Check
 
@@ -1795,7 +1787,7 @@ tableGuidanceActive = false;
   }
 
   if (currentReading === 0 || rpmReading === 0) {
-    showPopup("First, set the field rheostat");
+    showPopup("First, set the armature rheostat.");
     return;
   }
 
@@ -1808,7 +1800,7 @@ tableGuidanceActive = false;
         parseFloat(cells[1].textContent) === parseFloat(currentReading.toFixed(2)) &&
         parseInt(cells[2].textContent) === rpmReading
       ) {
-        showPopup("This reading is already added to the table.");
+        showPopup("This reading is already added to the table.", "Duplicate Reading", "normal");
         playEventAudio(ALERT_AUDIO_BY_EVENT.duplicate_reading);
         return;
       }
@@ -1840,16 +1832,6 @@ if (window.isGuideActive && window.isGuideActive()) {
   playReadingAddedAudio(totalReadingsAdded);
 }
 
-// ✅ SHOW ALERT ONLY FOR FIRST READING
-if (totalReadingsAdded === 1 && !firstReadingPopupShown) {
-  showPopup(
-    "Reading added to the observation table.",
-    "Observation",
-    "normal"
-  );
-
-  firstReadingPopupShown = true;
-}
 // ✅ ALERT ON 7TH READING
 if (totalReadingsAdded === 7) {
   showPopup(
@@ -1864,7 +1846,7 @@ if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
 
   showPopup(
     "You have added five readings.\nNow you can plot the graph by clicking on the Graph button or add more readings to the table.",
-    "Five Readings Completed",
+    "GRAPH READY",
     "normal"
   );
   playEventAudio(ALERT_AUDIO_BY_EVENT.five_readings_done);
@@ -1879,10 +1861,27 @@ if (addTableBtn) {
       window.labSpeech.stop();
     }
 
-    const beforeCount = totalReadingsAdded;
-    addObservationRow();
+    // If no reading is ready, show alert immediately and play prompt audio together.
+    if (currentReading === 0 || rpmReading === 0) {
+      showPopup("First, set the armature rheostat.");
+      if (window.isGuideActive && window.isGuideActive()) {
+        playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt, {
+          interrupt: true
+        });
+      }
+      return;
+    }
 
-    if (totalReadingsAdded === beforeCount) return;
+    const commitAddReading = () => {
+      const beforeCount = totalReadingsAdded;
+      addObservationRow();
+      if (totalReadingsAdded === beforeCount) return;
+    };
+
+    playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt, {
+      interrupt: true,
+      onend: commitAddReading
+    });
   });
 }
   
@@ -1891,11 +1890,13 @@ if (addTableBtn) {
      ===================================================== */
   if (resetBtn) {
     resetBtn.addEventListener("click", function () {
-      try {
-        const resetClickAudio = new Audio("audio/reset.wav");
-        resetClickAudio.preload = "auto";
-        resetClickAudio.play().catch(() => {});
-      } catch {}
+      if (window.isGuideActive && window.isGuideActive()) {
+        try {
+          const resetClickAudio = new Audio("audio/reset.wav");
+          resetClickAudio.preload = "auto";
+          resetClickAudio.play().catch(() => {});
+        } catch {}
+      }
 
       // 🔴 STOP ALL SPEECH IMMEDIATELY
 if (window.labSpeech) {
@@ -2709,6 +2710,7 @@ if (reportBtn) {
   // Containers
   const graphBars = document.getElementById("graphBars");
   const graphPlot = document.getElementById("graphPlot");
+  const graphCanvas = document.querySelector(".graph-canvas");
   const graphSection = document.querySelector(".graph-section");
   const graphCount = document.getElementById("graphCount");
   if (graphCount) {
@@ -2787,6 +2789,9 @@ if (reportBtn) {
     const rpms = readingsRecorded.map(r => r.voltage);
 
     ensurePlotlyLoaded().then(() => {
+      if (graphPlot && window.Plotly && typeof window.Plotly.purge === "function") {
+        window.Plotly.purge(graphPlot);
+      }
       const trace = {
         x: currents,
         y: rpms,
@@ -2811,6 +2816,7 @@ if (reportBtn) {
       };
       if (graphBars) graphBars.style.display = "none";
       if (graphPlot) graphPlot.style.display = "block";
+      if (graphCanvas) graphCanvas.classList.add("plot-ready");
       Plotly.newPlot(graphPlot, [trace], layout, {
         displaylogo: false,
         responsive: true
@@ -2840,9 +2846,13 @@ if (reportBtn) {
     readingsRecorded.length = 0;
     if (graphBars) graphBars.style.display = "block";
     if (graphPlot) {
+      if (window.Plotly && typeof window.Plotly.purge === "function") {
+        window.Plotly.purge(graphPlot);
+      }
       graphPlot.innerHTML = "";
       graphPlot.style.display = "none";
     }
+    if (graphCanvas) graphCanvas.classList.remove("plot-ready");
     updateGraphControls();
     setButtonDisabled(reportBtn, true); // Always disable report on reset
     if (graphCount) {
@@ -3288,54 +3298,54 @@ if (skipBtn) {
       {
         id: "mcb",
         selector: ".mcb-toggle, .mcb-label, .mcb-block",
-        text: "Purpose: A DC power supply is used to supply a constant voltage to the motor’s armature and field windings, ensuring stable operation during the experiment."
+        text: "<strong>Purpose:</strong> A DC power supply is used to supply a constant voltage to the motor’s armature and field windings, ensuring stable operation during the experiment."
       },
       {
         id: "starter",
         selector: ".starter-body, .starter-handle",
-        text: "Purpose: A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor."
+        text: "<strong>Purpose:</strong> A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor."
       },
       
       {
         id: "voltmeter",
-        selector: ".meters > .meter-card:nth-of-type(1), #voltmeter1-label",
-        text: "Purpose:  To measure the voltage across the field winding."
+        selector: ".voltmeter-img",
+        text: "<strong>Purpose:</strong> To measure the voltage across the field winding."
       },
       {
         id: "ammeter",
-        selector: ".meters > .meter-card:nth-of-type(3), #ammeter1-label",
-        text: "Purpose: To measure the current flowing through the field winding. "
+        selector: ".ammeter-img",
+        text: "<strong>Purpose:</strong> To measure the current flowing through the field winding. "
       },
  
      {
         id: "dc-motor",
         selector: ".motor-box, .motor-box img, .dc-motor-label",
-        text: "DC Shunt Motor: Prime mover converting electrical power to mechanical power to drive the generator."
+        text: "<strong>Purpose:</strong> The DC shunt motor is the machine whose speed is being controlled in this experiment."
       },
       {
         id: "dc-generator",
         selector: ".generator-box, .generator-body, .generator-rotor, .dc-generator-label",
-        text: "DC Shunt Generator: Converts mechanical power from the motor into DC output for the load; terminal voltage is measured on Voltmeter-2."
+        text: "<strong>Purpose:</strong> A rotor is the rotating part of the motor that converts electrical energy into mechanical energy. In a DC shunt motor, the rotor is also called the armature. The main parts of the rotor are Armature core, Armature winding, Commutator and Shaft"
       },
       {
         id: "observation-table",
         selector: ".observation-section, #observationTable, #observationBody",
-        text: "Observation Table: Stores recorded readings of load current and terminal voltage for plotting and the report."
+        text: "<strong>Observation Table:</strong> Stores recorded readings of load current and terminal voltage for plotting and the report."
       },
          {
   id: "rheostat-1",
   selector: "#rheostat-1, .field-rheostat-label, .field-rheostat-knob",
-  text: "Field Rheostat: Controls the field current of the DC generator/motor to regulate terminal voltage. Increasing resistance decreases field current and reduces generated voltage."
+  text: "<strong>Purpose:</strong> The field current is controlled by varying the field resistance in the field circuit, which in turn affects the magnetic flux and consequently the motor speed."
 },
 {
   id: "rheostat-2",
   selector: "#rheostat-2, .armature-rheostat-label, .armature-rheostat-knob",
-  text: "Armature Rheostat: Controls the armature current of the DC motor during starting to limit high inrush current and ensure smooth acceleration."
+  text: "<strong>Purpose:</strong> Armature resistance is set once and kept constant. Therefore, speed is controlled only through the field resistance.<br><br><strong>Key details:</strong><ul><li>Typically low in value (fraction of an ohm)</li><li>Causes a voltage drop in the armature circuit</li><li>Affects armature current and power loss</li></ul>"
 },
 {
   id: "rpm-indicator",
   selector: "#rpm-indicator, .rpm-display, .rpm-label",
-  text: "RPM Indicator: Displays the speed of the DC motor in revolutions per minute (RPM). Motor speed increases with field control adjustment and decreases with load."
+  text: "<strong>Purpose:</strong> An RPM indicator (Revolutions Per Minute) is a measuring instrument used to display the rotational speed of a rotating shaft in an electrical machine such as motor or generator."
 }
 
     ];
@@ -3372,7 +3382,7 @@ if (skipBtn) {
 
     function showTip(text, event) {
       if (!tooltipText) return;
-      tooltipText.textContent = text;
+      tooltipText.innerHTML = text;
       moveTip(event);
       tooltipLayer.classList.add("show");
     }

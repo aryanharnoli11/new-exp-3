@@ -1519,6 +1519,10 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   border-radius: 4px;
 }
 
+.graph-canvas.plot-ready {
+  background-image: none;
+}
+
 .graph-bars {
   position: absolute;
   inset: clamp(16px, 2vw, 22px)
@@ -2072,6 +2076,18 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   letter-spacing: 0.1px;
   font-weight: 600;
   color: #152a44;
+  text-align: justify;
+}
+
+.hover-tooltip__text ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.hover-tooltip__text li {
+  margin: 3px 0;
+  text-align: justify;
 }
 
 
