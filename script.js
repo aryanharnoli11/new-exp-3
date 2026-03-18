@@ -85,6 +85,18 @@ function connectionKey(a, b) {
   return [a, b].sort().join("-");
 }
 
+function isBlueSourcePoint(id) {
+  // Keep point B on red scheme like point A.
+  return anchors[id]?.[0] === 0 && id !== "pointB";
+}
+
+function getWireStrokeColor(sourceId) {
+  if (sourceId === "pointE" || sourceId === "pointF" || sourceId === "pointG" || sourceId === "pointH") {
+    return "green";
+  }
+  return isBlueSourcePoint(sourceId) ? "blue" : "red";
+}
+
 const WIRE_CURVE_OVERRIDES = new Map([
   [connectionKey("pointA", "pointP"), 120],
   [connectionKey("pointB", "pointK"), 120],
@@ -194,7 +206,7 @@ const ALERT_AUDIO_BY_EVENT = {
   before_dc_supply_on: "audio/before_connection_mcb_alert.wav",
   dc_supply_on: "audio/DC Supply ON.wav",
   dc_supply_off: "audio/mcb_turned_off_between.wav",
-  dc_supply_off_during_run: "Between Exp. DC Supply OFF (1).wav",
+  dc_supply_off_during_run: "audio/Between Exp. DC Supply OFF (1).wav",
   turn_off_dc_supply_before_removing_conn: "audio/Turn_off_DCSupply_before_removing conn.wav",
   duplicate_reading: "audio/For Duplicate Reading.wav",
   max_readings: "audio/For max. readings.wav",
@@ -394,24 +406,16 @@ function playFieldGuidanceAudio(fieldStep) {
 }
 
 function playReadingAddedAudio(readingNumber) {
-  if (readingNumber === 1) {
+  if (readingNumber === 1 || readingNumber === 2 || readingNumber === 3 || readingNumber === 4) {
     playEventAudio(ALERT_AUDIO_BY_EVENT.reading_1st);
     return;
   }
-  if (readingNumber === 2) {
-    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_2nd);
+  if (readingNumber === 5) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.five_readings_done);
     return;
   }
-  if (readingNumber === 3) {
-    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_3rd);
-    return;
-  }
-  if (readingNumber === 4) {
-    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_4th);
-    return;
-  }
-  if (readingNumber === 6) {
-    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_6th);
+  if (readingNumber === 7) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.seven_readings_done);
     return;
   }
 }
@@ -1301,7 +1305,7 @@ connector: ["Bezier", { curviness: WIRE_CURVINESS }]
     const el = document.getElementById(id);
     if (!el) return;
 
-    const isLeft = anchors[id][0] === 0;
+    const strokeColor = getWireStrokeColor(id);
     jsPlumb.addEndpoint(el, {
       anchor: getWireAnchorForShape(anchors[id])
 ,
@@ -1309,7 +1313,7 @@ connector: ["Bezier", { curviness: WIRE_CURVINESS }]
     }, {
       ...baseEndpointOptions,
       connectorStyle: {
-        stroke: isLeft ? "blue" : "red",
+        stroke: strokeColor,
         strokeWidth: 4
       }
     });
@@ -1327,9 +1331,9 @@ info.connection.setConnector(
 );
 
 
-  const isLeft = anchors[info.sourceId]?.[0] === 0;
+  const strokeColor = getWireStrokeColor(info.sourceId);
   info.connection.setPaintStyle({
-    stroke: isLeft ? "blue" : "red",
+    stroke: strokeColor,
     strokeWidth: 4
   });
 
@@ -1782,12 +1786,11 @@ tableGuidanceActive = false;
       "Maximum Readings Reached",
       "normal"
     );
-    playEventAudio(ALERT_AUDIO_BY_EVENT.max_readings);
     return;
   }
 
-  if (currentReading === 0 || rpmReading === 0) {
-    showPopup("First, set the armature rheostat.");
+  if (fieldStepIndex === 0 || currentReading === 0 || rpmReading === 0) {
+    showPopup("First, set the field rheostat.");
     return;
   }
 
@@ -1827,10 +1830,7 @@ reportReadings.push({
 });
 // ✅ INCREASE COUNT
 totalReadingsAdded++;
-
-if (window.isGuideActive && window.isGuideActive()) {
-  playReadingAddedAudio(totalReadingsAdded);
-}
+playReadingAddedAudio(totalReadingsAdded);
 
 // ✅ ALERT ON 7TH READING
 if (totalReadingsAdded === 7) {
@@ -1839,7 +1839,6 @@ if (totalReadingsAdded === 7) {
     "Maximum Readings Reached",
     "normal"
   );
-  playEventAudio(ALERT_AUDIO_BY_EVENT.seven_readings_done);
 }
 // ✅ SHOW ALERT WHEN 5 READINGS ARE ADDED
 if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
@@ -1849,7 +1848,6 @@ if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
     "GRAPH READY",
     "normal"
   );
-  playEventAudio(ALERT_AUDIO_BY_EVENT.five_readings_done);
 
   fiveReadingsAnnounced = true;
 }
@@ -1862,26 +1860,14 @@ if (addTableBtn) {
     }
 
     // If no reading is ready, show alert immediately and play prompt audio together.
-    if (currentReading === 0 || rpmReading === 0) {
-      showPopup("First, set the armature rheostat.");
-      if (window.isGuideActive && window.isGuideActive()) {
-        playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt, {
-          interrupt: true
-        });
-      }
+    if (fieldStepIndex === 0 || currentReading === 0 || rpmReading === 0) {
+      showPopup("First, set the field rheostat.");
       return;
     }
 
-    const commitAddReading = () => {
-      const beforeCount = totalReadingsAdded;
-      addObservationRow();
-      if (totalReadingsAdded === beforeCount) return;
-    };
-
-    playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt, {
-      interrupt: true,
-      onend: commitAddReading
-    });
+    const beforeCount = totalReadingsAdded;
+    addObservationRow();
+    if (totalReadingsAdded === beforeCount) return;
   });
 }
   

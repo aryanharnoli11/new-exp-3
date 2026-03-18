@@ -162,10 +162,10 @@ h3 {
 
 .starter-handle {
   position: absolute;
-  width: 16.67%;
+  width: 20%;
   height: auto;
   top: 28.6%;
-  left: 9%;
+  left: 1%;
   transform: none;
   cursor: default;
   z-index: 10;
@@ -2129,12 +2129,21 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
 
 .modal-box h2 {
   color: #2c1a0a;
-  margin-bottom: 10px;
+  margin: 0 0 14px;
+  line-height: 1.25;
 }
 
 #modalMessage {
   color: #3b2f24;
   white-space: pre-line;
+  text-align: justify;
+  text-align-last: center;
+  text-justify: inter-word;
+  margin: 0 auto;
+  max-width: 40ch;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  word-spacing: 0.03em;
 }
 
 .modal-box.danger {

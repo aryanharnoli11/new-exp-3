@@ -1057,11 +1057,12 @@
       if (ttl) ttl.textContent = String(title || 'Alert');
       if (msg) {
         msg.textContent = String(message);
-        msg.style.textAlign = opts.center ? 'center' : (opts.justify ? 'justify' : '');
-        msg.style.textJustify = opts.justify ? 'auto' : '';
-        msg.style.textAlignLast = opts.justify ? 'left' : '';
-        msg.style.maxWidth = opts.justify ? '52ch' : '';
-        msg.style.wordSpacing = opts.justify ? 'normal' : '';
+        const useCenter = Boolean(opts.center);
+        msg.style.textAlign = useCenter ? 'center' : 'justify';
+        msg.style.textJustify = useCenter ? '' : 'inter-word';
+        msg.style.textAlignLast = 'center';
+        msg.style.maxWidth = useCenter ? '48ch' : '52ch';
+        msg.style.wordSpacing = '';
       }
 
       if (actions) {
