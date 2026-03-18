@@ -1859,9 +1859,9 @@ if (addTableBtn) {
       window.labSpeech.stop();
     }
 
-    // If no reading is ready, show alert immediately and play prompt audio together.
-    if (fieldStepIndex === 0 || currentReading === 0 || rpmReading === 0) {
-      showPopup("First, set the field rheostat.");
+    // First gate: field rheostat must not be at default (zero) position.
+    if (fieldStepIndex === 0) {
+      playEventAudio(ALERT_AUDIO_BY_EVENT.add_to_table_prompt);
       return;
     }
 
