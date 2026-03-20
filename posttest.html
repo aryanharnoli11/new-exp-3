@@ -828,6 +828,7 @@ const refreshBtn = document.getElementById("refresh-btn");
 const checkBtn = document.getElementById("check-btn");
 const POSTTEST_WELCOME_TITLE = "Welcome to the Posttest section";
 const POSTTEST_WELCOME_MESSAGE = "Here, you will receive 5 questions at a time. Each time you click on the Refresh button, a new set of questions will be generated. Please note that all your attempted questions will be recorded and reflected in your Progress Report if you choose to generate it.";
+const PREPOST_WELCOME_ALERT_AUDIO_SRC = "./audio/pretestpostestaudio.wav";
 
 let currentSetIndices = []; // indices into `questions` array for the current shown set
 let setLocked = false;
@@ -954,6 +955,19 @@ function showPosttestWelcomePopup() {
 
 let popupOnClose = null;
 
+function playPosttestWelcomeAlertAudio(soundEl, message) {
+  if (!soundEl || String(message || "").trim() !== POSTTEST_WELCOME_MESSAGE) return;
+  if (soundEl.getAttribute("src") !== PREPOST_WELCOME_ALERT_AUDIO_SRC) {
+    soundEl.setAttribute("src", PREPOST_WELCOME_ALERT_AUDIO_SRC);
+    soundEl.load();
+  }
+  soundEl.currentTime = 0;
+  const playAttempt = soundEl.play();
+  if (playAttempt && typeof playAttempt.catch === "function") {
+    playAttempt.catch(() => {});
+  }
+}
+
 function showPopup(message, title = "Alert", options = {}) {
   if (!message) return;
   const onClose = typeof options?.onClose === "function" ? options.onClose : null;
@@ -982,8 +996,10 @@ function showPopup(message, title = "Alert", options = {}) {
     box.style.width = noWrapTitle ? "min(620px, 95vw)" : "";
   }
 
+  const sound = document.getElementById("alertSound");
   modal.classList.add("show");
   document.body.classList.add("is-modal-open");
+  playPosttestWelcomeAlertAudio(sound, message);
   window.setTimeout(() => {
     try {
       okBtn?.focus?.({ preventScroll: true });
@@ -1017,6 +1033,7 @@ function closePopup() {
 
   if (sound && typeof sound.pause === "function") {
     sound.pause();
+    sound.currentTime = 0;
   }
 }
 

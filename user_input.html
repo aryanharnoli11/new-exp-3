@@ -38,7 +38,9 @@
         <label class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
         <input id="email" type="email" required
           class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
-       
+        <p id="emailValidationMessage" class="hidden mt-2 text-sm font-semibold text-red-600">
+          Please enter a valid email (examples: name@example.com, name@gmail.com, name@yahoo.com).
+        </p>
       </div>
 
       <div>
@@ -70,16 +72,12 @@
 
   <script src="./progress_tracker.js"></script>
   <script>
-    // Edit your allowed domains here:
-    const ALLOWED_DOMAINS = [
-      "university.edu",
-      "iitr.ac.in",
-      "gmail.com"
-      // add more like: "spu.edu"
-    ];
+    const EMAIL_ERROR_MESSAGE =
+      "Please enter a valid email (examples: name@example.com, name@gmail.com, name@yahoo.com).";
 
     const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
+    const emailValidationMessage = document.getElementById("emailValidationMessage");
     const designationInput = document.getElementById("designation");
     const nameAvatar = document.getElementById("nameAvatar");
     const namePreview = document.getElementById("namePreview");
@@ -136,12 +134,45 @@
       el.textContent = "";
     }
 
-    function isAllowedEmail(email) {
-      const e = String(email || "").trim().toLowerCase();
-      const at = e.lastIndexOf("@");
-      if (at <= 0) return false;
-      const domain = e.slice(at + 1);
-      return ALLOWED_DOMAINS.some(d => domain === d || domain.endsWith("." + d));
+    function isValidEmail(email) {
+      const value = String(email || "").trim();
+      if (!value) return false;
+
+      const basicPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!basicPattern.test(value)) return false;
+      if (value.includes("..")) return false;
+
+      const parts = value.split("@");
+      if (parts.length !== 2) return false;
+      const local = parts[0];
+      const domain = parts[1];
+
+      if (!local || !domain) return false;
+      if (local.startsWith(".") || local.endsWith(".")) return false;
+      if (domain.startsWith(".") || domain.endsWith(".")) return false;
+      if (domain.startsWith("-") || domain.endsWith("-")) return false;
+
+      return true;
+    }
+
+    function renderEmailValidation(forceShow = false) {
+      if (!emailInput) return true;
+
+      const value = (emailInput.value || "").trim();
+      const hasValue = value.length > 0;
+      const valid = isValidEmail(value);
+      const showError = forceShow ? !valid : hasValue && !valid;
+
+      emailInput.classList.toggle("border-red-500", showError);
+      emailInput.classList.toggle("focus:ring-red-500", showError);
+      emailInput.classList.toggle("focus:ring-sky-500", !showError);
+      emailInput.setCustomValidity(showError ? EMAIL_ERROR_MESSAGE : "");
+
+      if (emailValidationMessage) {
+        emailValidationMessage.classList.toggle("hidden", !showError);
+      }
+
+      return valid;
     }
 
     function getFirstName(fullName) {
@@ -233,7 +264,13 @@
     }
 
     if (emailInput) {
-      emailInput.addEventListener("input", persistDraft);
+      emailInput.addEventListener("input", () => {
+        renderEmailValidation(false);
+        persistDraft();
+      });
+      emailInput.addEventListener("blur", () => {
+        renderEmailValidation(Boolean((emailInput.value || "").trim()));
+      });
     }
 
     if (designationInput) {
@@ -284,8 +321,8 @@
         return;
       }
 
-      if (!isAllowedEmail(email)) {
-        showError("Email domain not allowed. Use a permitted institutional email.");
+      if (!renderEmailValidation(true)) {
+        showError(EMAIL_ERROR_MESSAGE);
         return;
       }
 

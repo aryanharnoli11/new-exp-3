@@ -1008,6 +1008,26 @@
       [SIMULATION_DEMO_REMINDER_ALERT_MESSAGE]: "./audio/experimentopen.wav",
       [SIMULATION_DEMO_REQUIRED_ALERT_MESSAGE]: "./audio/demotab.wav"
     };
+    let simulationAlertAudioRetryQueued = false;
+
+    function queueSimulationAlertAudioRetry(soundEl) {
+      if (!soundEl || simulationAlertAudioRetryQueued) return;
+      simulationAlertAudioRetryQueued = true;
+
+      const resume = () => {
+        simulationAlertAudioRetryQueued = false;
+        const modal = document.getElementById('warningModal');
+        if (!modal || !modal.classList.contains('show')) return;
+        soundEl.currentTime = 0;
+        const retry = soundEl.play();
+        if (retry && typeof retry.catch === 'function') {
+          retry.catch(() => {});
+        }
+      };
+
+      document.addEventListener('pointerdown', resume, { once: true });
+      document.addEventListener('keydown', resume, { once: true });
+    }
 
     function playSimulationAlertAudio(soundEl, message) {
       if (!soundEl || typeof soundEl.play !== 'function') return;
@@ -1015,11 +1035,14 @@
       if (!audioSrc) return;
       if (soundEl.getAttribute('src') !== audioSrc) {
         soundEl.setAttribute('src', audioSrc);
+        soundEl.load();
       }
       soundEl.currentTime = 0;
       const playPromise = soundEl.play();
       if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(() => {});
+        playPromise.catch(() => {
+          queueSimulationAlertAudioRetry(soundEl);
+        });
       }
     }
 
@@ -1135,6 +1158,7 @@
 
       if (sound && typeof sound.pause === 'function') {
         sound.pause();
+        sound.currentTime = 0;
       }
     }
 

@@ -399,6 +399,9 @@
     let reportAlertOnYes = null;
     let reportAlertOnNo = null;
     let reportAlertMode = "alert";
+    const REPORT_ALERT_AUDIO_SRC = "./audio/progressreportalert.wav";
+    let reportAlertAudioEl = null;
+    let reportAlertAudioRetryQueued = false;
 
     const reportContainer = document.getElementById("report-container");
     const reportLockedNotice = document.getElementById("reportLockedNotice");
@@ -409,6 +412,39 @@
     let printFrameOriginalHeight = null;
     let printFrameOriginalMinHeight = null;
     let printInProgress = false;
+
+    function playReportAlertAudio() {
+      if (!REPORT_ALERT_AUDIO_SRC) return;
+      if (!reportAlertAudioEl) {
+        reportAlertAudioEl = new Audio(REPORT_ALERT_AUDIO_SRC);
+        reportAlertAudioEl.preload = "auto";
+      }
+      reportAlertAudioEl.currentTime = 0;
+      const playPromise = reportAlertAudioEl.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {
+          if (reportAlertAudioRetryQueued) return;
+          reportAlertAudioRetryQueued = true;
+          const resume = () => {
+            reportAlertAudioRetryQueued = false;
+            if (!reportAlertModal?.classList.contains("show")) return;
+            reportAlertAudioEl.currentTime = 0;
+            const retry = reportAlertAudioEl.play();
+            if (retry && typeof retry.catch === "function") {
+              retry.catch(() => {});
+            }
+          };
+          document.addEventListener("pointerdown", resume, { once: true });
+          document.addEventListener("keydown", resume, { once: true });
+        });
+      }
+    }
+
+    function stopReportAlertAudio() {
+      if (!reportAlertAudioEl) return;
+      reportAlertAudioEl.pause();
+      reportAlertAudioEl.currentTime = 0;
+    }
 
     function setReportContainerVisible(visible) {
       if (!reportContainer) return;
@@ -444,6 +480,7 @@
 
       reportAlertModal.classList.add("show");
       document.body.classList.add("is-modal-open");
+      playReportAlertAudio();
 
       setTimeout(() => {
         if (reportAlertMode === "confirm") reportAlertYes?.focus?.();
@@ -453,6 +490,7 @@
 
     function closeReportAlert(action = "close") {
       if (!reportAlertModal) return;
+      stopReportAlertAudio();
       reportAlertModal.classList.remove("show");
       document.body.classList.remove("is-modal-open");
 

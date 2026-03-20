@@ -826,6 +826,7 @@ const refreshBtn = document.getElementById("refresh-btn");
 const checkBtn = document.getElementById("check-btn");
 const PRETEST_WELCOME_TITLE = "Welcome to the Pretest section";
 const PRETEST_WELCOME_MESSAGE = "Here, you will receive 5 questions at a time. Each time you click on the Refresh button, a new set of questions will be generated. Please note that all your attempted questions will be recorded and reflected in your Progress Report if you choose to generate it.";
+const PREPOST_WELCOME_ALERT_AUDIO_SRC = "./audio/pretestpostestaudio.wav";
 
 let currentSetIndices = []; // indices into `questions` array for the current shown set
 let setLocked = false;
@@ -952,6 +953,19 @@ function showPretestWelcomePopup() {
 
 let popupOnClose = null;
 
+function playPretestWelcomeAlertAudio(soundEl, message) {
+  if (!soundEl || String(message || "").trim() !== PRETEST_WELCOME_MESSAGE) return;
+  if (soundEl.getAttribute("src") !== PREPOST_WELCOME_ALERT_AUDIO_SRC) {
+    soundEl.setAttribute("src", PREPOST_WELCOME_ALERT_AUDIO_SRC);
+    soundEl.load();
+  }
+  soundEl.currentTime = 0;
+  const playAttempt = soundEl.play();
+  if (playAttempt && typeof playAttempt.catch === "function") {
+    playAttempt.catch(() => {});
+  }
+}
+
  function showPopup(message, title = "Alert", options = {}) {
    if (!message) return;
    const onClose = typeof options?.onClose === "function" ? options.onClose : null;
@@ -980,8 +994,10 @@ let popupOnClose = null;
      box.style.width = noWrapTitle ? "min(620px, 95vw)" : "";
    }
 
+   const sound = document.getElementById("alertSound");
    modal.classList.add("show");
    document.body.classList.add("is-modal-open");
+   playPretestWelcomeAlertAudio(sound, message);
   window.setTimeout(() => {
     try {
       okBtn?.focus?.({ preventScroll: true });
@@ -1015,6 +1031,7 @@ let popupOnClose = null;
 
    if (sound && typeof sound.pause === "function") {
      sound.pause();
+     sound.currentTime = 0;
    }
  }
 
