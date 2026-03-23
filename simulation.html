@@ -1003,6 +1003,7 @@
     const SIMULATION_LAUNCH_URL = "index.html";
     const SIMULATION_DEMO_REMINDER_ALERT_MESSAGE = "I hope you’ve completed the demo.";
     const SIMULATION_DEMO_REQUIRED_ALERT_MESSAGE = "To proceed further, please complete the demo first.";
+    const SIMULATION_LINK_REMINDER_AUDIO_SRC = "./audio/experimentopen.wav";
     const SIMULATION_ALERT_AUDIO_SOURCES = {
       [SIMULATION_TABS_ALERT_MESSAGE]: "./audio/simulationsection.wav",
       [SIMULATION_DEMO_REMINDER_ALERT_MESSAGE]: "./audio/experimentopen.wav",
@@ -1029,9 +1030,9 @@
       document.addEventListener('keydown', resume, { once: true });
     }
 
-    function playSimulationAlertAudio(soundEl, message) {
+    function playSimulationAlertAudio(soundEl, message, explicitAudioSrc = "") {
       if (!soundEl || typeof soundEl.play !== 'function') return;
-      const audioSrc = SIMULATION_ALERT_AUDIO_SOURCES[String(message || '')];
+      const audioSrc = explicitAudioSrc || SIMULATION_ALERT_AUDIO_SOURCES[String(message || '')];
       if (!audioSrc) return;
       if (soundEl.getAttribute('src') !== audioSrc) {
         soundEl.setAttribute('src', audioSrc);
@@ -1118,7 +1119,7 @@
       modal.classList.add('show');
       document.body.classList.add('is-modal-open');
 
-      playSimulationAlertAudio(sound, message);
+      playSimulationAlertAudio(sound, message, String(opts.audioSrc || ""));
     }
 
     function closePopup(action = 'close') {
@@ -1252,7 +1253,12 @@
           (event) => {
             event.preventDefault();
             event.stopPropagation();
-            window.location.assign(launchUrl);
+            showPopup(SIMULATION_DEMO_REMINDER_ALERT_MESSAGE, 'Reminder', {
+              mode: 'confirm',
+              center: true,
+              audioSrc: SIMULATION_LINK_REMINDER_AUDIO_SRC,
+              onYes: () => window.location.assign(launchUrl)
+            });
           },
           { capture: true }
         );
