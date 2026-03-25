@@ -44,6 +44,9 @@ window.showPopup = function (message, title = "Alert", type = "normal") {
 };
 
 const COMPONENTS_SKIP_ALERT_AUDIO_SRC = "audio/components_window_intro.wav";
+const COMPONENTS_SKIP_READY_ALERT_TITLE = "Ready to Start";
+const COMPONENTS_SKIP_READY_ALERT_MESSAGE =
+  "Now that you are familiar with all the components used in this experiment, you may now start the simulation. An AI guide is available to assist you at every step";
 const componentsSkipAlertAudio = new Audio(COMPONENTS_SKIP_ALERT_AUDIO_SRC);
 componentsSkipAlertAudio.preload = "auto";
 
@@ -3230,19 +3233,17 @@ speakCurrentStep();
 
   /* ---------- EVENTS ---------- */
   closeEls.forEach(el => el.addEventListener("click", () => close()));
-  skipBtn && skipBtn.addEventListener("click", () => close({ skip: true }));
-// ✅ SHOW ALERT WHEN SKIP IS CLICKED
-if (skipBtn) {
-  skipBtn.addEventListener("click", function () {
-    showPopup(
-      "Now that you are familiar with all the components used in this experiment, you may now start the simulation. An AI guide is available to assist you at every step",
-      "Ready to Start",
-      "normal"
-    );
-    playComponentsSkipAlertAudio();
-
-  });
-}
+  if (skipBtn) {
+    skipBtn.addEventListener("click", () => {
+      close({ skip: true });
+      showPopup(
+        COMPONENTS_SKIP_READY_ALERT_MESSAGE,
+        COMPONENTS_SKIP_READY_ALERT_TITLE,
+        "normal"
+      );
+      playComponentsSkipAlertAudio();
+    });
+  }
   openBtns.forEach(btn =>
     btn.addEventListener("click", e => {
       e.preventDefault();
@@ -3442,3 +3443,4 @@ if (skipBtn) {
     setup();
   }
 })();
+

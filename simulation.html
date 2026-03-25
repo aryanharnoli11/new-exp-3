@@ -1246,8 +1246,17 @@
 
       const launchUrl = resolveSimulationLaunchUrl();
 
+      function openSimulationInNewTab(url) {
+        const newTab = window.open(url, '_blank', 'noopener,noreferrer');
+        if (newTab && typeof newTab.focus === 'function') {
+          newTab.focus();
+        }
+      }
+
       launchLinks.forEach((link) => {
         link.setAttribute('href', launchUrl);
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
         link.addEventListener(
           'click',
           (event) => {
@@ -1257,7 +1266,7 @@
               mode: 'confirm',
               center: true,
               audioSrc: SIMULATION_LINK_REMINDER_AUDIO_SRC,
-              onYes: () => window.location.assign(launchUrl)
+              onYes: () => openSimulationInNewTab(launchUrl)
             });
           },
           { capture: true }
