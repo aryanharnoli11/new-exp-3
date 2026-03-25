@@ -43,12 +43,33 @@ window.showPopup = function (message, title = "Alert", type = "normal") {
   modal.classList.add("show");
 };
 
+const COMPONENTS_SKIP_ALERT_AUDIO_SRC = "audio/components_window_intro.wav";
+const componentsSkipAlertAudio = new Audio(COMPONENTS_SKIP_ALERT_AUDIO_SRC);
+componentsSkipAlertAudio.preload = "auto";
+
+function playComponentsSkipAlertAudio() {
+  if (!componentsSkipAlertAudio) return;
+  try {
+    componentsSkipAlertAudio.pause();
+    componentsSkipAlertAudio.currentTime = 0;
+    componentsSkipAlertAudio.play().catch(() => {});
+  } catch {}
+}
+
+function stopComponentsSkipAlertAudio() {
+  if (!componentsSkipAlertAudio) return;
+  try {
+    componentsSkipAlertAudio.pause();
+    componentsSkipAlertAudio.currentTime = 0;
+  } catch {}
+}
 window.closeModal = function () {
   const modal = document.getElementById("warningModal");
   const modalBox = document.getElementById("modalBox");
 
   if (!modal || !modalBox) return;
 
+  stopComponentsSkipAlertAudio();
   modalBox.classList.add("closing");
 
   setTimeout(() => {
@@ -60,6 +81,7 @@ window.closeModal = function () {
 document.addEventListener("DOMContentLoaded", function () {
   const okBtn = document.getElementById("modalOkBtn");
   if (okBtn) {
+    okBtn.addEventListener("click", stopComponentsSkipAlertAudio);
     okBtn.addEventListener("click", window.closeModal);
   }
 });
@@ -152,6 +174,7 @@ function closeModal() {
 
   if (!modal || !modalBox) return;
 
+  stopComponentsSkipAlertAudio();
   modalBox.classList.add("closing");
 
   setTimeout(() => {
@@ -3211,16 +3234,12 @@ speakCurrentStep();
 // ✅ SHOW ALERT WHEN SKIP IS CLICKED
 if (skipBtn) {
   skipBtn.addEventListener("click", function () {
-
-    close({ skip: true });
-
-    setTimeout(() => {
-      showPopup(
-        "Now that you are familiar with all the components used in this experiment, you may now start the simulation. An AI guide is available to assist you at every step",
-        "Ready to Start",
-        "normal"
-      );
-    }, 200);
+    showPopup(
+      "Now that you are familiar with all the components used in this experiment, you may now start the simulation. An AI guide is available to assist you at every step",
+      "Ready to Start",
+      "normal"
+    );
+    playComponentsSkipAlertAudio();
 
   });
 }
