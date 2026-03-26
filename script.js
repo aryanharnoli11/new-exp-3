@@ -47,8 +47,40 @@ const COMPONENTS_SKIP_ALERT_AUDIO_SRC = "audio/components_window_intro.wav";
 const COMPONENTS_SKIP_READY_ALERT_TITLE = "Ready to Start";
 const COMPONENTS_SKIP_READY_ALERT_MESSAGE =
   "Now that you are familiar with all the components used in this experiment, you may now start the simulation. An AI guide is available to assist you at every step";
+const AI_GUIDE_HIGHLIGHT_STYLE_ID = "ai-guide-highlight-style";
 const componentsSkipAlertAudio = new Audio(COMPONENTS_SKIP_ALERT_AUDIO_SRC);
 componentsSkipAlertAudio.preload = "auto";
+
+function ensureAIGuideHighlightStyle() {
+  if (document.getElementById(AI_GUIDE_HIGHLIGHT_STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = AI_GUIDE_HIGHLIGHT_STYLE_ID;
+  style.textContent = `
+    @keyframes aiGuideHighlightPulse {
+      0%, 100% { transform: translateY(0); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.45); }
+      50% { transform: translateY(-2px); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    }
+    .speak-btn.ai-guide-highlight {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), 0 12px 26px rgba(245, 158, 11, 0.32);
+      animation: aiGuideHighlightPulse 1.2s ease-in-out infinite;
+    }
+  `;
+  (document.head || document.documentElement).appendChild(style);
+}
+
+function startAIGuideButtonHighlight() {
+  const speakBtn = document.querySelector(".speak-btn");
+  if (!speakBtn) return;
+  ensureAIGuideHighlightStyle();
+  speakBtn.classList.add("ai-guide-highlight");
+}
+
+function stopAIGuideButtonHighlight() {
+  const speakBtn = document.querySelector(".speak-btn");
+  if (!speakBtn) return;
+  speakBtn.classList.remove("ai-guide-highlight");
+}
 
 function playComponentsSkipAlertAudio() {
   if (!componentsSkipAlertAudio) return;
@@ -3007,6 +3039,7 @@ function getFirstIncompleteStepIndex() {
 
 function activateGuideUI() {
   guideActive = true;
+  stopAIGuideButtonHighlight();
   speakBtn.classList.add("guiding");
   speakBtn.setAttribute("aria-pressed", "true");
   speakBtn.querySelector(".speak-btn__label").textContent = "Guiding...";
@@ -3242,6 +3275,7 @@ speakCurrentStep();
         "normal"
       );
       playComponentsSkipAlertAudio();
+      startAIGuideButtonHighlight();
     });
   }
   openBtns.forEach(btn =>
