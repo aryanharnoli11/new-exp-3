@@ -17,6 +17,8 @@
   const USER_FORM_PROMPT_AUDIO_SRC = "./audio/userinput.wav";
   const PROGRESS_REPORT_ACCESS_ALERT_MESSAGE =
     "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
+  const PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE =
+    "Please generate the simulation report by performing the experiment.";
   const PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC = "./audio/progressreportalert.wav";
   let userFormPromptAudioEl = null;
   let progressReportAccessAlertAudioEl = null;
@@ -30,6 +32,25 @@
     const hasSimulationReport =
       typeof api.hasSimulationReport === "function" ? !!api.hasSimulationReport() : false;
     return hasUser && hasSimulationReport;
+  }
+
+  function getProgressReportRequirements() {
+    const api = VP();
+    const hasUser = typeof api.hasUser === "function" ? !!api.hasUser() : false;
+    const hasSimulationReport =
+      typeof api.hasSimulationReport === "function" ? !!api.hasSimulationReport() : false;
+    return { needsUser: !hasUser, needsSim: !hasSimulationReport };
+  }
+
+  function getProgressReportAccessAlertMessage(needsUser, needsSim) {
+    if (needsUser) return PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
+    if (needsSim) return PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE;
+    return PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
+  }
+
+  function isUserInputMissingForProgressReport() {
+    const api = VP();
+    return !(typeof api.hasUser === "function" ? !!api.hasUser() : false);
   }
 
   function isProgressReportLink(href) {
@@ -248,6 +269,7 @@
     } catch {
       progressSection.scrollIntoView();
     }
+    setActiveMenu();
     return true;
   }
 
@@ -549,13 +571,12 @@
     const progressReportLinks = Array.from(document.querySelectorAll('[data-progress-report-link]'));
 
     function disableProgressReportUI() {
+      const { needsUser, needsSim } = getProgressReportRequirements();
+      const titleMessage = getProgressReportAccessAlertMessage(needsUser, needsSim);
       progressReportLinks.forEach((link) => {
         link.classList.add('opacity-50', 'cursor-not-allowed');
         link.setAttribute('aria-disabled', 'true');
-        link.setAttribute(
-          'title',
-          'Complete the user form and generate the simulation report to enable Progress Report'
-        );
+        link.setAttribute('title', titleMessage);
         // Fallback if Tailwind classes are unavailable (offline).
         link.style.opacity = '0.55';
         link.style.cursor = 'not-allowed';
@@ -579,10 +600,28 @@
         disableProgressReportUI();
       }
     }
+
+    function refreshProgressReportState() {
+      syncProgressReportUI();
+      setActiveMenu();
+      if (window.location.hash === '#progressreport' && canAccessProgressReport()) {
+        showEmbeddedProgressSection();
+      }
+    }
     syncProgressReportUI();
 
     const handleProgressLinkClick = (event) => {
       const embedded = shouldEmbedProgress();
+      if (isUserInputMissingForProgressReport()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const { needsUser, needsSim } = getProgressReportRequirements();
+        showAimAlert(
+          getProgressReportAccessAlertMessage(needsUser, needsSim),
+          'Instructions'
+        );
+        return;
+      }
       if (canAccessProgressReport()) {
         syncProgressReportUI();
         if (embedded) {
@@ -595,9 +634,10 @@
       }
       event.preventDefault();
       event.stopImmediatePropagation();
+      const { needsUser, needsSim } = getProgressReportRequirements();
 
       showAimAlert(
-        PROGRESS_REPORT_ACCESS_ALERT_MESSAGE,
+        getProgressReportAccessAlertMessage(needsUser, needsSim),
         'Instructions'
       );
     };
@@ -631,11 +671,23 @@
         target.hasAttribute('data-progress-report-link') || isProgressReportLink(href);
       if (!isProgressLink) return;
 
+      if (isUserInputMissingForProgressReport()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const { needsUser, needsSim } = getProgressReportRequirements();
+        showAimAlert(
+          getProgressReportAccessAlertMessage(needsUser, needsSim),
+          'Instructions'
+        );
+        return;
+      }
+
       if (!canAccessProgressReport()) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        const { needsUser, needsSim } = getProgressReportRequirements();
         showAimAlert(
-          PROGRESS_REPORT_ACCESS_ALERT_MESSAGE,
+          getProgressReportAccessAlertMessage(needsUser, needsSim),
           'Instructions'
         );
         return;
@@ -660,10 +712,12 @@
     if (shouldEmbedProgress()) {
       if (window.location.hash === '#progressreport') {
         if (canAccessProgressReport()) {
+          syncProgressReportUI();
           showEmbeddedProgressSection();
         } else {
+          const { needsUser, needsSim } = getProgressReportRequirements();
           showAimAlert(
-            PROGRESS_REPORT_ACCESS_ALERT_MESSAGE,
+            getProgressReportAccessAlertMessage(needsUser, needsSim),
             'Instructions'
           );
         }
@@ -672,10 +726,12 @@
       window.addEventListener('hashchange', () => {
         if (window.location.hash === '#progressreport') {
           if (canAccessProgressReport()) {
+            syncProgressReportUI();
             showEmbeddedProgressSection();
           } else {
+            const { needsUser, needsSim } = getProgressReportRequirements();
             showAimAlert(
-              PROGRESS_REPORT_ACCESS_ALERT_MESSAGE,
+              getProgressReportAccessAlertMessage(needsUser, needsSim),
               'Instructions'
             );
           }
@@ -683,11 +739,23 @@
       });
     }
 
+    window.addEventListener('focus', refreshProgressReportState);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      refreshProgressReportState();
+    });
+    window.addEventListener('storage', (event) => {
+      const key = String(event?.key || '');
+      if (!key || !key.includes('vlab_exp2')) return;
+      refreshProgressReportState();
+    });
+
     if (isAimPage) {
       window.addEventListener('hashchange', setActiveMenu);
       if (window.location.hash === '#progressreport' && !canAccessProgressReport()) {
+        const { needsUser, needsSim } = getProgressReportRequirements();
         showAimAlert(
-          PROGRESS_REPORT_ACCESS_ALERT_MESSAGE,
+          getProgressReportAccessAlertMessage(needsUser, needsSim),
           'Instructions'
         );
       }
@@ -767,7 +835,11 @@
         const returnUrl = typeof data.returnUrl === 'string' ? data.returnUrl : '';
         if (returnUrl) {
           if (isProgressReportLink(returnUrl) && !canAccessProgressReport()) {
-            showAimAlert(PROGRESS_REPORT_ACCESS_ALERT_MESSAGE, 'Instructions');
+            const { needsUser, needsSim } = getProgressReportRequirements();
+            showAimAlert(
+              getProgressReportAccessAlertMessage(needsUser, needsSim),
+              'Instructions'
+            );
             return;
           }
           window.location.href = returnUrl;

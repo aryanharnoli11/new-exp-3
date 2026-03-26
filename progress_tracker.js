@@ -286,16 +286,43 @@
     return !!(state.user && state.user.name && state.user.email && state.user.designation);
   }
 
+  function toEpochMs(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+    const d = new Date(value);
+    const ms = d.getTime();
+    return Number.isFinite(ms) ? ms : null;
+  }
+
+  function isReportAfterUserSubmission(updatedAt, submittedAt) {
+    const submittedMs = toEpochMs(submittedAt);
+    if (!Number.isFinite(submittedMs)) return true;
+    const updatedMs = toEpochMs(updatedAt);
+    if (!Number.isFinite(updatedMs)) return false;
+    return updatedMs >= submittedMs;
+  }
+
   function hasSimulationReport() {
+    const state = loadState();
+    const submittedAt = state?.user?.submittedAt || null;
+
     try {
       const activeHash = localStorage.getItem("vlab_exp2_active_user_hash");
-      const keys = [];
-      if (activeHash) keys.push(`vlab_exp2_user_${activeHash}_simulation_report_html`);
-      keys.push("vlab_exp2_simulation_report_html");
-
-      for (const key of keys) {
+      if (activeHash) {
+        const key = `vlab_exp2_user_${activeHash}_simulation_report_html`;
         const html = localStorage.getItem(key);
-        if (html && String(html).trim()) return true;
+        if (html && String(html).trim()) {
+          const updatedAt = localStorage.getItem(`vlab_exp2_user_${activeHash}_simulation_report_updated_at`);
+          return isReportAfterUserSubmission(updatedAt, submittedAt);
+        }
+        return false;
+      }
+
+      const html = localStorage.getItem("vlab_exp2_simulation_report_html");
+      if (html && String(html).trim()) {
+        const updatedAt = localStorage.getItem("vlab_exp2_simulation_report_updated_at");
+        return isReportAfterUserSubmission(updatedAt, submittedAt);
       }
     } catch {
       // ignore storage failures
@@ -306,7 +333,10 @@
       if (typeof window.name === "string" && window.name.startsWith(PREFIX)) {
         const data = JSON.parse(window.name.slice(PREFIX.length)) || {};
         const html = (data.vlab_exp2_simulation_report_html || "").toString();
-        if (html.trim()) return true;
+        if (html.trim()) {
+          const updatedAt = data.vlab_exp2_simulation_report_updated_at || null;
+          return isReportAfterUserSubmission(updatedAt, submittedAt);
+        }
       }
     } catch {
       // ignore parse failures

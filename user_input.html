@@ -74,6 +74,8 @@
   <script>
     const EMAIL_ERROR_MESSAGE =
       "Please enter a valid email (examples: name@example.com, name@gmail.com, name@yahoo.com).";
+    const PROGRESS_REPORT_ACCESS_ALERT_MESSAGE =
+      "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
 
     const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
@@ -120,6 +122,16 @@
     function getReturnUrl() {
       const u = new URL(window.location.href);
       return u.searchParams.get("return") || "aim.html";
+    }
+
+    function isProgressReportReturnUrl(value) {
+      const safe = String(value || "").trim().toLowerCase();
+      if (!safe) return false;
+      return (
+        safe.includes("progressreport") ||
+        safe === "#progressreport" ||
+        safe.endsWith("#progressreport")
+      );
     }
 
     function showError(msg) {
@@ -330,10 +342,12 @@
       clearDraft();
       updateProfilePreview(name, designation);
 
-      // Inform the user they can proceed to generate the progress report.
-      alert("Now you can generate the progress report");
-
       const returnUrl = getReturnUrl();
+      const hasSimulationReport =
+        typeof VLProgress.hasSimulationReport === "function"
+          ? !!VLProgress.hasSimulationReport()
+          : false;
+      const progressReturnBlocked = isProgressReportReturnUrl(returnUrl) && !hasSimulationReport;
 
       // notify parent if inside iframe modal
       let handled = false;
@@ -345,6 +359,11 @@
       }
 
       if (!handled) {
+        if (progressReturnBlocked) {
+          alert(PROGRESS_REPORT_ACCESS_ALERT_MESSAGE);
+          window.location.href = "aim.html";
+          return;
+        }
         window.location.href = returnUrl;
       }
     });

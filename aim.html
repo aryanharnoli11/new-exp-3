@@ -6,7 +6,7 @@
   <title>Virtual Labs | Electrical Machines Lab - Aim</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="./a lert-theme.css">
+  <link rel="stylesheet" href="./alert-theme.css">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -1436,7 +1436,8 @@
 
     <!-- Chatbot (kept inside page-wrapper so it blurs/locks when intro modal is open) -->
     <div class="chatbot-widget">
-      <div class="chatbot-panel" data-chat-url="https://vlab-exp-2.netlify.app/">
+      <div class="chatbot-panel" data-chat-url="https://exp-3-electrical-machine-lab.netlify.app/
+      ">
         <div class="chatbot-panel-header">
           <div>
             <p class="chatbot-panel-title">Virtual Lab Assistant</p>
@@ -1669,18 +1670,57 @@
   <script>
     const DEFAULT_CUE_LEAD = 0.65; // seconds before narration to reveal text
     const introCues = [
-      { start: 0, end: 18, text: "Welcome to the experiment “To study the speed control of a DC motor by field resistance control method.” In this experiment, you will learn how to control the speed of a DC Shunt Motor using the field resistance control method and plot a graph between the field current and motor speed by varying the field resistance" },
-      { start: 19, end: 42, text: "To guide you throughout the learning process, this experiment is organized into several key sections. We begin with the Aim, which clearly states what you will learn and why the experiment is important. This is followed by the Theory section, where you will find all the essential concepts and foundational knowledge required to understand the working and behavior of a DC shunt generator." },
-      { start: 43, end: 62, text: "Before you proceed to the simulation, the Pretest section helps you evaluate your basic understanding of the topic. Here, you will receive five questions at a time. Each time you click on the Refresh button, a new set of questions will be generated. All your attempted questions will be recorded and reflected in your Progress Report." },
-      { start: 63, end: 87, text: "Next, you can move on to the Procedure section, which outlines the step-by-step instructions required to perform the experiment correctly. The most important part of the experiment is the Simulation section, where you will first see a Demo tab to understand the basic procedure, followed by the actual Simulation tab, where you can use the virtual setup to perform the experiment yourself." },
-      { start: 88, end: 107, text: "After completing the simulation, the Posttest section helps you evaluate your understanding of the experiment. Similar to the Pretest, you will receive five questions at a time, and each time you click on the Refresh button, a new set of questions will be generated. All your attempted questions will be recorded again in your Progress Report." },
-      { start: 108, end: 117, text: "Finally, the References and Contributors sections provide the supporting resources and acknowledge the team involved in the development of this experiment." },
-      { start: 118, end: 134, text: "A Progress Report is also available for you, where you can track your real-time progress throughout the experiment. To access this feature, please enter your details such as name, email ID, and designation in the User Input tab. All your activities across the experiments will be recorded in one place." },
-      { start: 135, end: 154, text: "This report allows you to monitor your learning journey in detail, including your pre-test and post-test performance, such as the number of questions attempted and marks obtained. It also records the total time taken to complete the experiment and provides a detailed simulation summary of your activity." },
-      { start: 155, end: 167, text: "In addition, the Progress Report displays your basic information along with the report date, completing the Progress Report as a comprehensive and personalized record of your experiment." },
-      { start: 168, end: 174, text: "Together, these sections ensure a smooth, structured, and engaging learning experience from start to finish." },
- 
-    ];
+  { 
+    start: 0, 
+    end: 21, 
+    text: "Welcome to the experiment “To study the speed control of a DC motor by field resistance control method.” In this experiment, you will learn how to control the speed of a DC Shunt Motor using the field resistance control method and plot a graph between the field current and motor speed by varying the field resistance." 
+  },
+  { 
+    start: 22, 
+    end: 35, 
+    text: "To guide you throughout the learning process, this experiment is organized into several key sections. We begin with the Aim, which clearly states the objective of studying the speed control of a DC motor using the field resistance control method." 
+  },
+  { 
+    start: 36, 
+    end: 48, 
+    text: "This is followed by the Theory section, where you will learn the fundamental concepts required to understand DC motor operation, speed control techniques, and the effect of field resistance on speed, torque, and overall performance." 
+  },
+  { 
+    start: 49, 
+    end: 110, 
+    text: "Before proceeding to the simulation, the Pretest section allows you to evaluate your basic understanding of DC motors and speed control methods. In this section, you will receive five questions at a time. Each time you click the Refresh button, a new set of questions will be generated. All attempted questions will be recorded and reflected in your Progress Report." 
+  },
+  { 
+    start: 111, 
+    end: 139, 
+    text: "Next, you can move to the Procedure section, which provides step-by-step instructions for conducting the experiment correctly in a virtual environment. The most important part of the experiment is the Simulation section. Here, you will first explore the Demo tab to understand the experimental setup and procedure. After that, you can proceed to the Simulation tab, where you will vary the field resistance, observe the corresponding change in motor speed, and analyze the performance characteristics." 
+  },
+  { 
+    start: 140, 
+    end: 200, 
+    text: "Once the simulation is completed, the Posttest section helps you assess your understanding of the experiment. Similar to the Pretest, five questions will be provided at a time, and clicking the Refresh button will generate a new set. Your performance will again be recorded in the Progress Report." 
+  },
+  { 
+    start: 201, 
+    end: 210, 
+    text: "Finally, the References and Contributors sections provide supporting learning resources and acknowledge the team involved in the development of this experiment." 
+  },
+  { 
+    start: 211, 
+    end: 229, 
+    text: "A dedicated Progress Report feature is also available, allowing you to track your real-time performance. To access it, you must enter your details such as name, email ID, and designation in the User Input tab. The system records your activities across all sections of the experiment in one consolidated report." 
+  },
+  { 
+    start: 230, 
+    end: 253, 
+    text: "This report provides a detailed overview of your learning journey, including pretest and posttest performance such as the number of questions attempted and marks obtained, total time spent on the experiment, and a complete simulation activity summary.It also includes your basic information along with the report generation date, making it a comprehensive and personalized academic record." 
+  },
+  { 
+    start: 254, 
+    end: 305, 
+    text: "Together, these sections ensure a smooth, structured, and engaging learning experience, helping you clearly understand how the speed of a DC motor can be controlled using the field resistance method." 
+  }
+];
 
     const INTRO_STORAGE_KEY = 'dcShuntIntroShown:aim';
     const INTRO_STORAGE_VERSION = '1';
@@ -2622,6 +2662,8 @@
   const AIM_USER_FORM_PROMPT_AUDIO_SRC = "./audio/userinput.wav";
   const AIM_PROGRESS_REPORT_ACCESS_ALERT_MESSAGE =
     "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
+  const AIM_PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE =
+    "Please generate the simulation report by performing the experiment.";
   const AIM_PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC = "./audio/progressreportalert.wav";
   let aimUserFormPromptAudioEl = null;
   let aimProgressReportAccessAlertAudioEl = null;
@@ -2657,6 +2699,12 @@
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {});
     }
+  }
+
+  function getAimProgressReportAccessAlertMessage(needsUser, needsSim) {
+    if (needsUser) return AIM_PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
+    if (needsSim) return AIM_PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE;
+    return AIM_PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
   }
 
   function stopAimProgressReportAccessAlertAudio() {
@@ -2931,33 +2979,20 @@
   });
 
   function hasSimulationReport() {
-    try {
-      const activeHash = localStorage.getItem("vlab_exp2_active_user_hash") || "";
-      const keys = [];
-      if (activeHash) keys.push(`vlab_exp2_user_${activeHash}_simulation_report_html`);
-      keys.push("vlab_exp2_simulation_report_html");
-      for (const k of keys) {
-        const html = localStorage.getItem(k);
-        if (html && String(html).trim()) return true;
-      }
-    } catch {}
-
-    try {
-      const PREFIX = "VLAB_EXP2::";
-      if (typeof window.name === "string" && window.name.startsWith(PREFIX)) {
-        const data = JSON.parse(window.name.slice(PREFIX.length)) || {};
-        const html = (data["vlab_exp2_simulation_report_html"] || "").toString();
-        if (html.trim()) return true;
-      }
-    } catch {}
+    if (typeof VLProgress?.hasSimulationReport === "function") {
+      return !!VLProgress.hasSimulationReport();
+    }
     return false;
   }
 
   function disableProgressReportUI() {
+    const needUser = !VLProgress.hasUser();
+    const needSim = !hasSimulationReport();
+    const titleMessage = getAimProgressReportAccessAlertMessage(needUser, needSim);
     progressReportLinks.forEach((link) => {
       link.classList.add("opacity-50", "cursor-not-allowed");
       link.setAttribute("aria-disabled", "true");
-      link.setAttribute("title", "Fill the user form and complete the simulation to enable Progress Report");
+      link.setAttribute("title", titleMessage);
       // Fallback if Tailwind classes are unavailable (offline).
       link.style.opacity = "0.55";
       link.style.cursor = "not-allowed";
@@ -3000,15 +3035,19 @@
     link.addEventListener("click", function (e) {
       const needUser = !VLProgress.hasUser();
       const needSim = !hasSimulationReport();
-      if (!needUser && !needSim) {
-        enableProgressReportUI();
+      if (needUser) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        showAimAlert(getAimProgressReportAccessAlertMessage(needUser, needSim), "Instructions");
         return;
       }
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      const msg = AIM_PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
-      showAimAlert(msg, "Instructions");
+      if (needSim) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        showAimAlert(getAimProgressReportAccessAlertMessage(needUser, needSim), "Instructions");
+        return;
+      }
+      enableProgressReportUI();
     }, true);
   });
 
@@ -3023,16 +3062,19 @@
       href === "#progressreport" ||
       href.endsWith("#progressreport");
     if (!isProgressLink) return;
-    if (VLProgress.hasUser() && hasSimulationReport()) return;
+    const needUser = !VLProgress.hasUser();
+    const needSim = !hasSimulationReport();
+    if (!needUser && !needSim) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    const msg = AIM_PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
-    showAimAlert(msg, "Instructions");
+    showAimAlert(getAimProgressReportAccessAlertMessage(needUser, needSim), "Instructions");
   }, true);
 
   // If user loads aim.html#progressreport directly without user form
   if (window.location.hash === "#progressreport" && (!VLProgress.hasUser() || !hasSimulationReport())) {
-    const msg = AIM_PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
+    const needUser = !VLProgress.hasUser();
+    const needSim = !hasSimulationReport();
+    const msg = getAimProgressReportAccessAlertMessage(needUser, needSim);
     showAimAlert(msg, "Instructions");
   }
 

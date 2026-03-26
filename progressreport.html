@@ -561,8 +561,8 @@
       setReportContainerVisible(false);
       setReportLockedVisible(true);
       showReportAlert(
-        "You have to first fill the user details then you can generate the report.",
-        "Notice"
+        "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.",
+        "Instructions"
       );
       return;
     }
@@ -695,17 +695,44 @@
       return `${minutes} min ${seconds} sec`;
     }
 
+    function toEpochMs(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const n = Number(value);
+      if (Number.isFinite(n)) return n;
+      const d = new Date(value);
+      const ms = d.getTime();
+      return Number.isFinite(ms) ? ms : null;
+    }
+
+    function isReportAfterUserSubmission(updatedAt) {
+      const submittedAt = VLProgress.getState()?.user?.submittedAt || null;
+      const submittedMs = toEpochMs(submittedAt);
+      if (!Number.isFinite(submittedMs)) return true;
+      const updatedMs = toEpochMs(updatedAt);
+      if (!Number.isFinite(updatedMs)) return false;
+      return updatedMs >= submittedMs;
+    }
+
     function getSimulationReportData() {
       try {
         const activeHash = localStorage.getItem("vlab_exp2_active_user_hash");
-        const keys = [];
-        if (activeHash) keys.push(`vlab_exp2_user_${activeHash}_simulation_report_html`);
-        keys.push("vlab_exp2_simulation_report_html");
-
-        for (const key of keys) {
+        if (activeHash) {
+          const key = `vlab_exp2_user_${activeHash}_simulation_report_html`;
           const html = localStorage.getItem(key);
           if (html && html.trim()) {
             const updatedAt = localStorage.getItem(key.replace("_html", "_updated_at"));
+            if (isReportAfterUserSubmission(updatedAt)) {
+              return { html, updatedAt };
+            }
+          }
+          return null;
+        }
+
+        const key = "vlab_exp2_simulation_report_html";
+        const html = localStorage.getItem(key);
+        if (html && html.trim()) {
+          const updatedAt = localStorage.getItem(key.replace("_html", "_updated_at"));
+          if (isReportAfterUserSubmission(updatedAt)) {
             return { html, updatedAt };
           }
         }
@@ -717,7 +744,10 @@
           const data = JSON.parse(window.name.slice(PREFIX.length)) || {};
           const html = (data["vlab_exp2_simulation_report_html"] || "").toString();
           if (html && html.trim()) {
-            return { html, updatedAt: data["vlab_exp2_simulation_report_updated_at"] || null };
+            const updatedAt = data["vlab_exp2_simulation_report_updated_at"] || null;
+            if (isReportAfterUserSubmission(updatedAt)) {
+              return { html, updatedAt };
+            }
           }
         }
       } catch {}

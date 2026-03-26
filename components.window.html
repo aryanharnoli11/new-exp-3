@@ -38,6 +38,7 @@
         .component-sidebar {
             width: 260px;
             min-width: 200px;
+            height: calc(100vh - 40px);
             background: linear-gradient(145deg, #f4efe6, #e1d6c6);
             border: 1px solid #c7bfb3;
             border-radius: 12px;
@@ -83,6 +84,8 @@
             gap: 10px;
             overflow-y: auto;
             padding-right: 6px;
+            flex: 1;
+            min-height: 0;
         }
         .thumb-item {
             display: flex;
@@ -385,6 +388,7 @@
             }
             .component-sidebar {
                 width: 100%;
+                height: min(56vh, 460px);
             }
             .component-card {
                 flex-direction: column;
@@ -418,6 +422,7 @@
             width: 220px;
             min-width: 180px;
             padding: 12px;
+            height: 100%;
         }
         body.embed .component-thumbs {
             flex: 1;
@@ -486,6 +491,7 @@
             }
             body.embed .component-sidebar {
                 width: 100%;
+                height: min(56vh, 460px);
             }
             body.embed .component-card {
                 flex-direction: column;
@@ -677,9 +683,13 @@
             indexEl.textContent = `${currentIndex + 1} / ${components.length}`;
 
             const items = thumbsEl.querySelectorAll(".thumb-item");
+            let activeItem = null;
             items.forEach((item, index) => {
-                item.classList.toggle("is-active", index === currentIndex);
+                const isActive = index === currentIndex;
+                item.classList.toggle("is-active", isActive);
+                if (isActive) activeItem = item;
             });
+            activeItem?.scrollIntoView({ block: "nearest" });
         }
 
         function setAudioStatus(message) {
