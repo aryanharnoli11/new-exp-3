@@ -438,8 +438,8 @@
         0 12px 28px rgba(2, 12, 32, 0.32),
         0 0 18px rgba(14, 165, 233, 0.18);
       overflow: hidden;
-      min-height: 160px;
-      max-height: min(32vh, 280px);
+      min-height: 280px;
+      max-height: min(46vh, 430px);
       height: 100%;
       aspect-ratio: auto;
       display: flex;
@@ -466,8 +466,9 @@
     #intro-video {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      background: #0b1224;
+      object-fit: cover;
+      object-position: center center;
+      background: #000000;
       image-rendering: auto;
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
@@ -1062,7 +1063,7 @@
 
     #intro-right {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-rows: auto minmax(280px, 1fr);
       gap: 1.2rem;
       width: 100%;
       min-height: 0;
@@ -1579,7 +1580,7 @@
       </div>
 
       <!-- Audio (UPDATED: removed autoplay attribute; controlled by JS) -->
-      <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
+      <audio id="intro-audio" src="./audio/intro_audio.wav" preload="auto"></audio>
 
     </div>
   </div>
@@ -1746,6 +1747,12 @@
     const skipBtn = document.getElementById('intro-skip');
 
     const VIDEO_SHOW_TIME = 0;
+    const INTRO_MEDIA_READY_TIMEOUT_MS = 3500;
+    const INTRO_SYNC_LOOP_INTERVAL_MS = 160;
+    const INTRO_AV_DURATION_MISMATCH_THRESHOLD = 1.5;
+    const INTRO_AV_HARD_SYNC_DRIFT_SEC = 0.32;
+    const INTRO_AV_MIN_HARD_SYNC_GAP_MS = 450;
+    const INTRO_AV_OFFSET_SEC = 0;
 
     let cuesInitialized = false;
     let lastRenderedIndex = -1;
@@ -1754,6 +1761,8 @@
     let videoShown = false;
     let audioAutoplayQueued = false;
     let aimReadyNoticeAudioEl = null;
+    let introSyncLoopId = null;
+    let lastIntroHardSyncAt = 0;
 
     function playAimReadyNoticeAudio() {
       if (!AIM_READY_NOTICE_AUDIO_SRC) return;
@@ -1795,7 +1804,7 @@
 
       const resumeAudio = () => {
         audioAutoplayQueued = false;
-        const retry = audioEl.play();
+        const retry = startSyncedPlayback();
         if (retry && typeof retry.catch === 'function') {
           retry.catch(() => {});
         }
@@ -1805,8 +1814,79 @@
       document.addEventListener('keydown', resumeAudio, { once: true });
     }
 
-    function startAudioWithFallback() {
+    function waitForMediaReady(mediaEl, minReadyState = 1, timeoutMs = INTRO_MEDIA_READY_TIMEOUT_MS) {
+      return new Promise((resolve) => {
+        if (!mediaEl) {
+          resolve();
+          return;
+        }
+        if (mediaEl.readyState >= minReadyState) {
+          resolve();
+          return;
+        }
+
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          mediaEl.removeEventListener('loadedmetadata', onReady);
+          mediaEl.removeEventListener('loadeddata', onReady);
+          mediaEl.removeEventListener('canplay', onReady);
+          mediaEl.removeEventListener('canplaythrough', onReady);
+          clearTimeout(timerId);
+          resolve();
+        };
+        const onReady = () => {
+          if (mediaEl.readyState >= minReadyState) finish();
+        };
+        const timerId = setTimeout(finish, timeoutMs);
+
+        mediaEl.addEventListener('loadedmetadata', onReady);
+        mediaEl.addEventListener('loadeddata', onReady);
+        mediaEl.addEventListener('canplay', onReady);
+        mediaEl.addEventListener('canplaythrough', onReady);
+      });
+    }
+
+    function stopIntroSyncLoop() {
+      if (introSyncLoopId === null) return;
+      clearInterval(introSyncLoopId);
+      introSyncLoopId = null;
+    }
+
+    function startIntroSyncLoop() {
+      if (introSyncLoopId !== null) return;
+      introSyncLoopId = setInterval(() => {
+        if (!introModal || introModal.style.display === 'none') return;
+        syncVideo();
+      }, INTRO_SYNC_LOOP_INTERVAL_MS);
+    }
+
+    async function startSyncedPlayback() {
+      await Promise.all([
+        waitForMediaReady(audioEl, 2),
+        waitForMediaReady(videoEl, 2)
+      ]);
+
+      showVideo();
+      const primeAudioTime = Math.max(audioEl.currentTime || 0, 0);
+      const primeVideoTime = getVideoSyncTargetTime(primeAudioTime);
+      if (Math.abs((videoEl.currentTime || 0) - primeVideoTime) > 0.01) {
+        videoEl.currentTime = primeVideoTime;
+      }
+
       const playAttempt = audioEl.play();
+      if (playAttempt && typeof playAttempt.then === 'function') {
+        await playAttempt;
+      }
+
+      syncVideo(true);
+      startIntroSyncLoop();
+      return playAttempt;
+    }
+
+    function startAudioWithFallback() {
+      const playAttempt = startSyncedPlayback();
       if (playAttempt && typeof playAttempt.catch === 'function') {
         playAttempt.catch(() => {
           if (playBtn) playBtn.focus();
@@ -1856,6 +1936,7 @@
       lastRenderedIndex = -1;
       lastTime = 0;
       finalMessageShown = false;
+      stopIntroSyncLoop();
       outlineItems.forEach(item => item.classList.remove('active'));
 
       if (videoWrapper) videoWrapper.classList.add('hidden');
@@ -1881,6 +1962,7 @@
       lastTime = 0;
       finalMessageShown = false;
       videoShown = false;
+      stopIntroSyncLoop();
 
       audioEl.pause();
       audioEl.currentTime = 0;
@@ -1891,6 +1973,7 @@
       if (videoEl) {
         videoEl.pause();
         videoEl.currentTime = 0;
+        videoEl.load();
       }
 
       if (videoWrapper) videoWrapper.classList.remove('hidden');
@@ -1903,16 +1986,14 @@
         startAudioWithFallback();
       };
 
-      if (audioEl.readyState >= 1) handleReady();
-      else {
-        audioEl.addEventListener('loadedmetadata', function handleMeta() {
-          audioEl.removeEventListener('loadedmetadata', handleMeta);
-          handleReady();
-        });
-      }
+      Promise.all([
+        waitForMediaReady(audioEl, 1),
+        waitForMediaReady(videoEl, 1)
+      ]).then(handleReady);
     }
 
     function closeIntroModal() {
+      stopIntroSyncLoop();
       if (audioEl) {
         audioEl.pause();
         audioEl.currentTime = 0;
@@ -2001,11 +2082,66 @@
       videoShown = false;
     }
 
+    function getVideoDuration() {
+      if (!videoEl) return 0;
+      const duration = Number(videoEl.duration);
+      return Number.isFinite(duration) && duration > 0 ? duration : 0;
+    }
+
+    function getAudioDuration() {
+      if (!audioEl) return 0;
+      const duration = Number(audioEl.duration);
+      return Number.isFinite(duration) && duration > 0 ? duration : 0;
+    }
+
+    function getAudioToVideoScale() {
+      const audioDuration = getAudioDuration();
+      const videoDuration = getVideoDuration();
+      if (!audioDuration || !videoDuration) return 1;
+      if (Math.abs(audioDuration - videoDuration) <= INTRO_AV_DURATION_MISMATCH_THRESHOLD) return 1;
+      return videoDuration / audioDuration;
+    }
+
+    function audioTimeToVideoTime(audioTime) {
+      const duration = getVideoDuration();
+      const scale = getAudioToVideoScale();
+      const scaledTime = (Math.max(audioTime || 0, 0) * scale) + INTRO_AV_OFFSET_SEC;
+      if (!duration) return Math.max(scaledTime, 0);
+      const maxSeek = Math.max(duration - 0.05, 0);
+      return Math.min(Math.max(scaledTime, 0), maxSeek);
+    }
+
+    function videoTimeToAudioTime(videoTime) {
+      const scale = getAudioToVideoScale();
+      const adjustedVideoTime = Math.max((videoTime || 0) - INTRO_AV_OFFSET_SEC, 0);
+      if (!Number.isFinite(scale) || Math.abs(scale) < 0.0001) return adjustedVideoTime;
+      return adjustedVideoTime / scale;
+    }
+
+    function getVideoSyncTargetTime(audioTime) {
+      return audioTimeToVideoTime(audioTime);
+    }
+
+    function isAudioPastVideoEnd(audioTime) {
+      const duration = getVideoDuration();
+      if (!duration) return false;
+      return getVideoSyncTargetTime(audioTime || 0) >= duration - 0.05;
+    }
+
     function showVideo() {
       if (!videoWrapper || !videoEl) return;
       videoWrapper.classList.remove('hidden');
-      videoEl.currentTime = audioEl.currentTime || 0;
-      videoEl.play().catch(() => {});
+      const audioTime = audioEl.currentTime || 0;
+      videoEl.currentTime = getVideoSyncTargetTime(audioTime);
+      const baseRate = (audioEl.playbackRate || 1) * getAudioToVideoScale();
+      if (Math.abs((videoEl.playbackRate || 1) - baseRate) > 0.001) {
+        videoEl.playbackRate = baseRate;
+      }
+      if (!audioEl.paused && !isAudioPastVideoEnd(audioTime)) {
+        videoEl.play().catch(() => {});
+      } else {
+        videoEl.pause();
+      }
       videoShown = true;
     }
 
@@ -2013,14 +2149,29 @@
       if (!videoEl || !videoShown || finalMessageShown) return;
 
       const audioTime = audioEl.currentTime || 0;
-      const drift = Math.abs((videoEl.currentTime || 0) - audioTime);
+      const targetTime = getVideoSyncTargetTime(audioTime);
+      const currentVideoTime = videoEl.currentTime || 0;
+      const drift = Math.abs(targetTime - currentVideoTime);
+      const baseRate = (audioEl.playbackRate || 1) * getAudioToVideoScale();
 
-      if (!videoEl.seeking && (force || drift > 0.35)) {
-        videoEl.currentTime = audioTime;
+      const now =
+        (typeof performance !== 'undefined' && performance && typeof performance.now === 'function')
+          ? performance.now()
+          : Date.now();
+      const canHardSync = force || (drift > INTRO_AV_HARD_SYNC_DRIFT_SEC && (now - lastIntroHardSyncAt) >= INTRO_AV_MIN_HARD_SYNC_GAP_MS);
+
+      if (!videoEl.seeking && canHardSync) {
+        videoEl.currentTime = targetTime;
+        lastIntroHardSyncAt = now;
       }
 
-      if (!audioEl.paused && videoEl.paused) videoEl.play().catch(() => {});
-      else if (audioEl.paused && !videoEl.paused) videoEl.pause();
+      if (Math.abs((videoEl.playbackRate || 1) - baseRate) > 0.001) {
+        videoEl.playbackRate = baseRate;
+      }
+
+      const audioPastVideoEnd = isAudioPastVideoEnd(audioTime);
+      if (!audioEl.paused && !audioPastVideoEnd && videoEl.paused) videoEl.play().catch(() => {});
+      else if ((audioEl.paused || audioPastVideoEnd) && !videoEl.paused) videoEl.pause();
     }
 
     function handleFinalCue(targetIndex) {
@@ -2074,41 +2225,56 @@
       highlightActiveLine(targetIndex);
       updateOutline(currentTime);
       maybeShowVideo(currentTime);
-      syncVideo();
       handleFinalCue(targetIndex);
     }
 
     if (audioEl) {
       audioEl.addEventListener('timeupdate', syncNarration);
       audioEl.addEventListener('seeked', () => { syncNarration(); syncVideo(true); });
-      audioEl.addEventListener('play', () => { updateOutline(audioEl.currentTime); syncVideo(true); maybeShowVideo(audioEl.currentTime); });
-      audioEl.addEventListener('pause', () => { updateOutline(audioEl.currentTime); syncVideo(); });
-      audioEl.addEventListener('ended', () => { closeIntroModal(); });
+      audioEl.addEventListener('play', () => {
+        updateOutline(audioEl.currentTime);
+        syncVideo(true);
+        maybeShowVideo(audioEl.currentTime);
+        startIntroSyncLoop();
+      });
+      audioEl.addEventListener('pause', () => {
+        updateOutline(audioEl.currentTime);
+        syncVideo();
+        stopIntroSyncLoop();
+      });
+      audioEl.addEventListener('ended', () => {
+        stopIntroSyncLoop();
+        closeIntroModal();
+      });
     }
 
     if (videoEl) {
       videoEl.addEventListener('play', () => {
         if (audioEl.paused) {
-          audioEl.currentTime = videoEl.currentTime;
+          audioEl.currentTime = videoTimeToAudioTime(videoEl.currentTime);
           audioEl.play().catch(() => {});
         }
-        maybeShowVideo(videoEl.currentTime);
+        maybeShowVideo(audioEl.currentTime || 0);
       });
 
       videoEl.addEventListener('pause', () => {
-        if (!audioEl.paused) audioEl.pause();
+        // If video naturally reaches EOF before audio, keep narration playing.
+        if (!audioEl.paused && !videoEl.ended && !isAudioPastVideoEnd(audioEl.currentTime || 0)) {
+          audioEl.pause();
+        }
       });
 
       videoEl.addEventListener('seeking', () => {
         const targetTime = videoEl.currentTime;
-        if (Math.abs(audioEl.currentTime - targetTime) > 0.2) {
-          audioEl.currentTime = targetTime;
+        const mappedAudioTime = videoTimeToAudioTime(targetTime);
+        if (Math.abs(audioEl.currentTime - mappedAudioTime) > 0.2) {
+          audioEl.currentTime = mappedAudioTime;
           syncNarration();
         }
       });
     }
 
-    if (playBtn) playBtn.addEventListener('click', () => { audioEl.play().catch(() => {}); });
+    if (playBtn) playBtn.addEventListener('click', startAudioWithFallback);
     if (pauseBtn) pauseBtn.addEventListener('click', () => { audioEl.pause(); });
     if (skipBtn) skipBtn.addEventListener('click', closeIntroModal);
 

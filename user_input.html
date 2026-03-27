@@ -74,6 +74,7 @@
   <script>
     const EMAIL_ERROR_MESSAGE =
       "Please enter a valid email (examples: name@example.com, name@gmail.com, name@yahoo.com).";
+    const USER_INPUT_SUCCESS_ALERT_MESSAGE = "Now you can generate the progress report";
     const PROGRESS_REPORT_ACCESS_ALERT_MESSAGE =
       "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
 
@@ -341,6 +342,7 @@
       VLProgress.setUser({ name, email, designation });
       clearDraft();
       updateProfilePreview(name, designation);
+      alert(USER_INPUT_SUCCESS_ALERT_MESSAGE);
 
       const returnUrl = getReturnUrl();
       const hasSimulationReport =
