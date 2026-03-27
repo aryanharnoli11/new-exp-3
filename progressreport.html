@@ -462,6 +462,7 @@
 
     function showReportAlert(message, title = "Alert", options = {}) {
       const opts = typeof options === "function" ? { onClose: options } : (options || {});
+      const shouldPlayAudio = opts.playAudio !== false;
       if (!reportAlertModal) {
         alert(message);
         if (typeof opts.onClose === "function") opts.onClose();
@@ -480,7 +481,11 @@
 
       reportAlertModal.classList.add("show");
       document.body.classList.add("is-modal-open");
-      playReportAlertAudio();
+      if (shouldPlayAudio) {
+        playReportAlertAudio();
+      } else {
+        stopReportAlertAudio();
+      }
 
       setTimeout(() => {
         if (reportAlertMode === "confirm") reportAlertYes?.focus?.();
@@ -1339,9 +1344,13 @@
     resetBtn?.addEventListener("click", () => {
       showReportAlert("Reset all saved user data, assessments, timings, and simulation report?", "Confirm Reset", {
         mode: "confirm",
+        playAudio: false,
         onYes: () => {
           VLProgress.resetAll();
-          showReportAlert("Reset done. Redirecting to Aim page.", "Reset Complete", { onClose: navigateToAim });
+          showReportAlert("Reset done. Redirecting to Aim page.", "Reset Complete", {
+            onClose: navigateToAim,
+            playAudio: false
+          });
         }
       });
     });
