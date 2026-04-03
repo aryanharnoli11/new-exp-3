@@ -95,9 +95,9 @@
  
                 <div class="meter-panel">                  
                     <div class="meters">
-                        <h3 id="ammter1-label">VOLTMETER</h3>                       
-                        <h3 id="voltmeter1-label">AMMETER</h3>
-                         <h3 id="rpm1-label">AMMETER 2</h3>
+                        <h3 id="ammter1-label">Supply Voltage</h3>                       
+                        <h3 id="voltmeter1-label">Field Current</h3>
+                         <h3 id="rpm1-label">Armature Current</h3>
                         <div class="meter-card">
                           <div class="voltmeter-assembly">
                             <img src="images/voltmeter.png" class="voltmeter-img" alt="Voltmeter">
@@ -132,6 +132,9 @@
                         <div class="meter-card ammeter2-card">
                             <div class="ammeter2-inner">
                                 <img src="images/ammeter2.png" class="ammeter2-img" alt="Ammeter 2">
+                                <div class="meter-needle2 ammeter2-needle">
+                                  <img src="images/needle.png" alt="needle">
+                                </div>
                                 <div class="ammeter2-points">
                                     <button class="point-N">N</button>
                                     <button class="point-O">O</button>
@@ -174,6 +177,7 @@
                                 
                             </div>
                             <div class="rpm-card">
+                                <h3 class="labeld">RPM INDICATOR</h3>
                                 <img src="images/rpm.png" id="rpm-indicator" alt="RPM Indicator" class="rpm-image">
                                 <div id="rpmDisplay" class="rpm-display">0</div>
                             </div>
@@ -285,15 +289,12 @@
                                 <thead>
                                     <tr>
                                         <th>S. No.</th>
+                                        <th>Field resistance (Ω)</th>
                                         <th> Field Current (A)</th>
                                         <th>Speed (RPM)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="observationBody">
-                                    <tr class="placeholder-row">
-                                       
-                                    </tr>
-                                </tbody>
+                                <tbody id="observationBody"></tbody>
                             </table>
                         </div>
                     </section>

@@ -852,54 +852,46 @@ function stopFieldKnobDrag() {
     parseInt(knob1.style.left)
   );
   knob1.style.cursor = "grab";
-    // ===== UPDATE AMMETER ON FIELD DIVISION CHANGE =====
-// ===== FIELD RHEOSTAT RESULT =====
-if (fieldStepIndex >= 1 && fieldStepIndex <= 7) {
 
-  // CURRENT
-  currentReading = FIELD_AMMETER_VALUES[fieldStepIndex];
-  setAmmeterCurrent(currentReading);
+  // ===== UPDATE AMMETER ON FIELD DIVISION CHANGE =====
+  if (fieldStepIndex >= 1 && fieldStepIndex <= 7) {
+    // CURRENT
+    currentReading = FIELD_AMMETER_VALUES[fieldStepIndex];
+    setAmmeterCurrent(currentReading);
 
-  // RPM
-  rpmReading = FIELD_RPM_VALUES[fieldStepIndex];
-  if (rpmDisplay) rpmDisplay.textContent = rpmReading;
+    // RPM
+    rpmReading = FIELD_RPM_VALUES[fieldStepIndex];
+    if (rpmDisplay) rpmDisplay.textContent = rpmReading;
 
-  if (window.isGuideActive && window.isGuideActive() && !waitingForAddToTable) {
-  waitingForAddToTable = true;
-  tableGuidanceActive = true;
-  playFieldGuidanceAudio(fieldStepIndex);
+    if (window.isGuideActive && window.isGuideActive() && !waitingForAddToTable) {
+      waitingForAddToTable = true;
+      tableGuidanceActive = true;
+      playFieldGuidanceAudio(fieldStepIndex);
+    }
 
+    // ROTOR
+    startRotorRotation();
+  } else {
+    // FIELD AT ZERO POSITION
+    if (armatureKnobUsed) {
+      rpmReading = ARMATURE_SET_RPM;
+      if (rpmDisplay) rpmDisplay.textContent = String(ARMATURE_SET_RPM);
+      startRotorRotationForRpm(ARMATURE_SET_RPM);
+    } else {
+      stopRotorRotation();
+      rotorAngle = 0;
+      const rotor = document.getElementById("gr");
+      if (rotor) rotor.style.transform = "rotate(0deg)";
+      rpmReading = 0;
+      if (rpmDisplay) rpmDisplay.textContent = "0";
+    }
+
+    // Reset ammeter 1 (field current meter)
+    currentReading = 0;
+    setAmmeterCurrent(0);
+  }
 }
 
-
-
-
-
-  // ROTOR
-  startRotorRotation();
-
-} else {
-  // 🔴 FIELD AT ZERO POSITION
-
-  // Stop rotor
-  stopRotorRotation();
-  rotorAngle = 0;
-
-  const rotor = document.getElementById("gr");
-  if (rotor) rotor.style.transform = "rotate(0deg)";
-  
-
-  // Reset RPM
-  rpmReading = 0;
-  if (rpmDisplay) rpmDisplay.textContent = "0";
-
-  // Reset ammeter
-  currentReading = 0;
-  setAmmeterCurrent(0);
-}
-
-
-}
 const rpmDisplay = document.getElementById("rpmDisplay");
 
 
@@ -929,9 +921,13 @@ const ARM_ROD_MAX_X = 210;  // right end of green coil
 
 // ===== AMMETER CONTROL =====
 const ammeterNeedle = document.querySelector(".meter-needle1");
+const ammeter2Needle = document.querySelector(".meter-needle2");
 const AMMETER_PIVOT_X = 50.37;
 const AMMETER_PIVOT_Y = 82.44;
 const AMMETER_BASE_TRANSFORM = `translate(-${AMMETER_PIVOT_X}%, -${AMMETER_PIVOT_Y}%)`;
+const AMMETER2_MAX_CURRENT = 2.5;
+const ARMATURE_SET_AMMETER2_CURRENT = 1.1;
+const ARMATURE_SET_RPM = 1450;
 
 
 // Ammeter angles for each field rheostat division (index 1 → 7)
@@ -968,20 +964,37 @@ const FIELD_ROTATION_SPEED = [
   17.0   // Division 7 → fastest
 ];
 
-function startRotorRotation() {
+function getRotorVisualSpeedFromRpm(rpm) {
+  const safeRpm = Number(rpm);
+  if (!Number.isFinite(safeRpm) || safeRpm <= 0) return 0;
 
+  const referenceRpm = FIELD_RPM_VALUES[FIELD_RPM_VALUES.length - 1] || 1312;
+  const referenceSpeed = FIELD_ROTATION_SPEED[FIELD_ROTATION_SPEED.length - 1] || 17;
+  return (safeRpm / referenceRpm) * referenceSpeed;
+}
+
+function startRotorRotationBySpeed(speed) {
   const rotor = document.getElementById("gr");
   if (!rotor) return;
 
-  const speed = FIELD_ROTATION_SPEED[fieldStepIndex];
-  if (!speed) return;
+  const visualSpeed = Number(speed);
+  if (!Number.isFinite(visualSpeed) || visualSpeed <= 0) return;
 
   stopRotorRotation();
 
   rotorInterval = setInterval(() => {
-    rotorAngle += speed;
+    rotorAngle += visualSpeed;
     rotor.style.transform = `rotate(${rotorAngle}deg)`;
   }, 1000 / 60);
+}
+
+function startRotorRotation() {
+  const speed = FIELD_ROTATION_SPEED[fieldStepIndex];
+  startRotorRotationBySpeed(speed);
+}
+
+function startRotorRotationForRpm(rpm) {
+  startRotorRotationBySpeed(getRotorVisualSpeedFromRpm(rpm));
 }
 
 
@@ -1005,6 +1018,24 @@ function setAmmeterCurrent(current) {
 
   ammeterNeedle.style.transition = "transform 0.4s ease-in-out";
   ammeterNeedle.style.transform =
+    `${AMMETER_BASE_TRANSFORM} rotate(${angle}deg)`;
+}
+
+function setAmmeter2Current(current) {
+  if (!ammeter2Needle) return;
+
+  const clampedCurrent = Math.max(
+    0,
+    Math.min(AMMETER2_MAX_CURRENT, Number(current) || 0)
+  );
+  const MIN_ANGLE = -75;   // 0 A
+  const MAX_ANGLE = 80;    // 2.5 A
+  const angle =
+    MIN_ANGLE +
+    ((clampedCurrent / AMMETER2_MAX_CURRENT) * (MAX_ANGLE - MIN_ANGLE));
+
+  ammeter2Needle.style.transition = "transform 0.4s ease-in-out";
+  ammeter2Needle.style.transform =
     `${AMMETER_BASE_TRANSFORM} rotate(${angle}deg)`;
 }
 
@@ -1189,6 +1220,10 @@ function stopArmatureKnob() {
   armatureKnobUsed = true;
   knob2.style.cursor = "not-allowed";
   setVoltmeterTo220();
+  setAmmeter2Current(ARMATURE_SET_AMMETER2_CURRENT);
+  rpmReading = ARMATURE_SET_RPM;
+  if (rpmDisplay) rpmDisplay.textContent = String(ARMATURE_SET_RPM);
+  startRotorRotationForRpm(ARMATURE_SET_RPM);
   labStage = "armature_set";
   showPopup("Armature resistance is set. Voltage is 220 volt. Now, vary the field resistance by moving the rheostat knob to take the reading.");
 if (window.isGuideActive && window.isGuideActive()) {
@@ -1254,6 +1289,7 @@ if (knob2) {
         currentReading = 0;
         rpmReading = 0;
         setAmmeterCurrent(0);          // Ammeter → 0 A
+        setAmmeter2Current(0);         // Ammeter 2 → 0 A
         if (rpmDisplay) rpmDisplay.textContent = "0"; // RPM → 0
         // Reset voltmeter too (safe)
         setVoltmeterZero();
@@ -1827,11 +1863,7 @@ setTimeout(() => {
      ===================================================== */
   function resetObservationTable() {
     if (observationBody) {
-      observationBody.innerHTML = `
-        <tr class="placeholder-row">
-          <td colspan="3">No readings added yet.</td>
-        </tr>
-      `;
+      observationBody.innerHTML = "";
     }
     if (obsCurrentInput) obsCurrentInput.value = "";
     if (obsSpeedInput) obsSpeedInput.value = "";
@@ -1860,10 +1892,10 @@ tableGuidanceActive = false;
   const rows = observationBody.querySelectorAll("tr");
   for (let row of rows) {
     const cells = row.querySelectorAll("td");
-    if (cells.length === 3) {
+    if (cells.length === 4) {
       if (
-        parseFloat(cells[1].textContent) === parseFloat(currentReading.toFixed(2)) &&
-        parseInt(cells[2].textContent) === rpmReading
+        parseFloat(cells[2].textContent) === parseFloat(currentReading.toFixed(2)) &&
+        parseInt(cells[3].textContent) === rpmReading
       ) {
         showPopup("This reading is already added to the table.", "Duplicate Reading", "normal");
         playEventAudio(ALERT_AUDIO_BY_EVENT.duplicate_reading);
@@ -1881,12 +1913,14 @@ tableGuidanceActive = false;
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>${serial}</td>
+    <td>${fieldStepIndex}</td>
     <td>${currentReading.toFixed(2)}</td>
     <td>${rpmReading}</td>
   `;
   observationBody.appendChild(row);
 addGraphReading(currentReading, rpmReading);
 reportReadings.push({
+  fieldResistance: fieldStepIndex,
   current: parseFloat(currentReading.toFixed(2)),
   speed: rpmReading
 });
@@ -1992,6 +2026,7 @@ setVoltmeterZero();
       setAutoCheckButtonsDisabled(false);  // ← THIS IS THE KEY LINE
     setLabelButtonsDisabled(false);
       setAmmeterCurrent(0);
+      setAmmeter2Current(0);
 stopRotorRotation();
 rotorAngle = 0;
 if (rpmDisplay) rpmDisplay.textContent = "0"; // RPM → 0
@@ -2009,6 +2044,7 @@ if (knob1 && FIELD_POSITIONS.length > 0) {
 currentReading = 0;
 rpmReading = 0;
 setAmmeterCurrent(0);
+setAmmeter2Current(0);
 if (rpmDisplay) rpmDisplay.textContent = "0";
 
 // Stop rotor completely
@@ -2029,6 +2065,7 @@ showPopup(
 setVoltmeterZero();
 setTimeout(calculateFieldPositions, 100);
 setAmmeterCurrent(0);
+setAmmeter2Current(0);
 allConnectionsAnnounced = false;
 
 
@@ -2505,12 +2542,14 @@ tr:nth-child(even) td {
     <table>
       <tr>
         <th>S.No.</th>
-        <th>Field Current (A)</th>
-        <th>Speed (RPM)</th>
+        <th>Field resistance (Ω)</th>
+        <th>Field Current(A)</th>
+        <th>Speed(RPM)</th>
       </tr>
       ${reportReadings.map((r, i) => `
         <tr>
           <td>${i + 1}</td>
+          <td>${r.fieldResistance ?? "-"}</td>
           <td>${r.current}</td>
           <td>${r.speed}</td>
         </tr>

@@ -101,7 +101,7 @@
    wires originate exactly from the button centers. */
 #pointI {
   position: absolute;
-  left:53px;
+  left:50px;
   top: 195px;
   transform: translate(-50%, -50%);
 }
@@ -308,23 +308,23 @@
 
 
 .point-I {
-  left: 9%;
-  top: 104%;
+  left: 8.3%;
+  top: 100%;
 }
 #pointI {
-  left: 9.5%;
-  top: 90.5%;
+  left: 8.5%;
+  top: 89%;
 }
 
 
 
 .point-J {
-  left: 23.6%;
-  top: 104%;
+  left: 21.8%;
+  top: 100%;
 }
 #pointJ {
-  left: 24%;
-  top: 90.5%;
+  left: 22%;
+  top: 89%;
 }
 
 
@@ -455,8 +455,8 @@
   position: absolute;
   transform: translate(-50%, -50%);
   pointer-events: auto;
-  width: clamp(20px, 2vw, 24px);
-  height: clamp(20px, 2vw, 24px);
+  width: clamp(14px, 2vw, 20px);
+  height: clamp(14px, 2vw, 20px);
   font-size: clamp(9px, 1.2vw, 12px);
   border-radius: 50%;
   border: 1px solid #696256;
@@ -480,22 +480,22 @@
 
 .ammeter2-card .ammeter2-points .point-N {
   left: 31%;
-  top: 100%;
+  top: 95.5%;
 }
 
 .ammeter2-card .ammeter2-points .point-O {
   left: 68%;
-  top: 100%;
+  top: 95.5%;
 }
 
 .ammeter2-card .ammeter2-points #pointN {
   left: 27%;
-  top: 96%;
+  top: 94.5%;
 }
 
 .ammeter2-card .ammeter2-points #pointO {
   left: 74%;
-  top: 96%;
+  top: 94.5%;
 }
 /* ===== INDIVIDUAL CONTROL FOR C ===== */
 
