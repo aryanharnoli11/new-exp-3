@@ -8,6 +8,8 @@
  .point-J,
  .point-L,
  .point-M,
+ .point-N,
+ .point-O,
  .point-C,
  .point-D,
  .point-K,
@@ -409,7 +411,9 @@
 .point-I,
 .point-J,
 .point-L,
-.point-M {
+.point-M,
+.point-N,
+.point-O {
   width: 24px;
   height: 24px;
 }
@@ -417,9 +421,81 @@
 #pointI,
 #pointJ,
 #pointL,
-#pointM {
+#pointM,
+#pointN,
+#pointO {
   width: 10px;
   height: 10px;
+}
+
+/* Lock N/O points to the ammeter2 card so they stay aligned on resize */
+.ammeter2-card {
+  position: relative;
+  overflow: visible;
+}
+
+.ammeter2-card .ammeter2-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.ammeter2-card .ammeter2-points {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ammeter2-card .ammeter2-points .point-N,
+.ammeter2-card .ammeter2-points .point-O {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  width: clamp(20px, 2vw, 24px);
+  height: clamp(20px, 2vw, 24px);
+  font-size: clamp(9px, 1.2vw, 12px);
+  border-radius: 50%;
+  border: 1px solid #696256;
+  background: linear-gradient(180deg, #dad4c8, #b8b2a4);
+  color: #2d2922;
+  letter-spacing: 0;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.75),
+    0 2px 4px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+.ammeter2-card .ammeter2-points #pointN,
+.ammeter2-card .ammeter2-points #pointO {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  width: 10px;
+  height: 10px;
+  z-index: 6;
+}
+
+.ammeter2-card .ammeter2-points .point-N {
+  left: 31%;
+  top: 100%;
+}
+
+.ammeter2-card .ammeter2-points .point-O {
+  left: 68%;
+  top: 100%;
+}
+
+.ammeter2-card .ammeter2-points #pointN {
+  left: 27%;
+  top: 96%;
+}
+
+.ammeter2-card .ammeter2-points #pointO {
+  left: 74%;
+  top: 96%;
 }
 /* ===== INDIVIDUAL CONTROL FOR C ===== */
 
@@ -477,6 +553,8 @@
 .point-K,
 .point-L,
 .point-M,
+.point-N,
+.point-O,
 .point-Y,
 .point-P,
 .point-Q,

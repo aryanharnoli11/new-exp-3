@@ -290,8 +290,8 @@ h3 {
 }
 #voltmeter1-label {
     position: absolute;
-    bottom: -42x;        /* distance below meter */
-    left: 53.5%;
+    bottom: -42px;        /* distance below meter */
+    left: 49.5%;
     transform: translateX(-50%);
 
     font-size: 12px;
@@ -301,7 +301,7 @@ h3 {
 #rpm1-label {
     position: absolute;
     bottom: -44px;
-    left: 86%;
+    left: 82.5%;
     transform: translateX(-50%);
     font-size: 12px;
     white-space: nowrap;
@@ -369,6 +369,12 @@ h3 {
     object-fit: contain;
 }
 
+.ammeter2-img {
+    width: 320px;
+    height: 140px;
+    object-fit: contain;
+}
+
 .workspace {
     background: #d7d0c4;
     min-height: 330px;
@@ -394,7 +400,8 @@ h3 {
 }
 
 .motor-box,
-.generator-box {
+.generator-box,
+.rpm-card {
     width: clamp(180px, 24vw, 240px);
     aspect-ratio: 1;
     border: 3px solid #111;
@@ -912,9 +919,8 @@ img {
 .mcb-label,
 .starter-label,
 #ammter1-label,
-#ammter2-label,
 #voltmeter1-label,
-#voltmeter2-label {
+#rpm1-label {
     padding: 4px 10px;
     background: linear-gradient(135deg, #fff7e2, #e3cfa5);
    
@@ -1326,12 +1332,11 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   position: relative;
   flex: 0 0 auto;
 
-  width: 230px;        /* ↓ reduced */
-  height: 216px;       /* ↓ reduced */
 
  
 
   align-self: center;
+  overflow: hidden;
 }
 
 
@@ -1342,14 +1347,15 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   max-height: 100%;
   object-fit: contain;
 }
+
 /* RPM DIGITAL DISPLAY – FIXED SIZE (ZOOM PROOF) */
 .rpm-display {
   position: absolute;
   left: 50%;
-  top: 44%;
+  top: 46%;
   transform: translate(-50%, -62%);
-  width: 150px;
-  height: 50px;
+  width: 145px;
+  height: 48px;
  
   display: flex;
   align-items: center;
@@ -1600,7 +1606,8 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
 
 
 /* STEP 3: Increase ammeter size safely */
-.ammeter-card .ammeter-inner {
+.ammeter-card .ammeter-inner,
+.ammeter2-card .ammeter2-inner {
   position: relative;
   width: 160px;
   height: 160px;
@@ -1989,7 +1996,8 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   }
 }
 /* FORCE AMMETER SIZE INCREASE – FINAL FIX */
-.ammeter-card .ammeter-inner {
+.ammeter-card .ammeter-inner,
+.ammeter2-card .ammeter2-inner {
   transform: scale(1.25);   /* 🔼 increase size here */
   transform-origin: center center;
 }
@@ -2517,4 +2525,3 @@ body {
   padding: 12px 0;
   border-top: 2px solid rgba(255,255,255,0.05);
 }
-

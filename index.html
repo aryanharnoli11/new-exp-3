@@ -97,7 +97,7 @@
                     <div class="meters">
                         <h3 id="ammter1-label">VOLTMETER</h3>                       
                         <h3 id="voltmeter1-label">AMMETER</h3>
-                         <h3 id="rpm1-label">Digital RPM Indicator</h3>
+                         <h3 id="rpm1-label">AMMETER 2</h3>
                         <div class="meter-card">
                           <div class="voltmeter-assembly">
                             <img src="images/voltmeter.png" class="voltmeter-img" alt="Voltmeter">
@@ -129,11 +129,17 @@
                          </div>
                         </div>
                     </div>
-                        <div class="meter-card rpm-card">
-                                      <img src="images/rpm.png" id="rpm-indicator" alt="RPM Indicator" class="rpm-image">
-                                        <div id="rpmDisplay" class="rpm-display">0</div>
-                                    </div>
-                    
+                        <div class="meter-card ammeter2-card">
+                            <div class="ammeter2-inner">
+                                <img src="images/ammeter2.png" class="ammeter2-img" alt="Ammeter 2">
+                                <div class="ammeter2-points">
+                                    <button class="point-N">N</button>
+                                    <button class="point-O">O</button>
+                                    <div id="pointN" class="point"></div>
+                                    <div id="pointO" class="point"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                
@@ -166,6 +172,10 @@
                                 <img class="generator-body" src="images/Rotor-body.png" alt="Rotor body">
                                 <img class="generator-rotor" id="gr" src="images/Generator-Rotor.png" alt="Generator rotor">
                                 
+                            </div>
+                            <div class="rpm-card">
+                                <img src="images/rpm.png" id="rpm-indicator" alt="RPM Indicator" class="rpm-image">
+                                <div id="rpmDisplay" class="rpm-display">0</div>
                             </div>
                             
                          </div>

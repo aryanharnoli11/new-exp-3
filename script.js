@@ -1345,6 +1345,8 @@ connector: ["Bezier", { curviness: WIRE_CURVINESS }]
     pointJ: [0, 0.5, -1, 0],
     pointL: [0, 0.5, -1, 0],
     pointM: [0, 0.5, -1, 0],
+    pointN: [0, 0.5, -1, 0],
+    pointO: [0, 0.5, -1, 0],
 
     pointC: [0, 0.5, -1, 0],
     pointD: [0, 0.5, -1, 0],
@@ -1413,6 +1415,8 @@ const buttonToEndpointMap = {
   "point-J": "pointJ",
   "point-L": "pointL",
   "point-M": "pointM",
+  "point-N": "pointN",
+  "point-O": "pointO",
 
   "point-C": "pointC",
   "point-D": "pointD",
