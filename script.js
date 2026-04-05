@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 jsPlumb.ready(function () {
 const WIRE_CURVINESS = 160;     // default curve
 const WIRE_CURVE_SHAPE = "u";  // "u" = U-shaped wiring
+const WIRE_LAYER_Z_INDEX = 2000;
 
 // 🧠 WIRE GEOMETRY HELPERS
 // ===============================
@@ -140,6 +141,38 @@ function getWireAnchorForShape(anchor) {
 
 function connectionKey(a, b) {
   return [a, b].sort().join("-");
+}
+
+const ENDPOINT_LABELS = Object.freeze({
+  pointA: "P1",
+  pointB: "P2",
+  pointP: "L",
+  pointQ: "F",
+  pointR: "A",
+  pointI: "G",
+  pointJ: "H",
+  pointL: "I",
+  pointM: "J",
+  pointN: "K",
+  pointO: "M",
+  pointE: "D",
+  pointF: "E",
+  pointG: "B",
+  pointH: "C",
+  pointC: "A1",
+  pointD: "F1",
+  pointK: "A2",
+  pointY: "F2"
+});
+
+function getEndpointLabel(endpointId) {
+  const endpointKey = String(endpointId || "").trim();
+  if (!endpointKey) return "";
+  return ENDPOINT_LABELS[endpointKey] || endpointKey.replace(/^point/, "");
+}
+
+function buildConnectInstruction(fromId, toId) {
+  return `Connect point ${getEndpointLabel(fromId)} to point ${getEndpointLabel(toId)}.`;
 }
 
 function isBlueSourcePoint(id) {
@@ -165,7 +198,9 @@ const WIRE_CURVE_OVERRIDES = new Map([
   [connectionKey("pointF", "pointD"), 100],
   [connectionKey("pointH", "pointI"), 60],
   [connectionKey("pointI", "pointC"), -10],
-  [connectionKey("pointC", "pointH"), -180]
+  [connectionKey("pointC", "pointH"), -180],
+  // Keep A2 <-> F2 wire visible near the motor plate.
+  [connectionKey("pointK", "pointY"), 35]
 ]);
 
 // 🎯 CURVE RESOLVER (YOU ASKED ABOUT THIS)
@@ -287,17 +322,12 @@ const ALERT_AUDIO_BY_EVENT = {
 };
 
 const GUIDE_STEP_AUDIO_BY_PAIR = {
-  "A-P": "audio/Connect point A to point P.wav",
-  "B-K": "audio/Connect point B to point K.wav",
-  "B-Y": "audio/Connect point B to point Y.wav",
-  "B-J": "audio/Connect point B to point J.wav",
-  "Q-L": "audio/Connect point Q to point L.wav",
-  "G-R": "audio/Connect point G to point R.wav",
-  "E-M": "audio/Connect point E to point M.wav",
-  "F-D": "audio/Connect point F to point D.wav",
-  "H-I": "audio/Connect point H to point I.wav",
-  "I-C": "audio/Connect point I to point C.wav",
-  "C-H": "audio/Connect point C to point H.wav"
+  "P1-L": "audio/Connect point A to point P.wav",
+  "P2-H": "audio/Connect point B to point J.wav",
+  "F-I": "audio/Connect point Q to point L.wav",
+  "E-F1": "audio/Connect point F to point D.wav",
+  "A2-P2": "audio/Connect point B to point K.wav",
+  "A-B": "audio/Connect point G to point R.wav"
 };
 
 const guideAudioCache = new Map();
@@ -664,17 +694,17 @@ function highlightEndpoints(fromId, toId) {
 
 
   const requiredPairs = [
-  "pointA-pointP",
-  "pointB-pointK",
-  "pointB-pointY",
+  "pointA-pointI",
   "pointB-pointJ",
+  "pointA-pointP",
   "pointQ-pointL",
-  "pointG-pointR",
-  "pointE-pointM",
+  "pointM-pointE",
   "pointF-pointD",
-  "pointH-pointI",
-  "pointI-pointC",
-  "pointC-pointH"
+  "pointK-pointY",
+  "pointK-pointB",
+  "pointR-pointG",
+  "pointH-pointN",
+  "pointO-pointC"
 ];
 
 
@@ -1410,7 +1440,8 @@ connector: ["Bezier", { curviness: WIRE_CURVINESS }]
       ...baseEndpointOptions,
       connectorStyle: {
         stroke: strokeColor,
-        strokeWidth: 4
+        strokeWidth: 4,
+        zIndex: WIRE_LAYER_Z_INDEX
       }
     });
   });
@@ -1430,7 +1461,8 @@ info.connection.setConnector(
   const strokeColor = getWireStrokeColor(info.sourceId);
   info.connection.setPaintStyle({
     stroke: strokeColor,
-    strokeWidth: 4
+    strokeWidth: 4,
+    zIndex: WIRE_LAYER_Z_INDEX
   });
 
   // 🚫 DO NOT EVEN SCHEDULE voice during auto connect
@@ -1619,7 +1651,7 @@ if (wrongConnections.length > 0) {
 
   wrongConnections.forEach((conn, index) => {
     const [a, b] = conn.split("-");
-    message += `${a.replace("point","")} - ${b.replace("point","")}`;
+    message += `${getEndpointLabel(a)} - ${getEndpointLabel(b)}`;
 
     if (index < wrongConnections.length - 1) {
       message += ", ";
@@ -1639,7 +1671,7 @@ if (missingConnections.length > 0) {
 
   visibleMissing.forEach((conn, index) => {
     const [a, b] = conn.split("-");
-    message += `Connection ${index + 1}: ${a.replace("point","")} - ${b.replace("point","")}`;
+    message += `Connection ${index + 1}: ${getEndpointLabel(a)} - ${getEndpointLabel(b)}`;
 
     if (index < visibleMissing.length - 1) {
       message += ", ";
@@ -3034,17 +3066,17 @@ function highlightEndpoints(fromId, toId) {
 
   // MUST MATCH requiredPairs ORDER
   const steps = [
-    { from: "pointA", to: "pointP", text: "Connect point A to point P." },
-    { from: "pointB", to: "pointK", text: "Connect point B to point K." },
-    { from: "pointB", to: "pointY", text: "Connect point B to point Y." },
-    { from: "pointB", to: "pointJ", text: "Connect point B to point J." },
-    { from: "pointQ", to: "pointL", text: "Connect point Q to point L." },
-    { from: "pointG", to: "pointR", text: "Connect point G to point R." },
-    { from: "pointE", to: "pointM", text: "Connect point E to point M." },
-    { from: "pointF", to: "pointD", text: "Connect point F to point D." },
-    { from: "pointH", to: "pointI", text: "Connect point H to point I." },
-    { from: "pointI", to: "pointC", text: "Connect point I to point C." },
-    { from: "pointC", to: "pointH", text: "Connect point C to point H." }
+    { from: "pointA", to: "pointI", text: buildConnectInstruction("pointA", "pointI") },
+    { from: "pointB", to: "pointJ", text: buildConnectInstruction("pointB", "pointJ") },
+    { from: "pointA", to: "pointP", text: buildConnectInstruction("pointA", "pointP") },
+    { from: "pointQ", to: "pointL", text: buildConnectInstruction("pointQ", "pointL") },
+    { from: "pointM", to: "pointE", text: buildConnectInstruction("pointM", "pointE") },
+    { from: "pointF", to: "pointD", text: buildConnectInstruction("pointF", "pointD") },
+    { from: "pointK", to: "pointY", text: buildConnectInstruction("pointK", "pointY") },
+    { from: "pointK", to: "pointB", text: buildConnectInstruction("pointK", "pointB") },
+    { from: "pointR", to: "pointG", text: buildConnectInstruction("pointR", "pointG") },
+    { from: "pointH", to: "pointN", text: buildConnectInstruction("pointH", "pointN") },
+    { from: "pointO", to: "pointC", text: buildConnectInstruction("pointO", "pointC") }
   ];
 
   function speakCurrentStep() {
@@ -3196,11 +3228,11 @@ jsPlumb.bind("connection", function (info) {
 
   // ❌ WRONG CONNECTION
   if (made !== expected) {
-    const wrongA = info.sourceId.replace("point", "");
-    const wrongB = info.targetId.replace("point", "");
+    const wrongA = getEndpointLabel(info.sourceId);
+    const wrongB = getEndpointLabel(info.targetId);
 
-    const correctA = step.from.replace("point", "");
-    const correctB = step.to.replace("point", "");
+    const correctA = getEndpointLabel(step.from);
+    const correctB = getEndpointLabel(step.to);
 
     labSpeech.speak(
       `Wrong connection. You connected ${wrongA} to ${wrongB}. ` +

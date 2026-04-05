@@ -2309,6 +2309,18 @@ body {
   overflow: hidden;
 }
 
+/* Keep jsPlumb wires/endpoints above equipment artwork so paths don't appear hidden. */
+svg._jsPlumb_connector,
+._jsPlumb_connector,
+.jtk-connector {
+  z-index: 2000 !important;
+}
+
+._jsPlumb_endpoint,
+.jtk-endpoint {
+  z-index: 2100 !important;
+}
+
 .top-row::before,
 .top-row::after {
   content: "";
