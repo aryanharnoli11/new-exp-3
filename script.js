@@ -188,7 +188,7 @@ function getWireStrokeColor(sourceId) {
 }
 
 const WIRE_CURVE_OVERRIDES = new Map([
-  [connectionKey("pointA", "pointP"), 100],
+  [connectionKey("pointA", "pointP"), 60],
   [connectionKey("pointB", "pointK"), 80],
   [connectionKey("pointB", "pointY"), 140],
   // Pull P2->H a bit flatter so the wire does not cover the P2 label.
@@ -808,10 +808,7 @@ function setVoltmeterZero() {
 // Move needle to 220V (WITH animation)
 function setVoltmeterTo220() {
   setVoltmeterValue(VOLT_MAX, { animate: true });
-
-if (rpmDisplay) rpmDisplay.textContent = "0";
-
-  }
+}
 
 
 
@@ -900,8 +897,8 @@ function stopFieldKnobDrag() {
       playFieldGuidanceAudio(fieldStepIndex);
     }
 
-    // ROTOR
-    startRotorRotation();
+    // ROTOR (sync with the same RPM shown in indicator)
+    startRotorRotationForRpm(rpmReading);
   } else {
     // FIELD AT ZERO POSITION
     if (armatureKnobUsed) {
@@ -958,13 +955,14 @@ const AMMETER_PIVOT_Y = 82.44;
 const AMMETER_BASE_TRANSFORM = `translate(-${AMMETER_PIVOT_X}%, -${AMMETER_PIVOT_Y}%)`;
 const AMMETER2_MAX_CURRENT = 2.5;
 const ARMATURE_SET_AMMETER2_CURRENT = 1.1;
+const STARTER_ON_RPM = 1480;
 const ARMATURE_SET_RPM = 1450;
 
 
 // Field resistance/current readings for each field rheostat division (index 1 -> 7)
 const FIELD_RESISTANCE_VALUES = [
   null,   // index 0 (reference, not counted)
-  24.8,   // division 1
+  24.5,   // division 1
   37.2,   // division 2
   61.5,   // division 3
   84.5,   // division 4
@@ -1165,6 +1163,10 @@ function setAmmeter2Current(current) {
       updateStarterPosition(1);
       starterIsOn = true;
       labStage = "starter_on";
+      setVoltmeterTo220();
+      rpmReading = STARTER_ON_RPM;
+      if (rpmDisplay) rpmDisplay.textContent = String(STARTER_ON_RPM);
+      startRotorRotationForRpm(STARTER_ON_RPM);
       
 if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
@@ -2589,7 +2591,7 @@ tr:nth-child(even) td {
     <table>
       <tr>
         <th>S.No.</th>
-        <th>Field resistance (Ω)</th>
+        <th>Field Resistance(Ω)</th>
         <th>Field Current(A)</th>
         <th>Speed(RPM)</th>
       </tr>
