@@ -188,12 +188,13 @@ function getWireStrokeColor(sourceId) {
 }
 
 const WIRE_CURVE_OVERRIDES = new Map([
-  [connectionKey("pointA", "pointP"), 120],
-  [connectionKey("pointB", "pointK"), 120],
+  [connectionKey("pointA", "pointP"), 100],
+  [connectionKey("pointB", "pointK"), 80],
   [connectionKey("pointB", "pointY"), 140],
-  [connectionKey("pointB", "pointJ"), 160],
+  // Pull P2->H a bit flatter so the wire does not cover the P2 label.
+  [connectionKey("pointB", "pointJ"), 90],
   [connectionKey("pointQ", "pointL"), 80],
-  [connectionKey("pointG", "pointR"), 160],
+  [connectionKey("pointG", "pointR"), 100],
   [connectionKey("pointE", "pointM"), -100],
   [connectionKey("pointF", "pointD"), 100],
   [connectionKey("pointH", "pointI"), 60],
@@ -886,7 +887,7 @@ function stopFieldKnobDrag() {
   // ===== UPDATE AMMETER ON FIELD DIVISION CHANGE =====
   if (fieldStepIndex >= 1 && fieldStepIndex <= 7) {
     // CURRENT
-    currentReading = FIELD_AMMETER_VALUES[fieldStepIndex];
+    currentReading = FIELD_CURRENT_VALUES[fieldStepIndex];
     setAmmeterCurrent(currentReading);
 
     // RPM
@@ -960,27 +961,39 @@ const ARMATURE_SET_AMMETER2_CURRENT = 1.1;
 const ARMATURE_SET_RPM = 1450;
 
 
-// Ammeter angles for each field rheostat division (index 1 → 7)
-const FIELD_AMMETER_VALUES = [
+// Field resistance/current readings for each field rheostat division (index 1 -> 7)
+const FIELD_RESISTANCE_VALUES = [
   null,   // index 0 (reference, not counted)
-  0.48,   // division 1
+  24.8,   // division 1
+  37.2,   // division 2
+  61.5,   // division 3
+  84.5,   // division 4
+  102.6,  // division 5
+  118.5,  // division 6
+  132.5   // division 7
+];
+
+const FIELD_CURRENT_VALUES = [
+  null,   // index 0 (reference, not counted)
+  0.50,   // division 1
   0.44,   // division 2
-  0.40,   // division 3
-  0.38,   // division 4
-  0.32,   // division 5
-  0.30,   // division 6
-  0.28    // division 7
+  0.42,   // division 3
+  0.40,   // division 4
+  0.38,   // division 5
+  0.36,   // division 6
+  0.33    // division 7
 ];
 
 const FIELD_RPM_VALUES = [
   null,   // index 0 (not used)
-  1100,   // division 1
-  1130,   // division 2
-  1153,   // division 3
-  1192,    // division 4
-  1222,    // division 5
-  1263,    // division 6
-  1312     // division 7
+  1450,   // division 1
+  1475,   // division 2
+  1500,   // division 3
+  1525,    // division 4
+  1550,    // division 5
+  1575,    // division 6
+  1600     // division 7
+  
 ];
 // ===== VISUAL ROTOR SPEED PER FIELD DIVISION =====
 const FIELD_ROTATION_SPEED = [
@@ -1942,17 +1955,18 @@ tableGuidanceActive = false;
 
   const serial = observationBody.querySelectorAll("tr").length + 1;
 
+  const fieldResistance = FIELD_RESISTANCE_VALUES[fieldStepIndex];
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>${serial}</td>
-    <td>${fieldStepIndex}</td>
+    <td>${fieldResistance.toFixed(1)}</td>
     <td>${currentReading.toFixed(2)}</td>
     <td>${rpmReading}</td>
   `;
   observationBody.appendChild(row);
 addGraphReading(currentReading, rpmReading);
 reportReadings.push({
-  fieldResistance: fieldStepIndex,
+  fieldResistance: parseFloat(fieldResistance.toFixed(1)),
   current: parseFloat(currentReading.toFixed(2)),
   speed: rpmReading
 });
@@ -2559,6 +2573,7 @@ tr:nth-child(even) td {
       <div>
         <ul>
           <li>DC Ammeter: 0-1 A</li>
+           <li>DC Ammeter: 0-2.5 A</li>
             <li>DC Voltmeter: 0-420 V</li>
           <li>RPM Indicator: 0-2000 RPM</li>
           <li>Connecting Leads</li>

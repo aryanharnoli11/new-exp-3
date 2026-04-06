@@ -1154,15 +1154,42 @@ img {
   position: absolute;
   right: 100%;
   top: 0;
-  width: 520px;
+  width: 640px;
   
   background: #f8f2e7;
   border: 3px solid #111;
-  padding: 14px;
+  padding: 10px 12px;
   border-radius: 6px;
   box-shadow: 0 12px 24px rgba(0,0,0,0.25);
   display: none;
   z-index: 9999;
+}
+
+/* Compact instruction content so all 12 steps remain visible at once. */
+.instructions-panel p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.instructions-panel h4 {
+  margin: 4px 0 6px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.instructions-panel .conn-table {
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.instructions-panel .conn-table th,
+.instructions-panel .conn-table td {
+  padding: 3px 5px;
+}
+
+.instructions-panel br {
+  display: none;
 }
 
 /* Show on hover */
