@@ -98,13 +98,39 @@ function stopComponentsSkipAlertAudio() {
     componentsSkipAlertAudio.currentTime = 0;
   } catch {}
 }
+
+function stopAllActiveAudio() {
+  stopComponentsSkipAlertAudio();
+
+  try {
+    if (window.labSpeech && typeof window.labSpeech.stop === "function") {
+      window.labSpeech.stop();
+    }
+  } catch {}
+
+  try {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  } catch {}
+
+  try {
+    document.querySelectorAll("audio").forEach((audioEl) => {
+      if (!audioEl) return;
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    });
+  } catch {}
+}
+window.stopAllActiveAudio = stopAllActiveAudio;
+
 window.closeModal = function () {
   const modal = document.getElementById("warningModal");
   const modalBox = document.getElementById("modalBox");
 
   if (!modal || !modalBox) return;
 
-  stopComponentsSkipAlertAudio();
+  stopAllActiveAudio();
   modalBox.classList.add("closing");
 
   setTimeout(() => {
@@ -116,7 +142,7 @@ window.closeModal = function () {
 document.addEventListener("DOMContentLoaded", function () {
   const okBtn = document.getElementById("modalOkBtn");
   if (okBtn) {
-    okBtn.addEventListener("click", stopComponentsSkipAlertAudio);
+    okBtn.addEventListener("click", stopAllActiveAudio);
     okBtn.addEventListener("click", window.closeModal);
   }
 });
@@ -245,7 +271,7 @@ function closeModal() {
 
   if (!modal || !modalBox) return;
 
-  stopComponentsSkipAlertAudio();
+  stopAllActiveAudio();
   modalBox.classList.add("closing");
 
   setTimeout(() => {
@@ -1303,6 +1329,9 @@ if (window.isGuideActive && window.isGuideActive()) {
 
       if (isMCBOn) {
         const wasExperimentRunning =
+          labStage === "dc_on" ||
+          labStage === "starter_on" ||
+          labStage === "armature_set" ||
           starterIsOn ||
           armatureKnobUsed ||
           fieldStepIndex > 0 ||
