@@ -15,6 +15,8 @@
   const USER_FORM_PROMPT_AUDIO_SRC = "./audio/userinput.wav";
   const PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE =
     "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
+  const PROGRESS_REPORT_ACCESS_ALERT_USER_ONLY_MESSAGE =
+    "Please fill out the user form to access the progress report.";
   const PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE =
     "Please generate the simulation report by performing the experiment.";
   const PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC = "./audio/progressreportalert.wav";
@@ -40,13 +42,14 @@
     return { needsUser: !hasUser, needsSim: !hasSimulationReport };
   }
 
-  function isUserInputMissingForProgressReport() {
-    const api = VP();
-    return !(typeof api.hasUser === "function" ? !!api.hasUser() : false);
-  }
-
   function getProgressReportAccessAlertMessage(needsUser, needsSim) {
-    if (needsUser) return PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
+    const api = VP();
+    if (typeof api.getProgressReportBlockMessage === "function") {
+      return String(api.getProgressReportBlockMessage(needsUser, needsSim) || "").trim() ||
+        PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
+    }
+    if (needsUser && needsSim) return PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
+    if (needsUser) return PROGRESS_REPORT_ACCESS_ALERT_USER_ONLY_MESSAGE;
     if (needsSim) return PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE;
     return PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
   }
@@ -268,7 +271,9 @@
     anchors.forEach((a) => {
       a.removeAttribute("target");
       a.setAttribute("target", "_self");
-      if (!a.dataset.userInputDecorated) decorateUserInputLink(a);
+      if (a.hasAttribute("data-user-input-link") && !a.hasAttribute("data-mobile-user-input-link") && !a.dataset.userInputDecorated) {
+        decorateUserInputLink(a);
+      }
     });
   }
 
@@ -327,7 +332,7 @@
     const firstName = getFirstName(state?.user?.name);
     const designation = (state?.user?.designation || "").trim();
 
-    document.querySelectorAll('a[href*="user_input.html"]').forEach((a) => {
+    document.querySelectorAll('a[data-user-input-link]').forEach((a) => {
       const avatar = a.querySelector("[data-user-avatar]");
       const text = a.querySelector("[data-user-text]");
 
@@ -476,13 +481,6 @@
       const href = (a.getAttribute("href") || "").toLowerCase();
       if (!isProgressReportLink(href)) return;
 
-      if (isUserInputMissingForProgressReport()) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        showThemedAlert(PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE, "Instructions");
-        return;
-      }
-
       if (canAccessProgressReport()) return;
 
       event.preventDefault();
@@ -557,10 +555,6 @@
         if (returnUrl) {
           if (isProgressReportLink(returnUrl) && !canAccessProgressReport()) {
             const { needsUser, needsSim } = getProgressReportRequirements();
-            if (needsUser) {
-              showThemedAlert(PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE, "Instructions");
-              return;
-            }
             showThemedAlert(getProgressReportAccessAlertMessage(needsUser, needsSim), "Instructions");
             return;
           }
@@ -609,4 +603,3 @@
   init();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
 })();
-

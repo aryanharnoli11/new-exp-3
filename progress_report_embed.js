@@ -15,11 +15,13 @@
   const USER_FORM_PROMPT_MESSAGE =
     "If you want to generate a progress report, first you have to fill your details in the user form.";
   const USER_FORM_PROMPT_AUDIO_SRC = "./audio/userinput.wav";
-  const PROGRESS_REPORT_ACCESS_ALERT_MESSAGE =
+  const PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE =
     "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
+  const PROGRESS_REPORT_ACCESS_ALERT_USER_ONLY_MESSAGE =
+    "Please fill out the user form to access the progress report.";
   const PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE =
     "Please generate the simulation report by performing the experiment.";
-  const PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC = "./audio/progressreportalert.wav";
+  const PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC = "#";
   let userFormPromptAudioEl = null;
   let progressReportAccessAlertAudioEl = null;
 
@@ -43,14 +45,15 @@
   }
 
   function getProgressReportAccessAlertMessage(needsUser, needsSim) {
-    if (needsUser) return PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
-    if (needsSim) return PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE;
-    return PROGRESS_REPORT_ACCESS_ALERT_MESSAGE;
-  }
-
-  function isUserInputMissingForProgressReport() {
     const api = VP();
-    return !(typeof api.hasUser === "function" ? !!api.hasUser() : false);
+    if (typeof api.getProgressReportBlockMessage === "function") {
+      return String(api.getProgressReportBlockMessage(needsUser, needsSim) || "").trim() ||
+        PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
+    }
+    if (needsUser && needsSim) return PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
+    if (needsUser) return PROGRESS_REPORT_ACCESS_ALERT_USER_ONLY_MESSAGE;
+    if (needsSim) return PROGRESS_REPORT_ACCESS_ALERT_SIM_ONLY_MESSAGE;
+    return PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE;
   }
 
   function isProgressReportLink(href) {
@@ -83,7 +86,8 @@
   }
 
   function playProgressReportAccessAlertAudio(message) {
-    if (String(message || "").trim() !== PROGRESS_REPORT_ACCESS_ALERT_MESSAGE) return;
+    const normalizedMessage = String(message || "").trim();
+    if (normalizedMessage !== PROGRESS_REPORT_ACCESS_ALERT_BOTH_MESSAGE) return;
     if (!PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC) return;
     if (!progressReportAccessAlertAudioEl) {
       progressReportAccessAlertAudioEl = new Audio(PROGRESS_REPORT_ACCESS_ALERT_AUDIO_SRC);
@@ -269,12 +273,53 @@
     } catch {
       progressSection.scrollIntoView();
     }
-    setActiveMenu();
     return true;
   }
 
   function getProgressHrefTarget() {
     return shouldEmbedProgress() ? '#progressreport' : 'progressreport.html';
+  }
+
+  function getEmbeddedProgressIframes(root = document) {
+    return Array.from(root.querySelectorAll('iframe[title="Progress Report"]'));
+  }
+
+  function requestEmbeddedProgressHeight(frame) {
+    if (!frame) return;
+    try {
+      frame.contentWindow?.postMessage({ type: 'vlab:progress_report_height_request' }, '*');
+    } catch (error) {}
+  }
+
+  function setEmbeddedProgressIframeHeight(height, sourceWindow = null) {
+    const parsedHeight = Number(height);
+    if (!Number.isFinite(parsedHeight)) return;
+
+    const nextHeight = Math.max(640, Math.ceil(parsedHeight));
+    getEmbeddedProgressIframes().forEach((frame) => {
+      if (sourceWindow && frame.contentWindow && frame.contentWindow !== sourceWindow) return;
+      const currentHeight = parseFloat(frame.style.height) || frame.getBoundingClientRect().height || 0;
+      if (Math.abs(currentHeight - nextHeight) <= 1) return;
+      frame.style.height = `${nextHeight}px`;
+      frame.style.minHeight = `${nextHeight}px`;
+      frame.style.overflow = 'hidden';
+      frame.setAttribute('scrolling', 'no');
+    });
+  }
+
+  function prepareEmbeddedProgressFrames(root = document) {
+    getEmbeddedProgressIframes(root).forEach((frame) => {
+      frame.style.overflow = 'hidden';
+      frame.setAttribute('scrolling', 'no');
+
+      if (frame.dataset.progressHeightBound === '1') return;
+      frame.dataset.progressHeightBound = '1';
+      frame.addEventListener('load', () => {
+        requestEmbeddedProgressHeight(frame);
+        window.setTimeout(() => requestEmbeddedProgressHeight(frame), 250);
+        window.setTimeout(() => requestEmbeddedProgressHeight(frame), 1000);
+      });
+    });
   }
 
   function ensureProgressSection(main) {
@@ -328,6 +373,7 @@
       link.setAttribute('target', '_self');
       link.setAttribute('rel', 'noopener');
     });
+    prepareEmbeddedProgressFrames(root);
   }
 
   function markHeaderProgressLinks(isAimPage) {
@@ -405,6 +451,7 @@
     ensureAlertThemeCss();
     ensureProgressNoHoverStyles();
     forceSameTabProgressLinks();
+    prepareEmbeddedProgressFrames();
 
     const pageName = getPageName();
     const isAimPage = pageName === 'aim.html';
@@ -600,28 +647,16 @@
         disableProgressReportUI();
       }
     }
-
-    function refreshProgressReportState() {
-      syncProgressReportUI();
-      setActiveMenu();
-      if (window.location.hash === '#progressreport' && canAccessProgressReport()) {
-        showEmbeddedProgressSection();
-      }
-    }
     syncProgressReportUI();
+
+    function showProgressReportLockedAlert() {
+      const { needsUser, needsSim } = getProgressReportRequirements();
+      const message = getProgressReportAccessAlertMessage(needsUser, needsSim);
+      showAimAlert(message, 'Instructions');
+    }
 
     const handleProgressLinkClick = (event) => {
       const embedded = shouldEmbedProgress();
-      if (isUserInputMissingForProgressReport()) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const { needsUser, needsSim } = getProgressReportRequirements();
-        showAimAlert(
-          getProgressReportAccessAlertMessage(needsUser, needsSim),
-          'Instructions'
-        );
-        return;
-      }
       if (canAccessProgressReport()) {
         syncProgressReportUI();
         if (embedded) {
@@ -634,12 +669,8 @@
       }
       event.preventDefault();
       event.stopImmediatePropagation();
-      const { needsUser, needsSim } = getProgressReportRequirements();
 
-      showAimAlert(
-        getProgressReportAccessAlertMessage(needsUser, needsSim),
-        'Instructions'
-      );
+      showProgressReportLockedAlert();
     };
 
     if (promptYes) {
@@ -671,25 +702,10 @@
         target.hasAttribute('data-progress-report-link') || isProgressReportLink(href);
       if (!isProgressLink) return;
 
-      if (isUserInputMissingForProgressReport()) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const { needsUser, needsSim } = getProgressReportRequirements();
-        showAimAlert(
-          getProgressReportAccessAlertMessage(needsUser, needsSim),
-          'Instructions'
-        );
-        return;
-      }
-
       if (!canAccessProgressReport()) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        const { needsUser, needsSim } = getProgressReportRequirements();
-        showAimAlert(
-          getProgressReportAccessAlertMessage(needsUser, needsSim),
-          'Instructions'
-        );
+        showProgressReportLockedAlert();
         return;
       }
 
@@ -712,52 +728,27 @@
     if (shouldEmbedProgress()) {
       if (window.location.hash === '#progressreport') {
         if (canAccessProgressReport()) {
-          syncProgressReportUI();
           showEmbeddedProgressSection();
         } else {
-          const { needsUser, needsSim } = getProgressReportRequirements();
-          showAimAlert(
-            getProgressReportAccessAlertMessage(needsUser, needsSim),
-            'Instructions'
-          );
+          showProgressReportLockedAlert();
         }
       }
 
       window.addEventListener('hashchange', () => {
         if (window.location.hash === '#progressreport') {
           if (canAccessProgressReport()) {
-            syncProgressReportUI();
             showEmbeddedProgressSection();
           } else {
-            const { needsUser, needsSim } = getProgressReportRequirements();
-            showAimAlert(
-              getProgressReportAccessAlertMessage(needsUser, needsSim),
-              'Instructions'
-            );
+            showProgressReportLockedAlert();
           }
         }
       });
     }
 
-    window.addEventListener('focus', refreshProgressReportState);
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) return;
-      refreshProgressReportState();
-    });
-    window.addEventListener('storage', (event) => {
-      const key = String(event?.key || '');
-      if (!key || !key.includes('vlab_exp2')) return;
-      refreshProgressReportState();
-    });
-
     if (isAimPage) {
       window.addEventListener('hashchange', setActiveMenu);
       if (window.location.hash === '#progressreport' && !canAccessProgressReport()) {
-        const { needsUser, needsSim } = getProgressReportRequirements();
-        showAimAlert(
-          getProgressReportAccessAlertMessage(needsUser, needsSim),
-          'Instructions'
-        );
+        showProgressReportLockedAlert();
       }
     }
 
@@ -780,6 +771,14 @@
       if (allowedOrigin !== "null" && event.origin !== allowedOrigin) return;
       const data = event.data;
       if (!data || !data.type) return;
+
+      if (data.type === 'vlab:progress_report_height') {
+        const nextHeight = Number(data.height);
+        if (Number.isFinite(nextHeight)) {
+          setEmbeddedProgressIframeHeight(nextHeight, event.source);
+        }
+        return;
+      }
 
       if (data.type === 'vlab:simulation_report_generated') {
         const html = typeof data.html === 'string' ? data.html : '';
@@ -813,6 +812,7 @@
           if (iframe) {
             try {
               iframe.contentWindow?.postMessage({ type: 'vlab:simulation_report_generated' }, '*');
+              iframe.contentWindow?.postMessage({ type: 'vlab:progress_report_height_request' }, '*');
             } catch (e) {
               iframe.src = iframe.src;
             }
@@ -835,11 +835,7 @@
         const returnUrl = typeof data.returnUrl === 'string' ? data.returnUrl : '';
         if (returnUrl) {
           if (isProgressReportLink(returnUrl) && !canAccessProgressReport()) {
-            const { needsUser, needsSim } = getProgressReportRequirements();
-            showAimAlert(
-              getProgressReportAccessAlertMessage(needsUser, needsSim),
-              'Instructions'
-            );
+            showProgressReportLockedAlert();
             return;
           }
           window.location.href = returnUrl;

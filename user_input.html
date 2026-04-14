@@ -37,8 +37,9 @@
       <div>
         <label class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
         <input id="email" type="email" required
+          placeholder="name@example.com"
           class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
-        <p id="emailValidationMessage" class="hidden mt-2 text-sm font-semibold text-red-600">
+        <p id="emailError" class="hidden mt-1 text-sm font-semibold text-red-600">
           Please enter a valid email (examples: name@example.com, name@gmail.com, name@yahoo.com).
         </p>
       </div>
@@ -72,15 +73,9 @@
 
   <script src="./progress_tracker.js"></script>
   <script>
-    const EMAIL_ERROR_MESSAGE =
-      "Please enter a valid email (examples: name@example.com, name@gmail.com, name@yahoo.com).";
-    const USER_INPUT_SUCCESS_ALERT_MESSAGE = "Now you can generate the progress report";
-    const PROGRESS_REPORT_ACCESS_ALERT_MESSAGE =
-      "To access the progress report, first fill out the user form and generate the simulation report by performing the experiment.";
-
     const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
-    const emailValidationMessage = document.getElementById("emailValidationMessage");
+    const emailError = document.getElementById("emailError");
     const designationInput = document.getElementById("designation");
     const nameAvatar = document.getElementById("nameAvatar");
     const namePreview = document.getElementById("namePreview");
@@ -125,16 +120,6 @@
       return u.searchParams.get("return") || "aim.html";
     }
 
-    function isProgressReportReturnUrl(value) {
-      const safe = String(value || "").trim().toLowerCase();
-      if (!safe) return false;
-      return (
-        safe.includes("progressreport") ||
-        safe === "#progressreport" ||
-        safe.endsWith("#progressreport")
-      );
-    }
-
     function showError(msg) {
       const el = document.getElementById("errorBox");
       el.textContent = msg;
@@ -147,45 +132,25 @@
       el.textContent = "";
     }
 
-    function isValidEmail(email) {
-      const value = String(email || "").trim();
-      if (!value) return false;
-
-      const basicPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-      if (!basicPattern.test(value)) return false;
-      if (value.includes("..")) return false;
-
-      const parts = value.split("@");
-      if (parts.length !== 2) return false;
-      const local = parts[0];
-      const domain = parts[1];
-
-      if (!local || !domain) return false;
-      if (local.startsWith(".") || local.endsWith(".")) return false;
-      if (domain.startsWith(".") || domain.endsWith(".")) return false;
-      if (domain.startsWith("-") || domain.endsWith("-")) return false;
-
-      return true;
+    function isValidEmailFormat(email) {
+      const e = String(email || "").trim();
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
     }
 
-    function renderEmailValidation(forceShow = false) {
-      if (!emailInput) return true;
-
-      const value = (emailInput.value || "").trim();
-      const hasValue = value.length > 0;
-      const valid = isValidEmail(value);
-      const showError = forceShow ? !valid : hasValue && !valid;
-
-      emailInput.classList.toggle("border-red-500", showError);
-      emailInput.classList.toggle("focus:ring-red-500", showError);
-      emailInput.classList.toggle("focus:ring-sky-500", !showError);
-      emailInput.setCustomValidity(showError ? EMAIL_ERROR_MESSAGE : "");
-
-      if (emailValidationMessage) {
-        emailValidationMessage.classList.toggle("hidden", !showError);
+    function showEmailError() {
+      if (emailError) emailError.classList.remove("hidden");
+      if (emailInput) {
+        emailInput.setAttribute("aria-invalid", "true");
+        emailInput.classList.add("border-red-500");
       }
+    }
 
-      return valid;
+    function clearEmailError() {
+      if (emailError) emailError.classList.add("hidden");
+      if (emailInput) {
+        emailInput.removeAttribute("aria-invalid");
+        emailInput.classList.remove("border-red-500");
+      }
     }
 
     function getFirstName(fullName) {
@@ -278,11 +243,13 @@
 
     if (emailInput) {
       emailInput.addEventListener("input", () => {
-        renderEmailValidation(false);
         persistDraft();
-      });
-      emailInput.addEventListener("blur", () => {
-        renderEmailValidation(Boolean((emailInput.value || "").trim()));
+        const value = (emailInput.value || "").trim();
+        if (!value || isValidEmailFormat(value)) {
+          clearEmailError();
+        } else {
+          showEmailError();
+        }
       });
     }
 
@@ -319,6 +286,7 @@
     document.getElementById("userForm").addEventListener("submit", (e) => {
       e.preventDefault();
       clearError();
+      clearEmailError();
 
       if (!window.VLProgress) {
         showError("Progress tracker missing. Check ./progress_tracker.js path.");
@@ -334,22 +302,20 @@
         return;
       }
 
-      if (!renderEmailValidation(true)) {
-        showError(EMAIL_ERROR_MESSAGE);
+      if (!isValidEmailFormat(email)) {
+        showError("Please enter a valid email (example: name@example.com).");
+        showEmailError();
         return;
       }
 
       VLProgress.setUser({ name, email, designation });
       clearDraft();
       updateProfilePreview(name, designation);
-      alert(USER_INPUT_SUCCESS_ALERT_MESSAGE);
+
+      // Inform the user they can proceed to generate the progress report.
+      alert("Now you can generate the progress report");
 
       const returnUrl = getReturnUrl();
-      const hasSimulationReport =
-        typeof VLProgress.hasSimulationReport === "function"
-          ? !!VLProgress.hasSimulationReport()
-          : false;
-      const progressReturnBlocked = isProgressReportReturnUrl(returnUrl) && !hasSimulationReport;
 
       // notify parent if inside iframe modal
       let handled = false;
@@ -361,11 +327,6 @@
       }
 
       if (!handled) {
-        if (progressReturnBlocked) {
-          alert(PROGRESS_REPORT_ACCESS_ALERT_MESSAGE);
-          window.location.href = "aim.html";
-          return;
-        }
         window.location.href = returnUrl;
       }
     });

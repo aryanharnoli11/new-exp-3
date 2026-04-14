@@ -419,6 +419,18 @@
       gap: 0.9rem;
       z-index: 90;
       max-width: calc(100vw - 32px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    body.sidebar-open .chatbot-widget {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+    }
+
+    @media (max-width: 1023px) {
+      #sidebar { z-index: 120 !important; }
+      #overlay { z-index: 110 !important; }
     }
 
     .chatbot-widget.chatbot-open .chatbot-hint-bubble,
@@ -714,7 +726,7 @@
       <div class="flex items-center justify-between py-1 w-full gap-3">
         <a href="../../main.html" class="logo-container hover:no-underline focus:no-underline"> <!-- Made logo clickable -->
           <img 
-            src="./images/logo-right.png" 
+            src="./images/image.png" 
             alt="Virtual Labs Logo" 
             class="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-xl object-contain bg-white p-1.5 logo-glow"
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%230b60a8%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3EVL%3C/text%3E%3C/svg%3E'"
@@ -730,6 +742,8 @@
           id="mobile-menu-toggle" 
           class="lg:hidden text-white p-2 menu-button"
           aria-label="Toggle menu"
+          aria-controls="sidebar"
+          aria-expanded="false"
         >
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -744,7 +758,7 @@
               <span class="nav-user-text" data-user-text>User Input</span>
             </span>
           </a>
-    
+       
         </nav>
       </div>
     </div>
@@ -752,7 +766,7 @@
 
  <div class="flex pt-16 min-h-screen">
     <!-- Sidebar -->
-    <aside id="sidebar" class="vl-sidebar w-64 fixed inset-y-0 left-0 z-40 overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out pt-20 lg:pt-6 pb-6">
+    <aside id="sidebar" class="vl-sidebar w-64 fixed inset-y-0 left-0 z-50 overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out pt-20 lg:pt-6 pb-6">
       <div class="px-4">
         <h2 class="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-4">Experiment Navigation</h2>
         <nav class="space-y-1">
@@ -856,7 +870,7 @@
       <div class="vl-card mb-4 overflow-hidden animate-fadeInUp rounded-lg">
         <div class="px-4 py-3" style="background: linear-gradient(120deg, #021a2c, #064073, #0b60a8);">
           <h1 class="text-lg md:text-xl font-bold text-white text-center leading-snug">
-            To study the speed control of a DC motor by field resistance control method.
+            To study the Load Characteristics of DC shunt generator
           </h1>
         </div>
       </div>
@@ -878,7 +892,7 @@
               </a>
             </section>
               <section id="v2-card" class="section-content vl-card p-6 animate-fadeInUp cta-card">
-            <a href="index.html" data-simulation-launch class="cta-link">
+            <a href="./index.html" target="_blank" data-simulation-launch class="cta-link">
               <span>Link Of Simulation</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14"></path>
@@ -930,7 +944,7 @@
   <!-- Demo Video Modal -->
   <div
     id="video-modal"
-    class="fixed inset-0 bg-white/70 backdrop-blur-sm hidden items-center justify-center z-[100000] p-4"
+    class="fixed inset-0 bg-white/70 backdrop-blur-sm hidden items-center justify-center z-[60] p-4"
     aria-hidden="true"
   >
     <div class="video-modal-shell flex w-[80vw] h-[70vh] max-w-5xl">
@@ -939,8 +953,7 @@
         id="video-modal-close"
         type="button"
         aria-label="Close video"
-        data-close-video-modal
-        class="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-700 rounded-full p-2 shadow-md border border-gray-200 transition z-[100001] pointer-events-auto"
+        class="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-700 rounded-full p-2 shadow-md border border-gray-200 transition z-10"
       >
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -954,7 +967,7 @@
           controls
           preload="metadata"
         >
-          <source src="./videos/demo_video.mp4" type="video/mp4">
+          <source src="./videos/demo.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
@@ -982,15 +995,45 @@
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const toggleBtn = document.getElementById('mobile-menu-toggle');
+    const mobileSidebarQuery = window.matchMedia('(max-width: 1023px)');
 
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
+    function setSidebarOpen(isOpen) {
+      const shouldOpen = Boolean(isOpen) && mobileSidebarQuery.matches;
+      if (sidebar) sidebar.classList.toggle('-translate-x-full', !shouldOpen);
+      if (overlay) overlay.classList.toggle('hidden', !shouldOpen);
+      document.body.classList.toggle('overflow-hidden', shouldOpen);
+      document.body.classList.toggle('sidebar-open', shouldOpen);
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(shouldOpen));
+
+      const chatbotWidget = document.querySelector('.chatbot-widget');
+      const chatbotPanel = chatbotWidget?.querySelector('.chatbot-panel');
+      const chatbotLauncher = chatbotWidget?.querySelector('.chatbot-launcher');
+      if (shouldOpen && chatbotWidget && chatbotPanel?.classList.contains('open')) {
+        chatbotPanel.classList.remove('open');
+        chatbotWidget.classList.remove('chatbot-open');
+        chatbotLauncher?.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const isClosed = !sidebar || sidebar.classList.contains('-translate-x-full');
+        setSidebarOpen(isClosed);
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => setSidebarOpen(false));
+    }
+
+    document.querySelectorAll('#sidebar a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (mobileSidebarQuery.matches) setSidebarOpen(false);
+      });
     });
 
-    overlay.addEventListener('click', () => {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
+    window.addEventListener('resize', () => {
+      if (!mobileSidebarQuery.matches) setSidebarOpen(false);
     });
   </script>
 
@@ -1001,50 +1044,25 @@
     let popupOnNo = null;
     const SIMULATION_TABS_ALERT_MESSAGE =
       "The Simulation section contains two tabs. The Demo tab provides a guided walkthrough on how to run the simulation, while the Simulation tab allows you to perform the experiment independently.\n\nClick on the Demo tab to view the demo.";
-    const SIMULATION_LAUNCH_URL = "index.html";
     const SIMULATION_DEMO_REMINDER_ALERT_MESSAGE = "I hope you’ve completed the demo.";
     const SIMULATION_DEMO_REQUIRED_ALERT_MESSAGE = "To proceed further, please complete the demo first.";
-    const SIMULATION_LINK_REMINDER_AUDIO_SRC = "./audio/experimentopen.wav";
     const SIMULATION_ALERT_AUDIO_SOURCES = {
       [SIMULATION_TABS_ALERT_MESSAGE]: "./audio/simulationsection.wav",
       [SIMULATION_DEMO_REMINDER_ALERT_MESSAGE]: "./audio/experimentopen.wav",
       [SIMULATION_DEMO_REQUIRED_ALERT_MESSAGE]: "./audio/demotab.wav"
     };
-    let simulationAlertAudioRetryQueued = false;
 
-    function queueSimulationAlertAudioRetry(soundEl) {
-      if (!soundEl || simulationAlertAudioRetryQueued) return;
-      simulationAlertAudioRetryQueued = true;
-
-      const resume = () => {
-        simulationAlertAudioRetryQueued = false;
-        const modal = document.getElementById('warningModal');
-        if (!modal || !modal.classList.contains('show')) return;
-        soundEl.currentTime = 0;
-        const retry = soundEl.play();
-        if (retry && typeof retry.catch === 'function') {
-          retry.catch(() => {});
-        }
-      };
-
-      document.addEventListener('pointerdown', resume, { once: true });
-      document.addEventListener('keydown', resume, { once: true });
-    }
-
-    function playSimulationAlertAudio(soundEl, message, explicitAudioSrc = "") {
+    function playSimulationAlertAudio(soundEl, message) {
       if (!soundEl || typeof soundEl.play !== 'function') return;
-      const audioSrc = explicitAudioSrc || SIMULATION_ALERT_AUDIO_SOURCES[String(message || '')];
+      const audioSrc = SIMULATION_ALERT_AUDIO_SOURCES[String(message || '')];
       if (!audioSrc) return;
       if (soundEl.getAttribute('src') !== audioSrc) {
         soundEl.setAttribute('src', audioSrc);
-        soundEl.load();
       }
       soundEl.currentTime = 0;
       const playPromise = soundEl.play();
       if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(() => {
-          queueSimulationAlertAudioRetry(soundEl);
-        });
+        playPromise.catch(() => {});
       }
     }
 
@@ -1081,14 +1099,9 @@
 
       if (ttl) ttl.textContent = String(title || 'Alert');
       if (msg) {
-        msg.textContent = String(message);
-        const useCenter = Boolean(opts.center);
-        msg.style.textAlign = useCenter ? 'center' : 'justify';
-        msg.style.textJustify = useCenter ? '' : 'inter-word';
-        msg.style.textAlignLast = 'center';
-        msg.style.maxWidth = useCenter ? '48ch' : '52ch';
-        msg.style.wordSpacing = '';
-      }
+  msg.textContent = String(message);
+  msg.style.textAlign = opts.center ? 'center' : '';
+}
 
       if (actions) {
         const shouldShowActions = popupMode === 'confirm';
@@ -1098,29 +1111,22 @@
       if (okBtn) {
         okBtn.hidden = popupMode === 'confirm';
         okBtn.style.display = popupMode === 'confirm' ? 'none' : 'inline-flex';
-        okBtn.style.marginTop = popupMode === 'confirm' ? '' : (opts.justify ? '1.1rem' : '');
       }
       window.setTimeout(() => {
-        try {
-          if (popupMode === 'confirm') yesBtn?.focus?.({ preventScroll: true });
-          else okBtn?.focus?.({ preventScroll: true });
-        } catch (e) {
-          if (popupMode === 'confirm') yesBtn?.focus?.();
-          else okBtn?.focus?.();
-        }
+        if (popupMode === 'confirm') yesBtn?.focus?.();
+        else okBtn?.focus?.();
       }, 0);
 
       if (box) {
         box.classList.remove('closing');
         box.classList.remove('danger');
-        box.style.width = opts.justify ? 'min(620px, 95vw)' : '';
         if (opts.variant === 'danger') box.classList.add('danger');
       }
 
       modal.classList.add('show');
       document.body.classList.add('is-modal-open');
 
-      playSimulationAlertAudio(sound, message, String(opts.audioSrc || ""));
+      playSimulationAlertAudio(sound, message);
     }
 
     function closePopup(action = 'close') {
@@ -1160,7 +1166,6 @@
 
       if (sound && typeof sound.pause === 'function') {
         sound.pause();
-        sound.currentTime = 0;
       }
     }
 
@@ -1197,15 +1202,6 @@
     })();
 
     (function initSimulationTabsAlert() {
-      let simulationIntroAlertShown = false;
-
-      function showSimulationTabsIntro() {
-        if (simulationIntroAlertShown) return;
-        simulationIntroAlertShown = true;
-        showPopup(SIMULATION_TABS_ALERT_MESSAGE, 'Instruction', { justify: true });
-        highlightDemoTab();
-      }
-
       function highlightDemoTab(durationMs = 12000) {
         const demoCard = document.getElementById('v1-card');
         if (!demoCard) return;
@@ -1219,59 +1215,33 @@
         if (trigger) trigger.addEventListener('click', clear, { once: true });
       }
 
-      if (document.readyState === 'complete') {
-        window.setTimeout(showSimulationTabsIntro, 120);
-      } else {
-        window.addEventListener(
-          'load',
-          () => {
-            window.setTimeout(showSimulationTabsIntro, 120);
-          },
-          { once: true }
-        );
-      }
+      window.addEventListener(
+        'load',
+        () => {
+          showPopup(SIMULATION_TABS_ALERT_MESSAGE, 'Instruction');
+          highlightDemoTab();
+        },
+        { once: true }
+      );
     })();
 
     (function initSimulationLinkReminder() {
-      const launchLinks = Array.from(document.querySelectorAll('[data-simulation-launch]'));
-      if (!launchLinks.length) return;
+      const links = document.querySelectorAll('a[data-simulation-launch]');
+      if (!links.length) return;
 
-      function resolveSimulationLaunchUrl() {
-        const path = String(window.location.pathname || '').toLowerCase();
-        // Support deployments where this page is served from a /simulation/ route.
-        if (path.endsWith('/simulation/') || path.endsWith('/simulation/simulation.html')) {
-          return new URL('../index.html', window.location.href).toString();
-        }
-        return new URL(SIMULATION_LAUNCH_URL, window.location.href).toString();
-      }
-
-      const launchUrl = resolveSimulationLaunchUrl();
-
-      function openSimulationInNewTab(url) {
-        const newTab = window.open(url, '_blank', 'noopener,noreferrer');
-        if (newTab && typeof newTab.focus === 'function') {
-          newTab.focus();
-        }
-      }
-
-      launchLinks.forEach((link) => {
-        link.setAttribute('href', launchUrl);
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-        link.addEventListener(
-          'click',
-          (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            showPopup(SIMULATION_DEMO_REMINDER_ALERT_MESSAGE, 'Reminder', {
-              mode: 'confirm',
-              center: true,
-              audioSrc: SIMULATION_LINK_REMINDER_AUDIO_SRC,
-              onYes: () => openSimulationInNewTab(launchUrl)
-            });
-          },
-          { capture: true }
-        );
+      links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const url = link.getAttribute('href') || link.href;
+          if (!url) return;
+          event.preventDefault();
+        showPopup(SIMULATION_DEMO_REMINDER_ALERT_MESSAGE, 'Reminder', {
+          mode: 'confirm',
+          center: true,
+          onYes: () => {
+            window.open(url, '_blank', 'noopener');
+          }
+        });
+        });
       });
     })();
   </script>
@@ -1305,7 +1275,6 @@
     }
 
     function closeVideoModal({ fromEnded = false } = {}) {
-      if (videoModal.classList.contains('hidden')) return;
       const completed = fromEnded || isDemoVideoComplete();
       videoModal.classList.add('hidden');
       videoModal.classList.remove('flex');
@@ -1319,35 +1288,17 @@
       }
     }
 
-    function requestCloseVideoModal(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === 'function') {
-          event.stopImmediatePropagation();
-        }
-      }
-      closeVideoModal();
-    }
-
     if (demoTrigger && videoModal && videoPlayer && videoCloseBtn) {
       demoTrigger.addEventListener('click', (event) => {
         event.preventDefault();
         openVideoModal();
       });
 
-      // Capture-phase + pointer support makes the close button reliable on all click/touch paths.
-      videoCloseBtn.addEventListener('click', requestCloseVideoModal, true);
-      videoCloseBtn.addEventListener('pointerup', requestCloseVideoModal, true);
+      videoCloseBtn.addEventListener('click', closeVideoModal);
 
       videoModal.addEventListener('click', (event) => {
-        const closeTarget = event.target.closest('[data-close-video-modal]');
-        if (closeTarget) {
-          requestCloseVideoModal(event);
-          return;
-        }
         if (event.target === videoModal) {
-          requestCloseVideoModal(event);
+          closeVideoModal();
         }
       });
 
@@ -1370,8 +1321,7 @@
   </script>
 
   <div class="chatbot-widget">
-    <div class="chatbot-panel" data-chat-url="https://exp-3-electrical-machine-lab.netlify.app/
-">
+    <div class="chatbot-panel" data-chat-url="https://electrical-machine-exp-2.netlify.app/">
       <div class="chatbot-panel-header">
         <div>
           <p class="chatbot-panel-title">Virtual Lab Assistant</p>
@@ -1423,6 +1373,27 @@
 
       let isLoaded = false;
       let autoCloseTimer = null;
+
+      function playNotification() {
+        if (!notifyAudio) return;
+        try {
+          const maybePromise = notifyAudio.play();
+          if (maybePromise && typeof maybePromise.catch === 'function') {
+            maybePromise.catch(function () {});
+          }
+        } catch (e) {}
+      }
+
+      function scheduleAutoOpen() {
+        if (document.body.classList.contains('sidebar-open')) return;
+        playNotification();
+        if (!panel.classList.contains('open')) openPanel();
+
+        if (autoCloseTimer) clearTimeout(autoCloseTimer);
+        autoCloseTimer = setTimeout(function () {
+          if (panel.classList.contains('open')) closePanel();
+        }, 3000);
+      }
  
       function openPanel() {
         panel.classList.add('open');
