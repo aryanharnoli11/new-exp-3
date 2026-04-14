@@ -323,12 +323,17 @@ const ALERT_AUDIO_BY_EVENT = {
 };
 
 const GUIDE_STEP_AUDIO_BY_PAIR = {
-  "P1-L": "audio/Connect point A to point P.wav",
-  "P2-H": "audio/Connect point B to point J.wav",
-  "F-I": "audio/Connect point Q to point L.wav",
-  "E-F1": "audio/Connect point F to point D.wav",
-  "A2-P2": "audio/Connect point B to point K.wav",
-  "A-B": "audio/Connect point G to point R.wav"
+  "P1-G": "audio/Connect point P1 to point G.wav",
+  "P2-H": "audio/Connect point P2 to point H.wav",
+  "P1-L": "audio/Connect point P1 to point L.wav",
+  "F-I": "audio/Connect point F to point I.wav",
+  "J-D": "audio/Connect point J to point D.wav",
+  "E-F1": "audio/Connect point E to point F1.wav",
+  "A2-F2": "audio/Connect point A2 to point F2.wav",
+  "A2-P2": "audio/Connect point A2 to point P2.wav",
+  "A-B": "audio/Connect point A to point B.wav",
+  "C-K": "audio/Connect point C to point K.wav",
+  "A1-M": "audio/Connect point A1 to point M.wav"
 };
 
 const guideAudioCache = new Map();
@@ -348,7 +353,12 @@ function resolveGuideAudioForText(text) {
       const from = pairMatch[1].toUpperCase();
       const to = pairMatch[2].toUpperCase();
       const key = `${from}-${to}`;
-      return GUIDE_STEP_AUDIO_BY_PAIR[key] || GUIDE_AUDIO_BY_EVENT.generic_step;
+      const reverseKey = `${to}-${from}`;
+      return (
+        GUIDE_STEP_AUDIO_BY_PAIR[key] ||
+        GUIDE_STEP_AUDIO_BY_PAIR[reverseKey] ||
+        GUIDE_AUDIO_BY_EVENT.generic_step
+      );
     }
     return GUIDE_AUDIO_BY_EVENT.generic_step;
   }
@@ -1270,7 +1280,7 @@ function stopArmatureKnob() {
   if (rpmDisplay) rpmDisplay.textContent = String(ARMATURE_SET_RPM);
   startRotorRotationForRpm(ARMATURE_SET_RPM);
   labStage = "armature_set";
-  showPopup("Armature resistance is set. Voltage is 220 volt. Now, vary the field resistance by moving the rheostat knob to take the reading.");
+  showPopup(" Armature resistance is set. Voltage is 220 volt   armature current is 1.1 Ampere and speed is 1450 RPM. Now, vary the field resistance by moving the rheostat knob to take the reading.");
 if (window.isGuideActive && window.isGuideActive()) {
   labSpeech.speak(
     "Armature resistance set and the voltage is 220 volt. Now adjust the field resistance knob to take readings."
@@ -1808,11 +1818,132 @@ function announceIfAllConnectionsDone() {
   }
 }
 
+function prepareMainGraphForPrint() {
+  const graphPlot = document.getElementById("graphPlot");
+  if (!graphPlot || !window.Plotly) return Promise.resolve();
+  const X_AXIS_LABEL = "<b>Field Current(A)</b>";
+  const Y_AXIS_LABEL = "<b>Speed(RPM)</b>";
+
+  const graphCanvas = document.querySelector(".graph-canvas");
+  let graphPrintImage = null;
+  if (graphCanvas) {
+    graphPrintImage = graphCanvas.querySelector(".graph-print-image-main");
+    if (!graphPrintImage) {
+      graphPrintImage = document.createElement("img");
+      graphPrintImage.className = "graph-print-image-main";
+      graphPrintImage.alt = "Output graph";
+      graphCanvas.appendChild(graphPrintImage);
+    }
+  }
+
+  const computed = window.getComputedStyle(graphPlot);
+  const isVisible = computed && computed.display !== "none" && graphPlot.childElementCount > 0;
+  if (!isVisible) return Promise.resolve();
+
+  const canvasRect = graphCanvas ? graphCanvas.getBoundingClientRect() : null;
+  const plotRect = graphPlot.getBoundingClientRect();
+  const targetPrintWidth = 1600;
+  const targetPrintHeight = 300;
+  const width = Math.max(
+    targetPrintWidth,
+    Math.floor((canvasRect && canvasRect.width ? canvasRect.width : plotRect.width) - 24)
+  );
+  const height = Math.max(
+    targetPrintHeight,
+    Math.floor((canvasRect && canvasRect.height ? canvasRect.height : plotRect.height) - 28)
+  );
+
+  const relayoutPromise = window.Plotly.relayout(graphPlot, {
+    autosize: false,
+    width,
+    height,
+    showlegend: false,
+    title: { text: "" },
+    margin: { l: 58, r: 16, t: 18, b: 56 },
+    xaxis: {
+      automargin: true,
+      title: { text: X_AXIS_LABEL, standoff: 14, font: { size: 21 } },
+      tickfont: { size: 18 }
+    },
+    yaxis: {
+      automargin: true,
+      title: { text: Y_AXIS_LABEL, standoff: 10, font: { size: 21 } },
+      tickfont: { size: 18 }
+    }
+  });
+
+  return Promise.resolve(relayoutPromise)
+    .catch(() => {})
+    .then(async () => {
+      if (window.Plotly && window.Plotly.Plots && typeof window.Plotly.Plots.resize === "function") {
+        window.Plotly.Plots.resize(graphPlot);
+      }
+
+      if (graphPrintImage && typeof window.Plotly.toImage === "function") {
+        try {
+          const imageData = await window.Plotly.toImage(graphPlot, {
+            format: "png",
+            width: Math.max(1200, width * 2),
+            height: Math.max(700, height * 2)
+          });
+          if (imageData) {
+            graphPrintImage.src = imageData;
+            graphCanvas && graphCanvas.classList.add("use-print-image");
+          } else {
+            graphCanvas && graphCanvas.classList.remove("use-print-image");
+          }
+        } catch {
+          graphCanvas && graphCanvas.classList.remove("use-print-image");
+        }
+      }
+
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
+    });
+}
+
+function restoreMainGraphAfterPrint() {
+  const graphPlot = document.getElementById("graphPlot");
+  const graphCanvas = document.querySelector(".graph-canvas");
+  const graphPrintImage = graphCanvas && graphCanvas.querySelector(".graph-print-image-main");
+  const X_AXIS_LABEL = "<b>Field Current(A)</b>";
+  const Y_AXIS_LABEL = "<b>Speed(RPM)</b>";
+
+  if (graphCanvas) graphCanvas.classList.remove("use-print-image");
+  if (graphPrintImage) graphPrintImage.removeAttribute("src");
+
+  if (!graphPlot || !window.Plotly) return;
+
+  Promise.resolve(
+    window.Plotly.relayout(graphPlot, {
+      autosize: true,
+      width: null,
+      height: null,
+      margin: { l: 70, r: 20, t: 40, b: 60 },
+      xaxis: {
+        automargin: true,
+        title: { text: X_AXIS_LABEL, standoff: 14 }
+      },
+      yaxis: {
+        automargin: true,
+        title: { text: Y_AXIS_LABEL, standoff: 10 }
+      }
+    })
+  )
+    .catch(() => {})
+    .then(() => {
+      if (window.Plotly && window.Plotly.Plots && typeof window.Plotly.Plots.resize === "function") {
+        window.Plotly.Plots.resize(graphPlot);
+      }
+    });
+}
+
 // ================= PRINT BUTTON =================
 const printBtn = document.getElementById("printBtn");
 
 if (printBtn) {
-  printBtn.addEventListener("click", () => {
+  printBtn.addEventListener("click", async () => {
     if (window.isGuideActive && window.isGuideActive()) {
       try {
         const printClickAudio = new Audio("audio/print.wav");
@@ -1829,12 +1960,25 @@ if (printBtn) {
       jsPlumb.repaintEverything();
     }
 
+    await prepareMainGraphForPrint();
+
     setTimeout(() => {
       window.print();
-    }, 200);
+    }, 120);
   });
 }
 // ===============================================
+
+window.addEventListener("beforeprint", () => {
+  if (typeof jsPlumb !== "undefined") {
+    jsPlumb.repaintEverything();
+  }
+  prepareMainGraphForPrint();
+});
+
+window.addEventListener("afterprint", () => {
+  restoreMainGraphAfterPrint();
+});
 
 
 
@@ -2553,8 +2697,7 @@ tr:nth-child(even) td {
 
     <p><b>Simulation Summary</b></p>
     <p style="text-align: justify">
-      The connections were completed as per the instructions and verified. 
-      The DC supply was then enabled, the starter was operated, the armature resistance was set, and the field resistance was varied.
+      The connections were completed as per the instructions and verified. The DC supply was then switched on, the starter was operated, the armature resistance was set, and the field resistance was varied.
        The corresponding field current and speed readings were recorded, and a graph was generated.
     </p>
   </div>
@@ -2920,6 +3063,8 @@ if (reportBtn) {
       showPopup(`Please take at least ${MIN_GRAPH_POINTS} readings.`);
       return;
     }
+    const X_AXIS_LABEL = "<b>Field Current(A)</b>";
+    const Y_AXIS_LABEL = "<b>Speed(RPM)</b>";
 
     const currents = readingsRecorded.map(r => r.current);
     const rpms = readingsRecorded.map(r => r.voltage);
@@ -2940,11 +3085,13 @@ if (reportBtn) {
         title: { text: "<b>Speed(RPM) vs Field Current(A)</b>" },
         margin: { l: 70, r: 20, t: 40, b: 60 },
         xaxis: {
-          title: { text: "<b> Field Current(A)</b>" },
+          title: { text: X_AXIS_LABEL, standoff: 14 },
+          automargin: true,
           zeroline: false
         },
         yaxis: {
-          title: { text: "<b>Speed (RPM)</b>" },
+          title: { text: Y_AXIS_LABEL, standoff: 10 },
+          automargin: true,
           zeroline: false
         },
         paper_bgcolor: "rgba(0,0,0,0)",
@@ -2956,6 +3103,10 @@ if (reportBtn) {
       Plotly.newPlot(graphPlot, [trace], layout, {
         displaylogo: false,
         responsive: true
+      }).then(() => {
+        if (window.Plotly && window.Plotly.Plots && typeof window.Plotly.Plots.resize === "function") {
+          window.Plotly.Plots.resize(graphPlot);
+        }
       });
       if (graphSection) {
         graphSection.scrollIntoView({
