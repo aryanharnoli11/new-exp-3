@@ -513,8 +513,8 @@ function playReadingAddedAudio(readingNumber) {
     playEventAudio(ALERT_AUDIO_BY_EVENT.five_readings_done);
     return;
   }
-  if (readingNumber === 7) {
-    playEventAudio(ALERT_AUDIO_BY_EVENT.seven_readings_done);
+  if (readingNumber === 6) {
+    playEventAudio(ALERT_AUDIO_BY_EVENT.reading_2nd);
     return;
   }
 }
@@ -2071,6 +2071,7 @@ tableGuidanceActive = false;
       "Maximum Readings Reached",
       "normal"
     );
+    playEventAudio(ALERT_AUDIO_BY_EVENT.max_readings);
     return;
   }
 
@@ -2120,13 +2121,9 @@ reportReadings.push({
 totalReadingsAdded++;
 playReadingAddedAudio(totalReadingsAdded);
 
-// ✅ ALERT ON 7TH READING
+// ✅ AUDIO ON 7TH READING (no popup here)
 if (totalReadingsAdded === 7) {
-  showPopup(
-    "You can add a maximum of 7 readings to the table.\nNow, click the Graph button.",
-    "Maximum Readings Reached",
-    "normal"
-  );
+  playEventAudio(ALERT_AUDIO_BY_EVENT.seven_readings_done);
 }
 // ✅ SHOW ALERT WHEN 5 READINGS ARE ADDED
 if (totalReadingsAdded === 5 && !fiveReadingsAnnounced) {
