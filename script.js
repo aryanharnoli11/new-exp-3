@@ -2690,7 +2690,7 @@ tr:nth-child(even) td {
   <div class="header-center">
     <div class="report-title">Virtual Labs Simulation Report</div>
   </div>
-  <img src="images/logo-right.png" class="vl-logo">
+  <img src="images/image.png" class="vl-logo">
 </div>
 <div class="title-line"></div>
 
