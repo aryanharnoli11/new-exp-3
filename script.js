@@ -3179,7 +3179,7 @@ if (graphBtn) {
   graphBtn.addEventListener("click", function () {
  showPopup(
       "The graph of speed vs field current has been plotted successfully.\n\nYour experiment is now complete.\nYou may view the report by clicking on the Report button, then use Print to print the page or Reset to start again.",
-      "Experiment Completed",
+      "Graph Generated",
       "normal"
     );
     const count = readingsRecorded.length;
@@ -3612,24 +3612,29 @@ speakCurrentStep();
       {
         id: "starter",
         selector: ".starter-body, .starter-handle",
-        text: "<strong>Purpose:</strong> A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor."
+        text: "<strong>Purpose:</strong> A 3-point starter is a device used to safely start a DC shunt motor. It limits the starting current and provides overload protection to the motor.\n\n Ratings:  Voltage - 220V DC, 7.5 HP"
       },
       
       {
         id: "voltmeter",
         selector: ".voltmeter-img",
-        text: "<strong>Purpose:</strong> To measure the voltage across the field winding."
+        text: "<strong>Purpose:</strong> To measure the voltage across the field winding.\n\n Rating:  0 - 420 V"
       },
       {
         id: "ammeter",
         selector: ".ammeter-img",
-        text: "<strong>Purpose:</strong> To measure the current flowing through the field winding. "
+        text: "<strong>Purpose:</strong> To measure the current flowing through the field winding.\n\n Rating:  0 - 1 A"
+      },
+      {
+        id: "ammeter-2",
+        selector: ".ammeter2-img",
+        text: "<strong>Purpose:</strong> To measure the current flowing through the armature winding.\n\n Rating:  0 - 2.5 A"
       },
  
      {
         id: "dc-motor",
         selector: ".motor-box, .motor-box img, .dc-motor-label",
-        text: "<strong>Purpose:</strong> The DC shunt motor is the machine whose speed is being controlled in this experiment."
+        text: "<strong>Purpose:</strong> The DC shunt motor is the machine whose speed is being controlled in this experiment.\n\n Rating:  5HP, Voltage - 220 V DC, Max. Current - 19 A, Speed - 1500 RPM "
       },
       {
         id: "dc-generator",
@@ -3644,17 +3649,17 @@ speakCurrentStep();
          {
   id: "rheostat-1",
   selector: "#rheostat-1, .field-rheostat-label, .field-rheostat-knob",
-  text: "<strong>Purpose:</strong> The field current is controlled by varying the field resistance in the field circuit, which in turn affects the magnetic flux and consequently the motor speed."
+  text: "<strong>Purpose:</strong> The field current is controlled by varying the field resistance in the field circuit, which in turn affects the magnetic flux and consequently the motor speed.\n\nRating: 300 ohm, 3A"
 },
 {
   id: "rheostat-2",
   selector: "#rheostat-2, .armature-rheostat-label, .armature-rheostat-knob",
-  text: "<strong>Purpose:</strong> Armature resistance is set once and kept constant. Therefore, speed is controlled only through the field resistance.<br><br><strong>Key details:</strong><ul><li>Typically low in value (fraction of an ohm)</li><li>Causes a voltage drop in the armature circuit</li><li>Affects armature current and power loss</li></ul>"
+  text: "<strong>Purpose:</strong> Armature resistance is set once and kept constant. Therefore, speed is controlled only through the field resistance.<br><br><strong>Key details:</strong><ul><li>Typically low in value (fraction of an ohm)</li><li>Causes a voltage drop in the armature circuit</li><li>Affects armature current and power loss</li></ul> \n\nRating: 75 ohm, 5A"
 },
 {
   id: "rpm-indicator",
   selector: "#rpm-indicator, .rpm-display, .rpm-label",
-  text: "<strong>Purpose:</strong> An RPM indicator (Revolutions Per Minute) is a measuring instrument used to display the rotational speed of a rotating shaft in an electrical machine such as motor or generator."
+  text: "<strong>Purpose:</strong> An RPM indicator (Revolutions Per Minute) is a measuring instrument used to display the rotational speed of a rotating shaft in an electrical machine such as motor or generator.\n\n Range: 0 to 2000 RPM"
 }
 
     ];

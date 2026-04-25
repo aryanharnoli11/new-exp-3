@@ -2179,6 +2179,7 @@ background: linear-gradient(135deg, #fdf7e7, #e8d6b8 55%, #d7bc90);  border-radi
   font-weight: 600;
   color: #152a44;
   text-align: justify;
+  white-space: pre-line;
 }
 
 .hover-tooltip__text ul {
